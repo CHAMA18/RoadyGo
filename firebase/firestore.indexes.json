@@ -1,0 +1,22 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "ride",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PassengerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ride_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scheduled_time",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ]
+}

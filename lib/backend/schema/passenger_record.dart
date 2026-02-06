@@ -35,11 +35,17 @@ class PassengerRecord extends FirestoreRecord {
   String get email => _email ?? '';
   bool hasEmail() => _email != null;
 
+  // "Location" field.
+  String? _location;
+  String get location => _location ?? '';
+  bool hasLocation() => _location != null;
+
   void _initializeFields() {
     _userId = snapshotData['UserId'] as DocumentReference?;
     _name = snapshotData['Name'] as String?;
     _mobileNumber = snapshotData['MobileNumber'] as String?;
     _email = snapshotData['email'] as String?;
+    _location = snapshotData['Location'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -81,6 +87,7 @@ Map<String, dynamic> createPassengerRecordData({
   String? name,
   String? mobileNumber,
   String? email,
+  String? location,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -88,6 +95,7 @@ Map<String, dynamic> createPassengerRecordData({
       'Name': name,
       'MobileNumber': mobileNumber,
       'email': email,
+      'Location': location,
     }.withoutNulls,
   );
 

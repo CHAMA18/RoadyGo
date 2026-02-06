@@ -346,7 +346,7 @@ class FFRoute {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24.0),
                     child: Image.asset(
-                      'assets/images/ROADYGO-3.png',
+                      'assets/images/RoadyGoImage.png',
                       fit: BoxFit.scaleDown,
                     ),
                   ),

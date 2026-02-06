@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_debounce/easy_debounce.dart';
@@ -65,26 +66,63 @@ class _HomePageWidgetState extends State<HomePageWidget>
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
+    final hasLocation = currentUserLocationValue != null;
+    final effectiveLocation =
+        currentUserLocationValue ?? const LatLng(0.0, 0.0);
 
-    if (currentUserLocationValue == null) {
-      return Container(
-        color: FlutterFlowTheme.of(context).primaryBackground,
-        child: Center(
-          child: SizedBox(
-            width: 50.0,
-            height: 50.0,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                FlutterFlowTheme.of(context).secondary,
+    final theme = FlutterFlowTheme.of(context);
+    final primaryColor = const Color(0xFFFF6B6B);
+    final surfaceColor = theme.secondaryBackground;
+    final inputBg = theme.primaryBackground;
+    final borderColor = theme.lineColor;
+    final textPrimary = theme.primaryText;
+    final textSecondary = theme.secondaryText;
+
+    if (kIsWeb) {
+      return Scaffold(
+        key: scaffoldKey,
+        backgroundColor: theme.primaryBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: _buildTopBar(
+                  context,
+                  theme,
+                  primaryColor,
+                  textSecondary,
+                ),
               ),
-            ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.45,
+                child: _buildMap(
+                  theme: theme,
+                  primaryColor: primaryColor,
+                  hasLocation: hasLocation,
+                  effectiveLocation: effectiveLocation,
+                  showLocationMarker: false,
+                ),
+              ),
+              Expanded(
+                child: _buildBottomSheetContainer(
+                  context: context,
+                  theme: theme,
+                  primaryColor: primaryColor,
+                  surfaceColor: surfaceColor,
+                  inputBg: inputBg,
+                  borderColor: borderColor,
+                  textPrimary: textPrimary,
+                  textSecondary: textSecondary,
+                  minHeight: null,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
-
-    final theme = FlutterFlowTheme.of(context);
-    final primaryColor = const Color(0xFFFF6B6B);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -100,55 +138,12 @@ class _HomePageWidgetState extends State<HomePageWidget>
               left: 0,
               right: 0,
               height: MediaQuery.of(context).size.height * 0.55,
-              child: Stack(
-                children: [
-                  FlutterFlowGoogleMap(
-                    controller: _model.googleMapsController,
-                    onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
-                    initialLocation:
-                        _model.googleMapsCenter ?? currentUserLocationValue!,
-                    markers: FFAppState()
-                        .testMarkers
-                        .where((e) => FFAppState().testMarkers.contains(e))
-                        .toList()
-                        .map(
-                          (marker) => FlutterFlowMarker(
-                            marker.serialize(),
-                            marker,
-                          ),
-                        )
-                        .toList(),
-                    markerColor: GoogleMarkerColor.red,
-                    mapType: MapType.normal,
-                    style: GoogleMapStyle.standard,
-                    initialZoom: 14.0,
-                    allowInteraction: true,
-                    allowZoom: true,
-                    showZoomControls: false,
-                    showLocation: true,
-                    showCompass: false,
-                    showMapToolbar: false,
-                    showTraffic: false,
-                    centerMapOnMarkerTap: false,
-                  ),
-                  // Gradient overlay
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              theme.primaryBackground.withValues(alpha: 0.2),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              child: _buildMap(
+                theme: theme,
+                primaryColor: primaryColor,
+                hasLocation: hasLocation,
+                effectiveLocation: effectiveLocation,
+                showLocationMarker: true,
               ),
             ),
 
@@ -157,116 +152,11 @@ class _HomePageWidgetState extends State<HomePageWidget>
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Menu Button
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: theme.secondaryBackground,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.menu,
-                          color: theme.secondaryText,
-                          size: 22,
-                        ),
-                        onPressed: () {
-                          // Open menu/drawer
-                        },
-                      ),
-                    ),
-                    // Profile Button
-                    GestureDetector(
-                      onTap: () => context.pushNamed(ProfilePageWidget.routeName),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: [
-                            BoxShadow(
-                              color: primaryColor.withValues(alpha: 0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Profile',
-                              style: theme.bodyMedium.override(
-                                fontFamily: theme.bodyMediumFamily,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0,
-                                useGoogleFonts: !theme.bodyMediumIsCustom,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Animated Location Marker in center of map
-            Positioned(
-              top: MediaQuery.of(context).size.height * 0.20,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: AnimatedBuilder(
-                  animation: _pulseAnimation,
-                  builder: (context, child) {
-                    return Container(
-                      width: 64 * _pulseAnimation.value,
-                      height: 64 * _pulseAnimation.value,
-                      decoration: BoxDecoration(
-                        color: primaryColor.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryColor.withValues(alpha: 0.5),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                child: _buildTopBar(
+                  context,
+                  theme,
+                  primaryColor,
+                  textSecondary,
                 ),
               ),
             ),
@@ -300,14 +190,12 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       defaultLocation: LatLng(0.0, 0.0),
                       cached: false,
                     );
-                    if (loc != null) {
-                      final controller = await _model.googleMapsController.future;
-                      controller.animateCamera(
-                        CameraUpdate.newLatLng(
-                          google_maps_flutter.LatLng(loc.latitude, loc.longitude),
-                        ),
-                      );
-                    }
+                    final controller = await _model.googleMapsController.future;
+                    controller.animateCamera(
+                      CameraUpdate.newLatLng(
+                        google_maps_flutter.LatLng(loc.latitude, loc.longitude),
+                      ),
+                    );
                   },
                 ),
               ),
@@ -374,213 +262,408 @@ class _HomePageWidgetState extends State<HomePageWidget>
               bottom: 0,
               left: 0,
               right: 0,
-              child: Container(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.50,
+              child: _buildBottomSheetContainer(
+                context: context,
+                theme: theme,
+                primaryColor: primaryColor,
+                surfaceColor: surfaceColor,
+                inputBg: inputBg,
+                borderColor: borderColor,
+                textPrimary: textPrimary,
+                textSecondary: textSecondary,
+                minHeight: MediaQuery.of(context).size.height * 0.50,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar(
+    BuildContext context,
+    FlutterFlowTheme theme,
+    Color primaryColor,
+    Color textSecondary,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Menu Button
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: theme.secondaryBackground,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: textSecondary,
+              size: 22,
+            ),
+            onPressed: () {
+              // Open menu/drawer
+            },
+          ),
+        ),
+        // Profile Button
+        GestureDetector(
+          onTap: () => context.pushNamed(ProfilePageWidget.routeName),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
-                decoration: BoxDecoration(
-                  color: theme.secondaryBackground,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Profile',
+                  style: theme.bodyMedium.override(
+                    fontFamily: theme.bodyMediumFamily,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0,
+                    useGoogleFonts: !theme.bodyMediumIsCustom,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 40,
-                      offset: const Offset(0, -10),
-                    ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMap({
+    required FlutterFlowTheme theme,
+    required Color primaryColor,
+    required bool hasLocation,
+    required LatLng effectiveLocation,
+    required bool showLocationMarker,
+  }) {
+    return Stack(
+      children: [
+        FlutterFlowGoogleMap(
+          controller: _model.googleMapsController,
+          onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
+          initialLocation: _model.googleMapsCenter ?? effectiveLocation,
+          markers: FFAppState()
+              .testMarkers
+              .where((e) => FFAppState().testMarkers.contains(e))
+              .toList()
+              .map(
+                (marker) => FlutterFlowMarker(
+                  marker.serialize(),
+                  marker,
+                ),
+              )
+              .toList(),
+          markerColor: GoogleMarkerColor.red,
+          mapType: MapType.normal,
+          style: GoogleMapStyle.standard,
+          initialZoom: 14.0,
+          allowInteraction: true,
+          allowZoom: true,
+          showZoomControls: false,
+          showLocation: hasLocation,
+          showCompass: false,
+          showMapToolbar: false,
+          showTraffic: false,
+          centerMapOnMarkerTap: false,
+        ),
+        // Gradient overlay
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    theme.primaryBackground.withValues(alpha: 0.2),
                   ],
                 ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Handle
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 12, bottom: 8),
-                          width: 48,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: theme.alternate,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
+              ),
+            ),
+          ),
+        ),
+        if (showLocationMarker)
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Container(
+                    width: 64 * _pulseAnimation.value,
+                    height: 64 * _pulseAnimation.value,
+                    decoration: BoxDecoration(
+                  color: primaryColor.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: primaryColor.withValues(alpha: 0.5),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title
-                            Text(
-                              'Where are you going?',
-                              style: theme.headlineSmall.override(
-                                fontFamily: theme.headlineSmallFamily,
-                                fontWeight: FontWeight.bold,
-                                color: theme.primaryText,
-                                letterSpacing: 0,
-                                useGoogleFonts: !theme.headlineSmallIsCustom,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
+  Widget _buildBottomSheetContainer({
+    required BuildContext context,
+    required FlutterFlowTheme theme,
+    required Color primaryColor,
+    required Color surfaceColor,
+    required Color inputBg,
+    required Color borderColor,
+    required Color textPrimary,
+    required Color textSecondary,
+    required double? minHeight,
+  }) {
+    return Container(
+      constraints: minHeight == null
+          ? const BoxConstraints()
+          : BoxConstraints(minHeight: minHeight),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 40,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: theme.alternate,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ),
 
-                            // Pickup Point
-                            _buildInputSection(
-                              context: context,
-                              label: 'Pickup Point',
-                              child: FlutterFlowPlacePicker(
-                                iOSGoogleMapsApiKey:
-                                    'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                                androidGoogleMapsApiKey:
-                                    'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                                webGoogleMapsApiKey:
-                                    'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
-                                onSelect: (place) async {
-                                  safeSetState(
-                                      () => _model.placePickerValue1 = place);
-                                },
-                                defaultText: 'Select Pickup Point',
-                                icon: Icon(
-                                  Icons.location_on,
-                                  color: theme.secondaryText,
-                                  size: 22,
-                                ),
-                                buttonOptions: FFButtonOptions(
-                                  height: 56,
-                                  color: theme.primaryBackground,
-                                  textStyle: theme.bodyMedium.override(
-                                    fontFamily: theme.bodyMediumFamily,
-                                    color: theme.primaryText,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0,
-                                    useGoogleFonts: !theme.bodyMediumIsCustom,
-                                  ),
-                                  elevation: 0,
-                                  borderSide: BorderSide(
-                                    color: theme.lineColor,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    'Where are you going?',
+                    style: theme.headlineSmall.override(
+                      fontFamily: theme.headlineSmallFamily,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                      letterSpacing: 0,
+                      useGoogleFonts: !theme.headlineSmallIsCustom,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                            // Destination
-                            _buildInputSection(
-                              context: context,
-                              label: 'Destination',
-                              child: _DestinationPickerButton(
-                                selectedPlace: _model.placePickerValue2,
-                                currentLocation: currentUserLocationValue,
-                                onSelect: (place) {
-                                  safeSetState(
-                                      () => _model.placePickerValue2 = place);
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 24),
+                  // Pickup Point
+                  _buildInputSection(
+                    context: context,
+                    label: 'Pickup Point',
+                    child: FlutterFlowPlacePicker(
+                      iOSGoogleMapsApiKey:
+                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
+                      androidGoogleMapsApiKey:
+                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
+                      webGoogleMapsApiKey:
+                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                      onSelect: (place) async {
+                        safeSetState(() => _model.placePickerValue1 = place);
+                      },
+                      defaultText: 'Select Pickup Point',
+                      icon: Icon(
+                        Icons.location_on,
+                        color: textSecondary,
+                        size: 22,
+                      ),
+                      buttonOptions: FFButtonOptions(
+                        height: 56,
+                        color: inputBg,
+                        textStyle: theme.bodyMedium.override(
+                          fontFamily: theme.bodyMediumFamily,
+                          color: textPrimary,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0,
+                          useGoogleFonts: !theme.bodyMediumIsCustom,
+                        ),
+                        elevation: 0,
+                        borderSide: BorderSide(
+                          color: borderColor,
+                          width: 1.2,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
-                            // Ride Type
-                            Text(
-                              'Ride type',
-                              style: theme.titleMedium.override(
-                                fontFamily: theme.titleMediumFamily,
-                                fontWeight: FontWeight.bold,
-                                color: theme.primaryText,
-                                letterSpacing: 0,
-                                useGoogleFonts: !theme.titleMediumIsCustom,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _RideTypeCard(
-                                    title: 'Basic',
-                                    imagePath: 'assets/images/Truck.png',
-                                    isSelected: FFAppState().rideTier == 'Basic',
-                                    primaryColor: primaryColor,
-                                    onTap: () {
-                                      FFAppState().rideTier = 'Basic';
-                                      FFAppState().update(() {});
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _RideTypeCard(
-                                    title: 'Corporate',
-                                    imagePath: 'assets/images/Truck-2.png',
-                                    isSelected:
-                                        FFAppState().rideTier == 'Corporate',
-                                    primaryColor: primaryColor,
-                                    onTap: () {
-                                      FFAppState().rideTier = 'Corporate';
-                                      safeSetState(() {});
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
+                  // Destination
+                  _buildInputSection(
+                    context: context,
+                    label: 'Destination',
+                    child: _DestinationPickerButton(
+                      selectedPlace: _model.placePickerValue2,
+                      currentLocation: currentUserLocationValue,
+                      onSelect: (place) {
+                        safeSetState(() => _model.placePickerValue2 = place);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                            // Confirm Booking Button
-                            if (_model.placePickerValue2.address != '' &&
-                                _model.placePickerValue1.address != '')
-                              _buildRideFeeAndButton(context, primaryColor),
-
-                            // Simple Confirm Button (when not all fields filled)
-                            if (_model.placePickerValue2.address == '' ||
-                                _model.placePickerValue1.address == '')
-                              SizedBox(
-                                width: double.infinity,
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.alternate,
-                                    foregroundColor: theme.secondaryText,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Confirm Booking',
-                                        style: theme.titleSmall.override(
-                                          fontFamily: theme.titleSmallFamily,
-                                          color: theme.secondaryText,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0,
-                                          useGoogleFonts:
-                                              !theme.titleSmallIsCustom,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Icon(
-                                        Icons.arrow_forward,
-                                        color: theme.secondaryText,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(height: 16),
-                          ],
+                  // Ride Type
+                  Text(
+                    'Ride type',
+                    style: theme.titleMedium.override(
+                      fontFamily: theme.titleMediumFamily,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                      letterSpacing: 0,
+                      useGoogleFonts: !theme.titleMediumIsCustom,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _RideTypeCard(
+                          title: 'Basic',
+                          imagePath: 'assets/images/Truck.png',
+                          isSelected: FFAppState().rideTier == 'Basic',
+                          primaryColor: primaryColor,
+                          onTap: () {
+                            FFAppState().rideTier = 'Basic';
+                            FFAppState().update(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _RideTypeCard(
+                          title: 'Corporate',
+                          imagePath: 'assets/images/Truck-2.png',
+                          isSelected: FFAppState().rideTier == 'Corporate',
+                          primaryColor: primaryColor,
+                          onTap: () {
+                            FFAppState().rideTier = 'Corporate';
+                            safeSetState(() {});
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 24),
+
+                  // Confirm Booking Button
+                  if (_model.placePickerValue2.address != '' &&
+                      _model.placePickerValue1.address != '')
+                    _buildRideFeeAndButton(context, primaryColor),
+
+                  // Simple Confirm Button (when not all fields filled)
+                  if (_model.placePickerValue2.address == '' ||
+                      _model.placePickerValue1.address == '')
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1F2937),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Confirm Booking',
+                              style: theme.titleSmall.override(
+                                fontFamily: theme.titleSmallFamily,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0,
+                                useGoogleFonts: !theme.titleSmallIsCustom,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
           ],
@@ -803,7 +886,7 @@ class _RideTypeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? Colors.transparent : theme.lineColor,
-            width: 1,
+            width: 1.2,
           ),
           boxShadow: isSelected
               ? [
@@ -891,42 +974,20 @@ class _DestinationPickerButton extends StatefulWidget {
 
 class _DestinationPickerButtonState extends State<_DestinationPickerButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   bool _isPressed = false;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    if (widget.selectedPlace.address.isEmpty) {
-      _pulseController.repeat(reverse: true);
-    }
   }
 
   @override
   void didUpdateWidget(covariant _DestinationPickerButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.selectedPlace.address.isNotEmpty &&
-        _pulseController.isAnimating) {
-      _pulseController.stop();
-      _pulseController.reset();
-    } else if (widget.selectedPlace.address.isEmpty &&
-        !_pulseController.isAnimating) {
-      _pulseController.repeat(reverse: true);
-    }
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -956,124 +1017,54 @@ class _DestinationPickerButtonState extends State<_DestinationPickerButton>
         _openDestinationPicker();
       },
       onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _isPressed
-                ? 0.98
-                : (hasDestination ? 1.0 : _pulseAnimation.value),
-            child: child,
-          );
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        child: Container(
           height: 56,
           decoration: BoxDecoration(
-            color: hasDestination
-                ? primaryColor.withValues(alpha: 0.08)
-                : theme.primaryBackground,
-            borderRadius: BorderRadius.circular(14),
+            color: theme.primaryBackground,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: hasDestination ? primaryColor : theme.lineColor,
-              width: hasDestination ? 1.5 : 1,
+              width: hasDestination ? 1.4 : 1.2,
             ),
-            boxShadow: hasDestination
-                ? [
-                    BoxShadow(
-                      color: primaryColor.withValues(alpha: 0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: hasDestination
-                        ? primaryColor.withValues(alpha: 0.15)
-                        : theme.alternate.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    hasDestination ? Icons.flag_rounded : Icons.search_rounded,
-                    color: hasDestination ? primaryColor : theme.secondaryText,
-                    size: 20,
-                  ),
+                Icon(
+                  Icons.flag,
+                  color: hasDestination ? primaryColor : theme.secondaryText,
+                  size: 20,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (hasDestination) ...[
-                        Text(
-                          widget.selectedPlace.name.isNotEmpty
-                              ? widget.selectedPlace.name
-                              : 'Destination',
-                          style: theme.bodyMedium.override(
-                            fontFamily: theme.bodyMediumFamily,
-                            fontWeight: FontWeight.w600,
-                            color: theme.primaryText,
-                            letterSpacing: 0,
-                            useGoogleFonts: !theme.bodyMediumIsCustom,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          widget.selectedPlace.address,
-                          style: theme.labelSmall.override(
-                            fontFamily: theme.labelSmallFamily,
-                            color: theme.secondaryText,
-                            letterSpacing: 0,
-                            useGoogleFonts: !theme.labelSmallIsCustom,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ] else ...[
-                        Row(
-                          children: [
-                            Text(
-                              'Select Destination',
-                              style: theme.bodyMedium.override(
-                                fontFamily: theme.bodyMediumFamily,
-                                color: theme.secondaryText,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0,
-                                useGoogleFonts: !theme.bodyMediumIsCustom,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            _AnimatedHintDots(primaryColor: primaryColor),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: hasDestination ? primaryColor : theme.alternate,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
+                  child: Text(
                     hasDestination
-                        ? Icons.check_rounded
-                        : Icons.arrow_forward_rounded,
-                    color: hasDestination ? Colors.white : theme.secondaryText,
-                    size: 16,
+                        ? (widget.selectedPlace.name.isNotEmpty
+                            ? widget.selectedPlace.name
+                            : widget.selectedPlace.address)
+                        : 'Select Destination',
+                    style: theme.bodyMedium.override(
+                      fontFamily: theme.bodyMediumFamily,
+                      color: hasDestination
+                          ? theme.primaryText
+                          : theme.secondaryText,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0,
+                      useGoogleFonts: !theme.bodyMediumIsCustom,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -1081,68 +1072,6 @@ class _DestinationPickerButtonState extends State<_DestinationPickerButton>
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Animated dots for the hint text
-class _AnimatedHintDots extends StatefulWidget {
-  const _AnimatedHintDots({required this.primaryColor});
-
-  final Color primaryColor;
-
-  @override
-  State<_AnimatedHintDots> createState() => _AnimatedHintDotsState();
-}
-
-class _AnimatedHintDotsState extends State<_AnimatedHintDots>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Row(
-          children: List.generate(3, (index) {
-            final delay = index * 0.2;
-            final animValue = (_controller.value - delay).clamp(0.0, 1.0);
-            final opacity =
-                (animValue < 0.5) ? animValue * 2 : 2 - (animValue * 2);
-
-            return Padding(
-              padding: const EdgeInsets.only(right: 2),
-              child: Opacity(
-                opacity: opacity.clamp(0.3, 1.0),
-                child: Container(
-                  width: 4,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: widget.primaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            );
-          }),
-        );
-      },
     );
   }
 }

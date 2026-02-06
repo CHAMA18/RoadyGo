@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
@@ -290,6 +289,52 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                         fontFamily: theme.titleSmallFamily,
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
+                                        letterSpacing: 0,
+                                        useGoogleFonts: !theme.titleSmallIsCustom,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            // Log Out Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  GoRouter.of(context).prepareAuthEvent();
+                                  await authManager.signOut();
+                                  GoRouter.of(context).clearRedirectLocation();
+                                  context.goNamedAuth(
+                                    AutWidget.routeName,
+                                    context.mounted,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: primaryColor,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(
+                                      color: primaryColor.withValues(alpha: 0.6),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.logout, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Log Out',
+                                      style: theme.titleSmall.override(
+                                        fontFamily: theme.titleSmallFamily,
+                                        color: primaryColor,
+                                        fontWeight: FontWeight.w600,
                                         letterSpacing: 0,
                                         useGoogleFonts: !theme.titleSmallIsCustom,
                                       ),

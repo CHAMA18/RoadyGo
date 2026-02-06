@@ -38,6 +38,13 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
         .then((loc) => safeSetState(() => currentUserLocationValue = loc));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = FFAppState();
+      if (mounted && !appState.hasSelectedLanguage) {
+        _showLanguagePicker(appState);
+      }
+    });
   }
 
   @override
@@ -609,7 +616,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 ),
                                                               ),
                                                               Text(
-                                                                'Basic',
+                                                                'Car Tow',
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
@@ -695,14 +702,38 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                             8.0),
                                                                 child:
                                                                     Image.asset(
-                                                                  'assets/images/Truck-2.png',
+                                                                  'assets/images/Truck_tow.png',
                                                                   height: 50.0,
+                                                                  width: 80.0,
                                                                   fit: BoxFit
                                                                       .contain,
+                                                                  errorBuilder:
+                                                                      (context,
+                                                                          error,
+                                                                          stackTrace) {
+                                                                    return Container(
+                                                                      height:
+                                                                          50.0,
+                                                                      width:
+                                                                          80.0,
+                                                                      alignment:
+                                                                          Alignment
+                                                                              .center,
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      child: Icon(
+                                                                        Icons
+                                                                            .local_shipping_outlined,
+                                                                        color: FlutterFlowTheme.of(
+                                                                                context)
+                                                                            .secondaryText,
+                                                                      ),
+                                                                    );
+                                                                  },
                                                                 ),
                                                               ),
                                                               Text(
-                                                                'Corporate',
+                                                                'Truck Tow',
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
@@ -1178,6 +1209,80 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showLanguagePicker(FFAppState appState) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final theme = FlutterFlowTheme.of(context);
+        return AlertDialog(
+          title: Text(
+            'Select Language',
+            style: theme.titleMedium.override(
+              fontFamily: theme.titleMediumFamily,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.0,
+              useGoogleFonts: !theme.titleMediumIsCustom,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _languageOption(
+                label: 'English',
+                code: 'en',
+                appState: appState,
+              ),
+              _languageOption(
+                label: 'Español',
+                code: 'es',
+                appState: appState,
+              ),
+              _languageOption(
+                label: 'Français',
+                code: 'fr',
+                appState: appState,
+              ),
+              _languageOption(
+                label: 'Deutsch',
+                code: 'de',
+                appState: appState,
+              ),
+              _languageOption(
+                label: 'Português',
+                code: 'pt',
+                appState: appState,
+              ),
+              _languageOption(
+                label: 'العربية',
+                code: 'ar',
+                appState: appState,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _languageOption({
+    required String label,
+    required String code,
+    required FFAppState appState,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(label),
+      trailing: appState.languageCode == code
+          ? const Icon(Icons.check, color: Colors.green)
+          : null,
+      onTap: () {
+        appState.setLanguageCode(code);
+        Navigator.of(context).pop();
+      },
     );
   }
 }

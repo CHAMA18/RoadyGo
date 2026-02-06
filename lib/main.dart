@@ -86,6 +86,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<FFAppState>();
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'GoTaxiRider',
@@ -94,12 +95,20 @@ class _MyAppState extends State<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en', '')],
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('es', ''),
+        Locale('fr', ''),
+        Locale('de', ''),
+        Locale('pt', ''),
+        Locale('ar', ''),
+      ],
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: false,
       ),
       themeMode: _themeMode,
+      locale: Locale(appState.languageCode),
       routerConfig: _router,
     );
   }

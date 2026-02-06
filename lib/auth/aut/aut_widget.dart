@@ -156,6 +156,12 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final isShortScreen = size.height < 700;
+    final logoHeight = size.height * (isShortScreen ? 0.28 : 0.35);
+    final sheetInitialSize = isShortScreen ? 0.8 : 0.72;
+    final sheetMinSize = isShortScreen ? 0.55 : 0.5;
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -163,6 +169,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
       },
       child: Scaffold(
         key: scaffoldKey,
+        resizeToAvoidBottomInset: true,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
         body: Stack(
           children: [
@@ -170,7 +177,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             SafeArea(
               child: Container(
                 width: double.infinity,
-                height: MediaQuery.sizeOf(context).height * 0.35,
+                height: logoHeight,
                 decoration: BoxDecoration(
                   color: FlutterFlowTheme.of(context).primaryBackground,
                 ),
@@ -182,11 +189,13 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
             // Main Content Sheet
             DraggableScrollableSheet(
-              initialChildSize: 0.72,
-              minChildSize: 0.5,
+              initialChildSize: sheetInitialSize,
+              minChildSize: sheetMinSize,
               maxChildSize: 0.95,
               snap: true,
-              snapSizes: const [0.5, 0.72, 0.95],
+              snapSizes: isShortScreen
+                  ? const [0.55, 0.8, 0.95]
+                  : const [0.5, 0.72, 0.95],
               builder: (context, scrollController) {
                 return Container(
                   decoration: BoxDecoration(
@@ -204,7 +213,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                     ],
                   ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
                       // Drag Handle
                       Padding(
@@ -266,70 +275,51 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
   Widget _buildLogo(BuildContext context) {
     return Container(
       width: 120.0,
-      height: 100.0,
+      height: 120.0,
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).primary,
+        color: FlutterFlowTheme.of(context).primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(30.0),
         boxShadow: [
           BoxShadow(
             blurRadius: 30.0,
-            color: FlutterFlowTheme.of(context).primary.withValues(alpha: 0.4),
+            color: FlutterFlowTheme.of(context).primary.withValues(alpha: 0.3),
             offset: const Offset(0.0, 15.0),
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Gradient overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30.0),
-                gradient: LinearGradient(
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                  colors: [
-                    Colors.white.withValues(alpha: 0.15),
-                    Colors.transparent,
-                  ],
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22.0),
+              border: Border.all(
+                color: Colors.black.withValues(alpha: 0.12),
+                width: 1.0,
+              ),
+            ),
+            child: Image.asset(
+              'assets/images/RoadyGoImage.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Center(
+                child: Text(
+                  'Logo',
+                  style: FlutterFlowTheme.of(context).titleSmall.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).titleSmallFamily,
+                        color: FlutterFlowTheme.of(context).primaryText,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                            .titleSmallIsCustom,
+                      ),
                 ),
               ),
             ),
           ),
-          // Logo Text
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Roady',
-                  style: FlutterFlowTheme.of(context).headlineSmall.override(
-                        fontFamily:
-                            FlutterFlowTheme.of(context).headlineSmallFamily,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                        useGoogleFonts:
-                            !FlutterFlowTheme.of(context).headlineSmallIsCustom,
-                      ),
-                ),
-                Text(
-                  'GO',
-                  style: FlutterFlowTheme.of(context).headlineMedium.override(
-                        fontFamily:
-                            FlutterFlowTheme.of(context).headlineMediumFamily,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.0,
-                        lineHeight: 0.9,
-                        useGoogleFonts:
-                            !FlutterFlowTheme.of(context).headlineMediumIsCustom,
-                      ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     ).animateOnPageLoad(animationsMap['logoOnPageLoad']!);
   }
@@ -379,9 +369,11 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
   }
 
   Widget _buildSignUpTab(BuildContext context, ScrollController scrollController) {
+    final bottomPadding =
+        MediaQuery.of(context).padding.bottom + 24.0;
     return SingleChildScrollView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 32.0),
+      padding: EdgeInsets.fromLTRB(24.0, 24.0, 24.0, bottomPadding),
       child: Form(
         key: _formKey,
         child: Column(
@@ -482,9 +474,11 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
   }
 
   Widget _buildLoginTab(BuildContext context, ScrollController scrollController) {
+    final bottomPadding =
+        MediaQuery.of(context).padding.bottom + 24.0;
     return SingleChildScrollView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 32.0),
+      padding: EdgeInsets.fromLTRB(24.0, 24.0, 24.0, bottomPadding),
       child: Form(
         key: _loginFormKey,
         child: Column(

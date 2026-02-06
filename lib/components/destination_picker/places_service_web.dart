@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:js_util' as js_util;
-import 'dart:js_interop';
 import 'package:flutter/foundation.dart';
 import 'package:go_taxi_rider/flutter_flow/place.dart';
 import 'package:go_taxi_rider/flutter_flow/lat_lng.dart';

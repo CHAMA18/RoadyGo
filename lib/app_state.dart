@@ -20,6 +20,13 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _starteRide = prefs.getString('ff_starteRide')?.ref ?? _starteRide;
     });
+    _safeInit(() {
+      _languageCode = prefs.getString('ff_languageCode') ?? _languageCode;
+    });
+    _safeInit(() {
+      _hasSelectedLanguage =
+          prefs.getBool('ff_hasSelectedLanguage') ?? _hasSelectedLanguage;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -89,6 +96,26 @@ class FFAppState extends ChangeNotifier {
   String get rideTier => _rideTier;
   set rideTier(String value) {
     _rideTier = value;
+  }
+
+  String _languageCode = 'en';
+  String get languageCode => _languageCode;
+  set languageCode(String value) {
+    _languageCode = value;
+    prefs.setString('ff_languageCode', value);
+  }
+
+  bool _hasSelectedLanguage = false;
+  bool get hasSelectedLanguage => _hasSelectedLanguage;
+  set hasSelectedLanguage(bool value) {
+    _hasSelectedLanguage = value;
+    prefs.setBool('ff_hasSelectedLanguage', value);
+  }
+
+  void setLanguageCode(String code) {
+    languageCode = code;
+    hasSelectedLanguage = true;
+    notifyListeners();
   }
 }
 

@@ -6,6 +6,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'profile_page_model.dart';
 
 export 'profile_page_model.dart';
@@ -116,7 +117,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 ),
                                 // Title
                                 Text(
-                                  'Profile',
+                                  context.tr('profile'),
                                   style: theme.titleMedium.override(
                                     fontFamily: theme.titleMediumFamily,
                                     color: Colors.white.withValues(alpha: 0.9),
@@ -151,7 +152,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 return _buildProfileHeader(
                                   context,
                                   theme,
-                                  'Loading...',
+                                  context.tr('loading'),
                                   null,
                                 );
                               }
@@ -229,7 +230,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.credit_card,
                               iconBgColor: const Color(0xFFF0F4FF),
                               iconColor: const Color(0xFF3B82F6),
-                              title: 'Payment Methods',
+                              title: context.tr('payment_methods'),
                               onTap: () {},
                             ),
                             const SizedBox(height: 12),
@@ -239,7 +240,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.history,
                               iconBgColor: const Color(0xFFFFF4E6),
                               iconColor: const Color(0xFFF97316),
-                              title: 'Ride History',
+                              title: context.tr('ride_history'),
                               onTap: () => context.pushNamed(RecentRidesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
@@ -249,7 +250,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.local_shipping,
                               iconBgColor: const Color(0xFFE8F5E9),
                               iconColor: const Color(0xFF22C55E),
-                              title: 'My Vehicles',
+                              title: context.tr('my_vehicles'),
                               onTap: () {},
                             ),
                             const SizedBox(height: 12),
@@ -259,7 +260,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.bookmark,
                               iconBgColor: const Color(0xFFFCE7F3),
                               iconColor: const Color(0xFFEC4899),
-                              title: 'Saved Places',
+                              title: context.tr('saved_places'),
                               onTap: () {},
                             ),
                             const SizedBox(height: 32),
@@ -285,7 +286,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                     const Icon(Icons.edit_square, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Edit Profile',
+                                      context.tr('edit_profile'),
                                       style: theme.titleSmall.override(
                                         fontFamily: theme.titleSmallFamily,
                                         color: Colors.white,
@@ -331,7 +332,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                     const Icon(Icons.logout, size: 20),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Log Out',
+                                      context.tr('log_out'),
                                       style: theme.titleSmall.override(
                                         fontFamily: theme.titleSmallFamily,
                                         color: primaryColor,
@@ -460,7 +461,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
               ),
               const SizedBox(width: 6),
               Text(
-                'PREMIUM MEMBER',
+                context.tr('premium_member'),
                 style: theme.labelSmall.override(
                   fontFamily: theme.labelSmallFamily,
                   color: Colors.white,
@@ -491,34 +492,34 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     final userRef = currentUserReference;
     if (userRef == null) {
       return Row(
-        children: const [
+        children: [
           Expanded(
             child: _StatCard(
               icon: Icons.directions_car,
-              iconBgColor: Color(0xFFEFF6FF),
-              iconColor: Color(0xFF3B82F6),
+              iconBgColor: const Color(0xFFEFF6FF),
+              iconColor: const Color(0xFF3B82F6),
               value: '0',
-              label: 'Total Rides',
+              label: context.tr('total_rides'),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: _StatCard(
               icon: Icons.loyalty,
-              iconBgColor: Color(0xFFFFF7ED),
-              iconColor: Color(0xFFF97316),
+              iconBgColor: const Color(0xFFFFF7ED),
+              iconColor: const Color(0xFFF97316),
               value: '0',
-              label: 'Points',
+              label: context.tr('points'),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: _StatCard(
               icon: Icons.forest,
-              iconBgColor: Color(0xFFF0FDF4),
-              iconColor: Color(0xFF22C55E),
+              iconBgColor: const Color(0xFFF0FDF4),
+              iconColor: const Color(0xFF22C55E),
               value: '0g',
-              label: 'CO2 Saved',
+              label: context.tr('co2_saved'),
             ),
           ),
         ],
@@ -570,7 +571,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                   totalRides,
                   formatType: FormatType.compact,
                 ),
-                label: 'Total Rides',
+                label: context.tr('total_rides'),
               ),
             ),
             const SizedBox(width: 12),
@@ -583,7 +584,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                   points,
                   formatType: FormatType.compact,
                 ),
-                label: 'Points',
+                label: context.tr('points'),
               ),
             ),
             const SizedBox(width: 12),
@@ -593,7 +594,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                 iconBgColor: const Color(0xFFF0FDF4),
                 iconColor: const Color(0xFF22C55E),
                 value: formatCo2(co2SavedGrams),
-                label: 'CO2 Saved',
+                label: context.tr('co2_saved'),
               ),
             ),
           ],

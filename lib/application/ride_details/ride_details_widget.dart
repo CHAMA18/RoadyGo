@@ -3,6 +3,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'ride_details_model.dart';
@@ -92,7 +93,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                 },
               ),
               title: Text(
-                'Ride Details',
+                context.tr('ride_details'),
                 style: FlutterFlowTheme.of(context).headlineMedium.override(
                       fontFamily:
                           FlutterFlowTheme.of(context).headlineMediumFamily,
@@ -169,7 +170,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                     .fromSTEB(
                                                         0.0, 4.0, 0.0, 12.0),
                                                 child: Text(
-                                                  'Driver Details',
+                                                  context.tr('driver_details'),
                                                   style:
                                                       FlutterFlowTheme.of(
                                                               context)
@@ -383,7 +384,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                                           0.0,
                                                                           0.0),
                                                               child: Text(
-                                                                'Car Details',
+                                                                context.tr('car_details'),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .labelSmall
@@ -477,7 +478,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                           print(
                                                               'Button pressed ...');
                                                         },
-                                                        text: 'Report Now',
+                                                        text: context.tr('report_now'),
                                                         options:
                                                             FFButtonOptions(
                                                           height: 48.0,
@@ -551,7 +552,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                             ));
                                                           }
                                                         },
-                                                        text: 'Message',
+                                                        text: context.tr('message'),
                                                         options:
                                                             FFButtonOptions(
                                                           height: 48.0,
@@ -604,7 +605,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                           ),
                                         ),
                                       Text(
-                                        'Ride Details',
+                                        context.tr('ride_details'),
                                         style: FlutterFlowTheme.of(context)
                                             .headlineMedium
                                             .override(
@@ -626,7 +627,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'Pickup Address',
+                                              context.tr('pickup_address'),
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .labelMedium
@@ -672,7 +673,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'Destination Address',
+                                              context.tr('destination_address'),
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .labelMedium
@@ -720,7 +721,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'Amount',
+                                              context.tr('amount'),
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .labelMedium
@@ -768,7 +769,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'Status',
+                                              context.tr('status'),
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .labelMedium
@@ -841,7 +842,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               EdgeInsetsDirectional.fromSTEB(
                                                   0.0, 4.0, 0.0, 12.0),
                                           child: Text(
-                                            'Customer Details',
+                                            context.tr('customer_details'),
                                             style: FlutterFlowTheme.of(context)
                                                 .labelMedium
                                                 .override(
@@ -1002,7 +1003,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                             .fromSTEB(16.0, 0.0,
                                                                 0.0, 0.0),
                                                     child: Text(
-                                                      'Address',
+                                                      context.tr('address'),
                                                       style: FlutterFlowTheme
                                                               .of(context)
                                                           .labelSmall
@@ -1058,7 +1059,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               onPressed: () {
                                                 print('Button pressed ...');
                                               },
-                                              text: 'Message Customer',
+                                              text: context.tr('message_customer'),
                                               options: FFButtonOptions(
                                                 width: double.infinity,
                                                 height: 48.0,
@@ -1104,7 +1105,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                               onPressed: () {
                                                 print('Button pressed ...');
                                               },
-                                              text: 'Report Now',
+                                              text: context.tr('report_now'),
                                               options: FFButtonOptions(
                                                 width: double.infinity,
                                                 height: 48.0,

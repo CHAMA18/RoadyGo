@@ -4,6 +4,7 @@ import 'package:go_taxi_rider/flutter_flow/flutter_flow_animations.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_util.dart';
 import 'package:go_taxi_rider/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'onboarding_model.dart';
 export 'onboarding_model.dart';
 
@@ -23,32 +24,34 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final animationsMap = <String, AnimationInfo>{};
 
-  final List<OnboardingContent> _pages = [
-    OnboardingContent(
-      title: 'Reliability in',
-      highlightedTitle: 'Every Mile',
-      description:
-          'Experience the next generation of logistics with real-time tracking and professional drivers.',
-      image:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuAhcHgRtYhOcaF4yic48lxEYUeNUvHJAuvhRq9qVaf7naql-QGYxyKZX2bny4r37jI5TPUCvXNQAQrEjHYMJAU2tL9ZdpFEhh9ezGNDgc2nXuPGhF4e-4RVa6Sov5XHz3p_9KuUY1-7Gbp5uLEmOyuSv7noRGHI_WDbfpi9uaHXIofbA40nOuINQXXYxPbOlx0l13eQqGLGEVjzPRmDr5dlJAf6w7Nqa2ZWQhLmiOieAor76UGzZuIbUq7mPWonfRam3OTPRspd8A',
-    ),
-    OnboardingContent(
-      title: 'Help is on',
-      highlightedTitle: 'the Way',
-      description:
-          'Request professional towing and roadside assistance in just a few taps. We track your location to find the nearest provider.',
-      image:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuCA1Utrypo-SdAeTSAcWUB1yAC-3C7Z6mhT3TQGqwfLGL6lbeQuu1qTNjXvUfT-1u-VQhN7WqfXHWOGbUTQBtrIpt6uksTa5Zd3s9xbhZvV00WHwUCF_nocEltcK4bH0l7EdjDm3OQYtWSi807KMh7ZJiH3AETzVhhJ4Wt8UDILmGjg4iomd5FX-CnzdFzNK6ZlRjwn1Drr834VvMKMwqRI-4sFcbg8mke1XhGng-lViyRjpRkCCvNxlWbwbUofcE5Pe9JXl2cjEw',
-    ),
-    OnboardingContent(
-      title: 'Safe and',
-      highlightedTitle: 'Secure',
-      description:
-          'Your vehicle is in expert hands. We provide fully insured transport and 24/7 support for your peace of mind.',
-      image:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuDBS8zteLwgpABks_40Fhb_tp0GmzVmC10JdBOjEdfq4Xrpxoobs_XltXHDjIiB244xGYMJayTtoPFUaLLFMVz8SOF7Ic-smMjG_EGzwhoKpk0_ERrClnipgjxqDgcFwdFbQ0Az_qyeMsVljLvEZMaFW915qhJzt0e1Cy4Fd7gYHtva_LqbfsOUGpm08NFIrqQlKc1G8TtAz6uBDaPoTuBtKn7sOzxRFZUwIfCULnK8NogFoNosfr9ZqgXpotx5feKQD2Pes6JC8A',
-    ),
+  static const List<String> _pageImages = [
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuAhcHgRtYhOcaF4yic48lxEYUeNUvHJAuvhRq9qVaf7naql-QGYxyKZX2bny4r37jI5TPUCvXNQAQrEjHYMJAU2tL9ZdpFEhh9ezGNDgc2nXuPGhF4e-4RVa6Sov5XHz3p_9KuUY1-7Gbp5uLEmOyuSv7noRGHI_WDbfpi9uaHXIofbA40nOuINQXXYxPbOlx0l13eQqGLGEVjzPRmDr5dlJAf6w7Nqa2ZWQhLmiOieAor76UGzZuIbUq7mPWonfRam3OTPRspd8A',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuCA1Utrypo-SdAeTSAcWUB1yAC-3C7Z6mhT3TQGqwfLGL6lbeQuu1qTNjXvUfT-1u-VQhN7WqfXHWOGbUTQBtrIpt6uksTa5Zd3s9xbhZvV00WHwUCF_nocEltcK4bH0l7EdjDm3OQYtWSi807KMh7ZJiH3AETzVhhJ4Wt8UDILmGjg4iomd5FX-CnzdFzNK6ZlRjwn1Drr834VvMKMwqRI-4sFcbg8mke1XhGng-lViyRjpRkCCvNxlWbwbUofcE5Pe9JXl2cjEw',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDBS8zteLwgpABks_40Fhb_tp0GmzVmC10JdBOjEdfq4Xrpxoobs_XltXHDjIiB244xGYMJayTtoPFUaLLFMVz8SOF7Ic-smMjG_EGzwhoKpk0_ERrClnipgjxqDgcFwdFbQ0Az_qyeMsVljLvEZMaFW915qhJzt0e1Cy4Fd7gYHtva_LqbfsOUGpm08NFIrqQlKc1G8TtAz6uBDaPoTuBtKn7sOzxRFZUwIfCULnK8NogFoNosfr9ZqgXpotx5feKQD2Pes6JC8A',
   ];
+
+  OnboardingContent _contentFor(BuildContext context, int index) {
+    return switch (index) {
+      0 => OnboardingContent(
+          title: context.tr('onb1_title'),
+          highlightedTitle: context.tr('onb1_highlight'),
+          description: context.tr('onb1_desc'),
+          image: _pageImages[0],
+        ),
+      1 => OnboardingContent(
+          title: context.tr('onb2_title'),
+          highlightedTitle: context.tr('onb2_highlight'),
+          description: context.tr('onb2_desc'),
+          image: _pageImages[1],
+        ),
+      _ => OnboardingContent(
+          title: context.tr('onb3_title'),
+          highlightedTitle: context.tr('onb3_highlight'),
+          description: context.tr('onb3_desc'),
+          image: _pageImages[2],
+        ),
+    };
+  }
 
   @override
   void initState() {
@@ -91,7 +94,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
   }
 
   void _nextPage() {
-    if (_model.currentPage < _pages.length - 1) {
+    if (_model.currentPage < _pageImages.length - 1) {
       _model.pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutCubic,
@@ -115,9 +118,9 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
           PageView.builder(
             controller: _model.pageController,
             onPageChanged: _onPageChanged,
-            itemCount: _pages.length,
+            itemCount: _pageImages.length,
             itemBuilder: (context, index) {
-              return _buildPage(_pages[index]);
+              return _buildPage(_contentFor(context, index));
             },
           ),
           // Skip button
@@ -130,7 +133,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
               child: Text(
-                'Skip',
+                context.tr('skip'),
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
                       color: Colors.white.withValues(alpha: 0.8),
@@ -232,7 +235,7 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                     // Progress indicators
                     Row(
                       children: List.generate(
-                        _pages.length,
+                        _pageImages.length,
                         (index) => AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: const EdgeInsets.only(right: 8),
@@ -273,9 +276,9 @@ class _OnboardingWidgetState extends State<OnboardingWidget>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                _model.currentPage == _pages.length - 1
-                                    ? 'Get Started'
-                                    : 'Next',
+                                _model.currentPage == _pageImages.length - 1
+                                    ? context.tr('get_started')
+                                    : context.tr('next'),
                                 style: FlutterFlowTheme.of(context)
                                     .titleSmall
                                     .override(

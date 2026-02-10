@@ -36,6 +36,35 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system;
+  static const Set<String> _supportedLanguageCodes = {
+    'en',
+    'es',
+    'fr',
+    'de',
+    'pt',
+    'it',
+    'nl',
+    'sv',
+    'nb',
+    'da',
+    'fi',
+    'pl',
+    'cs',
+    'sk',
+    'hu',
+    'ro',
+    'bg',
+    'el',
+    'hr',
+    'sr',
+    'sl',
+    'lt',
+    'lv',
+    'et',
+    'ga',
+    'mt',
+    'ar',
+  };
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
@@ -94,9 +123,12 @@ class _MyAppState extends State<MyApp> {
       'dark' => ThemeMode.dark,
       _ => ThemeMode.system,
     };
+    final appLocale = _supportedLanguageCodes.contains(appState.languageCode)
+        ? Locale(appState.languageCode)
+        : null;
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'GoTaxiRider',
+      title: 'RoadyGo',
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -108,18 +140,44 @@ class _MyAppState extends State<MyApp> {
         Locale('fr', ''),
         Locale('de', ''),
         Locale('pt', ''),
+        Locale('it', ''),
+        Locale('nl', ''),
+        Locale('sv', ''),
+        // Norwegian (Bokmal). 'no' is a legacy/ambiguous tag and can break
+        // locale resolution on some platforms.
+        Locale('nb', ''),
+        Locale('da', ''),
+        Locale('fi', ''),
+        Locale('pl', ''),
+        Locale('cs', ''),
+        Locale('sk', ''),
+        Locale('hu', ''),
+        Locale('ro', ''),
+        Locale('bg', ''),
+        Locale('el', ''),
+        Locale('hr', ''),
+        Locale('sr', ''),
+        Locale('sl', ''),
+        Locale('lt', ''),
+        Locale('lv', ''),
+        Locale('et', ''),
+        Locale('ga', ''),
+        Locale('mt', ''),
         Locale('ar', ''),
       ],
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: false,
+        fontFamily: 'Satoshi',
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: false,
+        fontFamily: 'Satoshi',
       ),
       themeMode: computedThemeMode,
-      locale: Locale(appState.languageCode),
+      // Guard against invalid/unknown persisted language codes (Web asserts are brutal).
+      locale: appLocale,
       routerConfig: _router,
     );
   }

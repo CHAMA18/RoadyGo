@@ -27,6 +27,7 @@
     "shell": "firebase -P max-taxi-admin-7n82h1 functions:shell",
     "start": "npm run shell",
     "logs": "firebase -P max-taxi-admin-7n82h1 functions:log",
+    "seed:firestore": "node ./seed_firestore.js",
     "compile": "cp ../../tsconfig.template.json ./tsconfig-compile.json && tsc --project tsconfig-compile.json"
   },
   "engines": {

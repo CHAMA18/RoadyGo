@@ -21,7 +21,11 @@ class FFAppState extends ChangeNotifier {
       _starteRide = prefs.getString('ff_starteRide')?.ref ?? _starteRide;
     });
     _safeInit(() {
-      _languageCode = prefs.getString('ff_languageCode') ?? _languageCode;
+      final raw = prefs.getString('ff_languageCode');
+      final normalized = _normalizeLanguageCode(raw);
+      if (normalized != null) {
+        _languageCode = normalized;
+      }
     });
     _safeInit(() {
       _hasSelectedLanguage =
@@ -104,8 +108,9 @@ class FFAppState extends ChangeNotifier {
   String _languageCode = 'en';
   String get languageCode => _languageCode;
   set languageCode(String value) {
-    _languageCode = value;
-    prefs.setString('ff_languageCode', value);
+    final normalized = _normalizeLanguageCode(value) ?? 'en';
+    _languageCode = normalized;
+    prefs.setString('ff_languageCode', normalized);
   }
 
   bool _hasSelectedLanguage = false;
@@ -128,6 +133,17 @@ class FFAppState extends ChangeNotifier {
     hasSelectedLanguage = true;
     notifyListeners();
   }
+}
+
+// Returns a normalized language code, or null if input is null/empty.
+// Also remaps legacy/ambiguous tags that can break locale resolution.
+String? _normalizeLanguageCode(String? code) {
+  if (code == null) return null;
+  final v = code.trim().toLowerCase();
+  if (v.isEmpty) return null;
+  // Norwegian: prefer the modern 'nb' tag instead of legacy 'no'.
+  if (v == 'no') return 'nb';
+  return v;
 }
 
 void _safeInit(Function() initializeField) {

@@ -8,6 +8,7 @@ import 'package:go_taxi_rider/flutter_flow/flutter_flow_util.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_widgets.dart';
 import 'package:go_taxi_rider/index.dart';
 import 'package:go_taxi_rider/auth/firebase_auth/auth_util.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'aut_model.dart';
 export 'aut_model.dart';
 
@@ -359,9 +360,9 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
           indicatorWeight: 3.0,
           indicatorSize: TabBarIndicatorSize.label,
           dividerColor: Colors.transparent,
-          tabs: const [
-            Tab(text: 'Create Account'),
-            Tab(text: 'Log In'),
+          tabs: [
+            Tab(text: context.tr('create_account')),
+            Tab(text: context.tr('log_in')),
           ],
         ),
       ),
@@ -383,8 +384,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.nameTextController!,
               focusNode: _model.nameFocusNode!,
-              label: 'Full Name',
-              hint: 'Enter your full name',
+              label: context.tr('full_name'),
+              hint: context.tr('enter_full_name'),
               icon: Icons.person_outline_rounded,
               keyboardType: TextInputType.name,
               autofillHints: const [AutofillHints.name],
@@ -395,8 +396,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.emailAddressTextController!,
               focusNode: _model.emailAddressFocusNode!,
-              label: 'Email Address',
-              hint: 'you@example.com',
+              label: context.tr('email_address'),
+              hint: context.tr('email_hint'),
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
@@ -411,8 +412,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.passwordTextController!,
               focusNode: _model.passwordFocusNode!,
-              label: 'Password',
-              hint: 'Create a strong password',
+              label: context.tr('password'),
+              hint: context.tr('create_password'),
               icon: Icons.lock_outline_rounded,
               isPassword: true,
               passwordVisible: _model.passwordVisibility,
@@ -428,8 +429,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.repeatpasswordTextController!,
               focusNode: _model.repeatpasswordFocusNode!,
-              label: 'Confirm Password',
-              hint: 'Re-enter your password',
+              label: context.tr('confirm_password'),
+              hint: context.tr('reenter_password'),
               icon: Icons.lock_outline_rounded,
               isPassword: true,
               passwordVisible: _model.repeatpasswordVisibility,
@@ -448,13 +449,13 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             // Get Started Button
             _buildPrimaryButton(
               context: context,
-              text: 'Get Started',
+              text: context.tr('get_started'),
               onPressed: _handleSignUp,
             ),
             const SizedBox(height: 24.0),
 
             // Social Auth Divider
-            _buildDivider(context, 'Or continue with'),
+            _buildDivider(context, context.tr('or_continue_with')),
             const SizedBox(height: 20.0),
 
             // Social Auth Buttons
@@ -462,7 +463,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             const SizedBox(height: 24.0),
 
             // Quick Ride Divider
-            _buildDivider(context, 'Or get a'),
+            _buildDivider(context, context.tr('or_get_a')),
             const SizedBox(height: 16.0),
 
             // Quick Ride Button
@@ -486,7 +487,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
           children: [
             // Welcome Back Header
             Text(
-              'Welcome Back',
+              context.tr('welcome_back'),
               style: FlutterFlowTheme.of(context).headlineMedium.override(
                     fontFamily:
                         FlutterFlowTheme.of(context).headlineMediumFamily,
@@ -498,7 +499,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 8.0),
             Text(
-              'Sign in to continue your journey',
+              context.tr('sign_in_to_continue'),
               style: FlutterFlowTheme.of(context).bodyMedium.override(
                     fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
                     color: FlutterFlowTheme.of(context).secondaryText,
@@ -513,8 +514,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.emailAddress22TextController!,
               focusNode: _model.emailAddress22FocusNode!,
-              label: 'Email Address',
-              hint: 'you@example.com',
+              label: context.tr('email_address'),
+              hint: context.tr('email_hint'),
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
@@ -525,8 +526,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             _buildTextField(
               controller: _model.password22TextController!,
               focusNode: _model.password22FocusNode!,
-              label: 'Password',
-              hint: 'Enter your password',
+              label: context.tr('password'),
+              hint: context.tr('enter_password'),
               icon: Icons.lock_outline_rounded,
               isPassword: true,
               passwordVisible: _model.password22Visibility,
@@ -547,7 +548,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 ),
                 child: Text(
-                  'Forgot Password?',
+                  context.tr('forgot_password'),
                   style: FlutterFlowTheme.of(context).bodySmall.override(
                         fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
                         color: FlutterFlowTheme.of(context).primary,
@@ -564,13 +565,13 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             // Sign In Button
             _buildPrimaryButton(
               context: context,
-              text: 'Sign In',
+              text: context.tr('sign_in'),
               onPressed: _handleLogin,
             ),
             const SizedBox(height: 24.0),
 
             // Social Auth Divider
-            _buildDivider(context, 'Or continue with'),
+            _buildDivider(context, context.tr('or_continue_with')),
             const SizedBox(height: 20.0),
 
             // Social Auth Buttons
@@ -578,7 +579,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             const SizedBox(height: 24.0),
 
             // Quick Ride Divider
-            _buildDivider(context, 'Or get a'),
+            _buildDivider(context, context.tr('or_get_a')),
             const SizedBox(height: 16.0),
 
             // Quick Ride Button
@@ -794,7 +795,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                         !FlutterFlowTheme.of(context).bodyLargeIsCustom,
                   ),
               decoration: InputDecoration(
-                hintText: 'Mobile Number',
+                hintText: context.tr('mobile_number'),
                 hintStyle: FlutterFlowTheme.of(context).bodyMedium.override(
                       fontFamily: FlutterFlowTheme.of(context).bodyMediumFamily,
                       color: FlutterFlowTheme.of(context)
@@ -854,17 +855,17 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                         !FlutterFlowTheme.of(context).bodySmallIsCustom,
                   ),
               children: [
-                const TextSpan(text: 'I agree to the '),
+                TextSpan(text: context.tr('i_agree_to_the')),
                 TextSpan(
-                  text: 'Terms of Service',
+                  text: context.tr('terms_of_service'),
                   style: TextStyle(
                     color: FlutterFlowTheme.of(context).primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const TextSpan(text: ' and '),
+                TextSpan(text: context.tr('and_word')),
                 TextSpan(
-                  text: 'Privacy Policy',
+                  text: context.tr('privacy_policy'),
                   style: TextStyle(
                     color: FlutterFlowTheme.of(context).primary,
                     fontWeight: FontWeight.w600,
@@ -1017,7 +1018,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
           height: 56.0,
           alignment: Alignment.center,
           child: Text(
-            'Quick Ride',
+            context.tr('quick_ride'),
             style: FlutterFlowTheme.of(context).titleSmall.override(
                   fontFamily: FlutterFlowTheme.of(context).titleSmallFamily,
                   color: Colors.white,
@@ -1039,31 +1040,28 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
+        SnackBar(content: Text(context.tr('enter_email_password'))),
       );
       return;
     }
 
     if (password != repeatPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
+        SnackBar(content: Text(context.tr('passwords_do_not_match'))),
       );
       return;
     }
 
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password must be at least 6 characters')),
+        SnackBar(content: Text(context.tr('password_min_6'))),
       );
       return;
     }
 
     if (!_model.termsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Please agree to the Terms of Service and Privacy Policy')),
+        SnackBar(content: Text(context.tr('agree_terms_privacy'))),
       );
       return;
     }
@@ -1078,17 +1076,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
       if (user != null && mounted) {
         await authManager.refreshUser();
-        await authManager.sendEmailVerification();
-        await authManager.signOut();
-        if (!mounted) return;
-        _model.tabBarController?.animateTo(1);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Verification email sent to $email. Verify your email before logging in.',
-            ),
-          ),
-        );
+        context.goNamed(OnboardingWidget.routeName);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -1101,7 +1089,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
+        SnackBar(content: Text(context.tr('enter_email_password'))),
       );
       return;
     }
@@ -1116,19 +1104,6 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
       if (user != null && mounted) {
         await authManager.refreshUser();
-        if (!currentUserEmailVerified) {
-          await authManager.sendEmailVerification();
-          await authManager.signOut();
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Please verify your email before continuing. A new verification email was sent to $email.',
-              ),
-            ),
-          );
-          return;
-        }
         context.goNamed(AuthHomePageWidget.routeName);
       }
     } finally {
@@ -1141,14 +1116,14 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter your email to reset password')),
+        SnackBar(content: Text(context.tr('enter_email_to_reset'))),
       );
       return;
     }
 
     if (!RegExp(kTextValidatorEmailRegex).hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email address')),
+        SnackBar(content: Text(context.tr('enter_valid_email'))),
       );
       return;
     }

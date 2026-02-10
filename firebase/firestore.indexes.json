@@ -17,6 +17,35 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "ride",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PassengerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scheduled_time",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "ride",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "PassengerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scheduled_time",
+          "order": "DESCENDING"
+        }
+      ]
     }
-  ]
+  ],
+  "fieldOverrides": []
 }

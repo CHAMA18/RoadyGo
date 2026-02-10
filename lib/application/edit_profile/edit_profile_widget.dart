@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'edit_profile_model.dart';
@@ -120,7 +121,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                         ),
                         Center(
                           child: Text(
-                            'Complete Profile',
+                            context.tr('complete_profile'),
                             style: FlutterFlowTheme.of(context)
                                 .titleMedium
                                 .override(
@@ -157,7 +158,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                       child: Column(
                         children: [
                           Text(
-                            'Fill in the details below to complete\nyour account registration',
+                            context.tr('complete_profile_desc'),
                             textAlign: TextAlign.center,
                             style: FlutterFlowTheme.of(context)
                                 .bodySmall
@@ -253,7 +254,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        'Upload Photo',
+                                        context.tr('upload_photo'),
                                         style: FlutterFlowTheme.of(context)
                                             .labelSmall
                                             .override(
@@ -289,7 +290,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   textCapitalization:
                                       TextCapitalization.words,
                                   decoration: InputDecoration(
-                                    labelText: 'Full Name',
+                                    labelText: context.tr('full_name'),
                                     prefixIcon: const Icon(Icons.person),
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.auto,
@@ -362,7 +363,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   focusNode: _model.phoneNumberFocusNode,
                                   keyboardType: TextInputType.phone,
                                   decoration: InputDecoration(
-                                    labelText: 'Phone Number',
+                                    labelText: context.tr('phone_number'),
                                     prefixIcon:
                                         const Icon(Icons.phone_iphone),
                                     floatingLabelBehavior:
@@ -441,7 +442,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   focusNode: _model.emailFocusNode,
                                   keyboardType: TextInputType.emailAddress,
                                   decoration: InputDecoration(
-                                    labelText: 'Email Address',
+                                    labelText: context.tr('email_address'),
                                     prefixIcon: const Icon(Icons.mail_outline),
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.auto,
@@ -513,7 +514,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   focusNode: _model.locationFocusNode,
                                   keyboardType: TextInputType.text,
                                   decoration: InputDecoration(
-                                    labelText: 'Location',
+                                    labelText: context.tr('location'),
                                     prefixIcon: const Icon(Icons.place),
                                     floatingLabelBehavior:
                                         FloatingLabelBehavior.auto,
@@ -626,7 +627,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'Finish Setup',
+                                          context.tr('finish_setup'),
                                           style: FlutterFlowTheme.of(context)
                                               .titleSmall
                                               .override(
@@ -657,7 +658,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'By tapping Finish, you agree to our Terms and Privacy Policy.',
+                            context.tr('finish_legal'),
                             textAlign: TextAlign.center,
                             style: FlutterFlowTheme.of(context)
                                 .labelSmall

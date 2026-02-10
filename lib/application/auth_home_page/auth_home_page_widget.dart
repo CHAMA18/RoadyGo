@@ -8,6 +8,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -170,7 +171,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                       context.pushNamed(
                                           PassengerDetailsWidget.routeName);
                                     },
-                                    text: 'Profile',
+                                    text: context.tr('profile'),
                                     icon: Icon(
                                       Icons.person_2,
                                       size: 15.0,
@@ -218,7 +219,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                           }.withoutNulls,
                                         );
                                       },
-                                      text: 'Go to Ride',
+                                      text: context.tr('go_to_ride'),
                                       icon: Icon(
                                         Icons.directions_car_rounded,
                                         size: 15.0,
@@ -286,7 +287,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Where are you going',
+                                            context.tr('where_are_you_going'),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleLarge
                                                 .override(
@@ -312,7 +313,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Pickup Point',
+                                                  context.tr('pickup_point'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -352,7 +353,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                             place);
                                                       },
                                                       defaultText:
-                                                          'Select Pickup Point',
+                                                          context.tr('select_pickup_point'),
                                                       icon: Icon(
                                                         Icons
                                                             .location_on_outlined,
@@ -416,7 +417,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Destination',
+                                                  context.tr('destination'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -456,7 +457,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                             place);
                                                       },
                                                       defaultText:
-                                                          'Select Destination',
+                                                          context.tr('select_destination'),
                                                       icon: Icon(
                                                         Icons
                                                             .outlined_flag_sharp,
@@ -520,7 +521,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Ride type',
+                                                  context.tr('ride_type'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -610,7 +611,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 ),
                                                               ),
                                                               Text(
-                                                                'Car Tow',
+                                                                context.tr('car_tow'),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
@@ -727,7 +728,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 ),
                                                               ),
                                                               Text(
-                                                                'Truck Tow',
+                                                                context.tr('truck_tow'),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
@@ -778,7 +779,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  'Ride fee',
+                                                  context.tr('ride_fee'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -1124,7 +1125,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                               safeSetState(
                                                                   () {});
                                                             },
-                                                            text: 'Order Ride',
+                                                            text: context.tr('order_ride'),
                                                             options:
                                                                 FFButtonOptions(
                                                               width: 200.0,
@@ -1214,7 +1215,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
         final theme = FlutterFlowTheme.of(context);
         return AlertDialog(
           title: Text(
-            'Select Language',
+            context.tr('select_language'),
             style: theme.titleMedium.override(
               fontFamily: theme.titleMediumFamily,
               fontWeight: FontWeight.w700,

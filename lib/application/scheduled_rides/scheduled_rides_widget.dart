@@ -5,6 +5,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:flutter/material.dart';
 import 'scheduled_rides_model.dart';
 export 'scheduled_rides_model.dart';
@@ -66,7 +67,7 @@ class _ScheduledRidesWidgetState extends State<ScheduledRidesWidget> {
             },
           ),
           title: Text(
-            'My Schedued Rides',
+            context.tr('my_scheduled_rides'),
             style: FlutterFlowTheme.of(context).headlineMedium.override(
                   fontFamily: FlutterFlowTheme.of(context).headlineMediumFamily,
                   color: Colors.white,
@@ -269,7 +270,7 @@ class _ScheduledRidesWidgetState extends State<ScheduledRidesWidget> {
                                                   }.withoutNulls,
                                                 );
                                               },
-                                              text: 'Start Ride',
+                                              text: context.tr('start_ride'),
                                               options: FFButtonOptions(
                                                 height: 30.0,
                                                 padding: EdgeInsetsDirectional

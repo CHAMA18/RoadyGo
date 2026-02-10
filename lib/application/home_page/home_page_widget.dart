@@ -14,6 +14,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import '/components/destination_picker/destination_picker_widget.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'home_page_model.dart';
 
 export 'home_page_model.dart';
@@ -242,7 +243,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'Go to Ride',
+                          context.tr('go_to_ride'),
                           style: theme.bodySmall.override(
                             fontFamily: theme.bodySmallFamily,
                             color: Colors.white,
@@ -341,7 +342,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Profile',
+                  context.tr('profile'),
                   style: theme.bodyMedium.override(
                     fontFamily: theme.bodyMediumFamily,
                     color: Colors.white,
@@ -509,7 +510,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                 children: [
                   // Title
                   Text(
-                    'Where are you going?',
+                    context.tr('where_are_you_going_q'),
                     style: theme.headlineSmall.override(
                       fontFamily: theme.headlineSmallFamily,
                       fontWeight: FontWeight.bold,
@@ -523,7 +524,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                   // Pickup Point
                   _buildInputSection(
                     context: context,
-                    label: 'Pickup Point',
+                    label: context.tr('pickup_point'),
                     child: FlutterFlowPlacePicker(
                       iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
                       androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
@@ -531,7 +532,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       onSelect: (place) async {
                         safeSetState(() => _model.placePickerValue1 = place);
                       },
-                      defaultText: 'Select Pickup Point',
+                      defaultText: context.tr('select_pickup_point'),
                       icon: Icon(
                         Icons.location_on,
                         color: textSecondary,
@@ -561,7 +562,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                   // Destination
                   _buildInputSection(
                     context: context,
-                    label: 'Destination',
+                    label: context.tr('destination'),
                     child: _DestinationPickerButton(
                       selectedPlace: _model.placePickerValue2,
                       currentLocation: currentUserLocationValue,
@@ -574,7 +575,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
 
                   // Ride Type
                   Text(
-                    'Ride type',
+                    context.tr('ride_type'),
                     style: theme.titleMedium.override(
                       fontFamily: theme.titleMediumFamily,
                       fontWeight: FontWeight.bold,
@@ -588,7 +589,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                     children: [
                       Expanded(
                         child: _RideTypeCard(
-                          title: 'Basic',
+                          title: context.tr('basic'),
                           imagePath: 'assets/images/Truck.png',
                           isSelected: FFAppState().rideTier == 'Basic',
                           primaryColor: primaryColor,
@@ -601,7 +602,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       const SizedBox(width: 16),
                       Expanded(
                         child: _RideTypeCard(
-                          title: 'Corporate',
+                          title: context.tr('corporate'),
                           imagePath: 'assets/images/Truck-2.png',
                           isSelected: FFAppState().rideTier == 'Corporate',
                           primaryColor: primaryColor,
@@ -640,7 +641,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Confirm Booking',
+                              context.tr('confirm_booking'),
                               style: theme.titleSmall.override(
                                 fontFamily: theme.titleSmallFamily,
                                 color: Colors.white,
@@ -774,7 +775,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Estimated Fare',
+                    context.tr('estimated_fare'),
                     style: theme.bodyMedium.override(
                       fontFamily: theme.bodyMediumFamily,
                       color: theme.secondaryText,
@@ -826,7 +827,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Confirm Booking',
+                      context.tr('confirm_booking'),
                       style: theme.titleSmall.override(
                         fontFamily: theme.titleSmallFamily,
                         color: theme.secondaryBackground,
@@ -995,8 +996,8 @@ class _DestinationPickerButtonState extends State<_DestinationPickerButton>
       iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
       androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
       webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
-      title: 'Where to?',
-      hintText: 'Search for destination...',
+      title: context.tr('where_to'),
+      hintText: context.tr('search_destination'),
       currentLocation: widget.currentLocation,
     );
   }
@@ -1050,7 +1051,7 @@ class _DestinationPickerButtonState extends State<_DestinationPickerButton>
                         ? (widget.selectedPlace.name.isNotEmpty
                             ? widget.selectedPlace.name
                             : widget.selectedPlace.address)
-                        : 'Select Destination',
+                        : context.tr('select_destination'),
                     style: theme.bodyMedium.override(
                       fontFamily: theme.bodyMediumFamily,
                       color: hasDestination

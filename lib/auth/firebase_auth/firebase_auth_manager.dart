@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '/l10n/roadygo_i18n.dart';
 import '../auth_manager.dart';
 import '/firebase_options.dart';
 
@@ -85,7 +86,7 @@ class FirebaseAuthManager extends AuthManager
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  'Too long since most recent sign in. Sign in again before deleting your account.')),
+                  context.tr('requires_recent_login_delete_account'))),
         );
       }
     }
@@ -109,7 +110,7 @@ class FirebaseAuthManager extends AuthManager
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  'Too long since most recent sign in. Sign in again before updating your email.')),
+                  context.tr('requires_recent_login_update_email'))),
         );
       }
     }
@@ -154,7 +155,7 @@ class FirebaseAuthManager extends AuthManager
       return null;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Password reset email sent')),
+      SnackBar(content: Text(context.tr('password_reset_email_sent'))),
     );
   }
 

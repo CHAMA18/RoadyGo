@@ -249,109 +249,124 @@ class MobileTypography extends Typography {
 
   final FlutterFlowTheme theme;
 
-  String get displayLargeFamily => 'Ubuntu';
-  bool get displayLargeIsCustom => false;
-  TextStyle get displayLarge => GoogleFonts.ubuntu(
+  String get displayLargeFamily => 'Satoshi';
+  bool get displayLargeIsCustom => true;
+  TextStyle get displayLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w900,
         fontSize: 64.0,
       );
-  String get displayMediumFamily => 'Ubuntu';
-  bool get displayMediumIsCustom => false;
-  TextStyle get displayMedium => GoogleFonts.ubuntu(
+  String get displayMediumFamily => 'Satoshi';
+  bool get displayMediumIsCustom => true;
+  TextStyle get displayMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w800,
         fontSize: 44.0,
       );
-  String get displaySmallFamily => 'Ubuntu';
-  bool get displaySmallIsCustom => false;
-  TextStyle get displaySmall => GoogleFonts.ubuntu(
+  String get displaySmallFamily => 'Satoshi';
+  bool get displaySmallIsCustom => true;
+  TextStyle get displaySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 36.0,
       );
-  String get headlineLargeFamily => 'Ubuntu';
-  bool get headlineLargeIsCustom => false;
-  TextStyle get headlineLarge => GoogleFonts.ubuntu(
+  String get headlineLargeFamily => 'Satoshi';
+  bool get headlineLargeIsCustom => true;
+  TextStyle get headlineLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 32.0,
       );
-  String get headlineMediumFamily => 'Ubuntu';
-  bool get headlineMediumIsCustom => false;
-  TextStyle get headlineMedium => GoogleFonts.ubuntu(
+  String get headlineMediumFamily => 'Satoshi';
+  bool get headlineMediumIsCustom => true;
+  TextStyle get headlineMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get headlineSmallFamily => 'Ubuntu';
-  bool get headlineSmallIsCustom => false;
-  TextStyle get headlineSmall => GoogleFonts.ubuntu(
+  String get headlineSmallFamily => 'Satoshi';
+  bool get headlineSmallIsCustom => true;
+  TextStyle get headlineSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get titleLargeFamily => 'Ubuntu';
-  bool get titleLargeIsCustom => false;
-  TextStyle get titleLarge => GoogleFonts.ubuntu(
+  String get titleLargeFamily => 'Satoshi';
+  bool get titleLargeIsCustom => true;
+  TextStyle get titleLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 22.0,
       );
-  String get titleMediumFamily => 'Ubuntu';
-  bool get titleMediumIsCustom => false;
-  TextStyle get titleMedium => GoogleFonts.ubuntu(
-        color: theme.info,
-        fontWeight: FontWeight.normal,
+  String get titleMediumFamily => 'Satoshi';
+  bool get titleMediumIsCustom => true;
+  TextStyle get titleMedium => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
         fontSize: 18.0,
       );
-  String get titleSmallFamily => 'Ubuntu';
-  bool get titleSmallIsCustom => false;
-  TextStyle get titleSmall => GoogleFonts.ubuntu(
-        color: theme.info,
+  String get titleSmallFamily => 'Satoshi';
+  bool get titleSmallIsCustom => true;
+  TextStyle get titleSmall => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
+        fontSize: 16.0,
+      );
+  String get labelLargeFamily => 'Satoshi';
+  bool get labelLargeIsCustom => true;
+  TextStyle get labelLarge => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 16.0,
       );
-  String get labelLargeFamily => 'Ubuntu';
-  bool get labelLargeIsCustom => false;
-  TextStyle get labelLarge => GoogleFonts.ubuntu(
+  String get labelMediumFamily => 'Satoshi';
+  bool get labelMediumIsCustom => true;
+  TextStyle get labelMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
-        fontSize: 16.0,
-      );
-  String get labelMediumFamily => 'Ubuntu';
-  bool get labelMediumIsCustom => false;
-  TextStyle get labelMedium => GoogleFonts.ubuntu(
-        color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 14.0,
       );
-  String get labelSmallFamily => 'Ubuntu';
-  bool get labelSmallIsCustom => false;
-  TextStyle get labelSmall => GoogleFonts.ubuntu(
+  String get labelSmallFamily => 'Satoshi';
+  bool get labelSmallIsCustom => true;
+  TextStyle get labelSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
-  String get bodyLargeFamily => 'Ubuntu';
-  bool get bodyLargeIsCustom => false;
-  TextStyle get bodyLarge => GoogleFonts.ubuntu(
+  String get bodyLargeFamily => 'Satoshi';
+  bool get bodyLargeIsCustom => true;
+  TextStyle get bodyLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 16.0,
       );
-  String get bodyMediumFamily => 'Ubuntu';
-  bool get bodyMediumIsCustom => false;
-  TextStyle get bodyMedium => GoogleFonts.ubuntu(
+  String get bodyMediumFamily => 'Satoshi';
+  bool get bodyMediumIsCustom => true;
+  TextStyle get bodyMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 14.0,
       );
-  String get bodySmallFamily => 'Ubuntu';
-  bool get bodySmallIsCustom => false;
-  TextStyle get bodySmall => GoogleFonts.ubuntu(
+  String get bodySmallFamily => 'Satoshi';
+  bool get bodySmallIsCustom => true;
+  TextStyle get bodySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 12.0,
       );
 }
@@ -361,109 +376,124 @@ class TabletTypography extends Typography {
 
   final FlutterFlowTheme theme;
 
-  String get displayLargeFamily => 'Ubuntu';
-  bool get displayLargeIsCustom => false;
-  TextStyle get displayLarge => GoogleFonts.ubuntu(
+  String get displayLargeFamily => 'Satoshi';
+  bool get displayLargeIsCustom => true;
+  TextStyle get displayLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w900,
         fontSize: 64.0,
       );
-  String get displayMediumFamily => 'Ubuntu';
-  bool get displayMediumIsCustom => false;
-  TextStyle get displayMedium => GoogleFonts.ubuntu(
+  String get displayMediumFamily => 'Satoshi';
+  bool get displayMediumIsCustom => true;
+  TextStyle get displayMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w800,
         fontSize: 44.0,
       );
-  String get displaySmallFamily => 'Ubuntu';
-  bool get displaySmallIsCustom => false;
-  TextStyle get displaySmall => GoogleFonts.ubuntu(
+  String get displaySmallFamily => 'Satoshi';
+  bool get displaySmallIsCustom => true;
+  TextStyle get displaySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 36.0,
       );
-  String get headlineLargeFamily => 'Ubuntu';
-  bool get headlineLargeIsCustom => false;
-  TextStyle get headlineLarge => GoogleFonts.ubuntu(
+  String get headlineLargeFamily => 'Satoshi';
+  bool get headlineLargeIsCustom => true;
+  TextStyle get headlineLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 32.0,
       );
-  String get headlineMediumFamily => 'Ubuntu';
-  bool get headlineMediumIsCustom => false;
-  TextStyle get headlineMedium => GoogleFonts.ubuntu(
+  String get headlineMediumFamily => 'Satoshi';
+  bool get headlineMediumIsCustom => true;
+  TextStyle get headlineMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get headlineSmallFamily => 'Ubuntu';
-  bool get headlineSmallIsCustom => false;
-  TextStyle get headlineSmall => GoogleFonts.ubuntu(
+  String get headlineSmallFamily => 'Satoshi';
+  bool get headlineSmallIsCustom => true;
+  TextStyle get headlineSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get titleLargeFamily => 'Ubuntu';
-  bool get titleLargeIsCustom => false;
-  TextStyle get titleLarge => GoogleFonts.ubuntu(
+  String get titleLargeFamily => 'Satoshi';
+  bool get titleLargeIsCustom => true;
+  TextStyle get titleLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 22.0,
       );
-  String get titleMediumFamily => 'Ubuntu';
-  bool get titleMediumIsCustom => false;
-  TextStyle get titleMedium => GoogleFonts.ubuntu(
-        color: theme.info,
-        fontWeight: FontWeight.normal,
+  String get titleMediumFamily => 'Satoshi';
+  bool get titleMediumIsCustom => true;
+  TextStyle get titleMedium => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
         fontSize: 18.0,
       );
-  String get titleSmallFamily => 'Ubuntu';
-  bool get titleSmallIsCustom => false;
-  TextStyle get titleSmall => GoogleFonts.ubuntu(
-        color: theme.info,
+  String get titleSmallFamily => 'Satoshi';
+  bool get titleSmallIsCustom => true;
+  TextStyle get titleSmall => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
+        fontSize: 16.0,
+      );
+  String get labelLargeFamily => 'Satoshi';
+  bool get labelLargeIsCustom => true;
+  TextStyle get labelLarge => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 16.0,
       );
-  String get labelLargeFamily => 'Ubuntu';
-  bool get labelLargeIsCustom => false;
-  TextStyle get labelLarge => GoogleFonts.ubuntu(
+  String get labelMediumFamily => 'Satoshi';
+  bool get labelMediumIsCustom => true;
+  TextStyle get labelMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
-        fontSize: 16.0,
-      );
-  String get labelMediumFamily => 'Ubuntu';
-  bool get labelMediumIsCustom => false;
-  TextStyle get labelMedium => GoogleFonts.ubuntu(
-        color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 14.0,
       );
-  String get labelSmallFamily => 'Ubuntu';
-  bool get labelSmallIsCustom => false;
-  TextStyle get labelSmall => GoogleFonts.ubuntu(
+  String get labelSmallFamily => 'Satoshi';
+  bool get labelSmallIsCustom => true;
+  TextStyle get labelSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
-  String get bodyLargeFamily => 'Ubuntu';
-  bool get bodyLargeIsCustom => false;
-  TextStyle get bodyLarge => GoogleFonts.ubuntu(
+  String get bodyLargeFamily => 'Satoshi';
+  bool get bodyLargeIsCustom => true;
+  TextStyle get bodyLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 16.0,
       );
-  String get bodyMediumFamily => 'Ubuntu';
-  bool get bodyMediumIsCustom => false;
-  TextStyle get bodyMedium => GoogleFonts.ubuntu(
+  String get bodyMediumFamily => 'Satoshi';
+  bool get bodyMediumIsCustom => true;
+  TextStyle get bodyMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 14.0,
       );
-  String get bodySmallFamily => 'Ubuntu';
-  bool get bodySmallIsCustom => false;
-  TextStyle get bodySmall => GoogleFonts.ubuntu(
+  String get bodySmallFamily => 'Satoshi';
+  bool get bodySmallIsCustom => true;
+  TextStyle get bodySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 12.0,
       );
 }
@@ -473,109 +503,124 @@ class DesktopTypography extends Typography {
 
   final FlutterFlowTheme theme;
 
-  String get displayLargeFamily => 'Ubuntu';
-  bool get displayLargeIsCustom => false;
-  TextStyle get displayLarge => GoogleFonts.ubuntu(
+  String get displayLargeFamily => 'Satoshi';
+  bool get displayLargeIsCustom => true;
+  TextStyle get displayLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w900,
         fontSize: 64.0,
       );
-  String get displayMediumFamily => 'Ubuntu';
-  bool get displayMediumIsCustom => false;
-  TextStyle get displayMedium => GoogleFonts.ubuntu(
+  String get displayMediumFamily => 'Satoshi';
+  bool get displayMediumIsCustom => true;
+  TextStyle get displayMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w800,
         fontSize: 44.0,
       );
-  String get displaySmallFamily => 'Ubuntu';
-  bool get displaySmallIsCustom => false;
-  TextStyle get displaySmall => GoogleFonts.ubuntu(
+  String get displaySmallFamily => 'Satoshi';
+  bool get displaySmallIsCustom => true;
+  TextStyle get displaySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 36.0,
       );
-  String get headlineLargeFamily => 'Ubuntu';
-  bool get headlineLargeIsCustom => false;
-  TextStyle get headlineLarge => GoogleFonts.ubuntu(
+  String get headlineLargeFamily => 'Satoshi';
+  bool get headlineLargeIsCustom => true;
+  TextStyle get headlineLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         fontSize: 32.0,
       );
-  String get headlineMediumFamily => 'Ubuntu';
-  bool get headlineMediumIsCustom => false;
-  TextStyle get headlineMedium => GoogleFonts.ubuntu(
+  String get headlineMediumFamily => 'Satoshi';
+  bool get headlineMediumIsCustom => true;
+  TextStyle get headlineMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get headlineSmallFamily => 'Ubuntu';
-  bool get headlineSmallIsCustom => false;
-  TextStyle get headlineSmall => GoogleFonts.ubuntu(
+  String get headlineSmallFamily => 'Satoshi';
+  bool get headlineSmallIsCustom => true;
+  TextStyle get headlineSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 24.0,
       );
-  String get titleLargeFamily => 'Ubuntu';
-  bool get titleLargeIsCustom => false;
-  TextStyle get titleLarge => GoogleFonts.ubuntu(
+  String get titleLargeFamily => 'Satoshi';
+  bool get titleLargeIsCustom => true;
+  TextStyle get titleLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 22.0,
       );
-  String get titleMediumFamily => 'Ubuntu';
-  bool get titleMediumIsCustom => false;
-  TextStyle get titleMedium => GoogleFonts.ubuntu(
-        color: theme.info,
-        fontWeight: FontWeight.normal,
+  String get titleMediumFamily => 'Satoshi';
+  bool get titleMediumIsCustom => true;
+  TextStyle get titleMedium => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
         fontSize: 18.0,
       );
-  String get titleSmallFamily => 'Ubuntu';
-  bool get titleSmallIsCustom => false;
-  TextStyle get titleSmall => GoogleFonts.ubuntu(
-        color: theme.info,
+  String get titleSmallFamily => 'Satoshi';
+  bool get titleSmallIsCustom => true;
+  TextStyle get titleSmall => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.primaryText,
+        fontWeight: FontWeight.w600,
+        fontSize: 16.0,
+      );
+  String get labelLargeFamily => 'Satoshi';
+  bool get labelLargeIsCustom => true;
+  TextStyle get labelLarge => TextStyle(
+        fontFamily: 'Satoshi',
+        color: theme.secondaryText,
         fontWeight: FontWeight.w500,
         fontSize: 16.0,
       );
-  String get labelLargeFamily => 'Ubuntu';
-  bool get labelLargeIsCustom => false;
-  TextStyle get labelLarge => GoogleFonts.ubuntu(
+  String get labelMediumFamily => 'Satoshi';
+  bool get labelMediumIsCustom => true;
+  TextStyle get labelMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
-        fontSize: 16.0,
-      );
-  String get labelMediumFamily => 'Ubuntu';
-  bool get labelMediumIsCustom => false;
-  TextStyle get labelMedium => GoogleFonts.ubuntu(
-        color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 14.0,
       );
-  String get labelSmallFamily => 'Ubuntu';
-  bool get labelSmallIsCustom => false;
-  TextStyle get labelSmall => GoogleFonts.ubuntu(
+  String get labelSmallFamily => 'Satoshi';
+  bool get labelSmallIsCustom => true;
+  TextStyle get labelSmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.secondaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w500,
         fontSize: 12.0,
       );
-  String get bodyLargeFamily => 'Ubuntu';
-  bool get bodyLargeIsCustom => false;
-  TextStyle get bodyLarge => GoogleFonts.ubuntu(
+  String get bodyLargeFamily => 'Satoshi';
+  bool get bodyLargeIsCustom => true;
+  TextStyle get bodyLarge => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 16.0,
       );
-  String get bodyMediumFamily => 'Ubuntu';
-  bool get bodyMediumIsCustom => false;
-  TextStyle get bodyMedium => GoogleFonts.ubuntu(
+  String get bodyMediumFamily => 'Satoshi';
+  bool get bodyMediumIsCustom => true;
+  TextStyle get bodyMedium => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 14.0,
       );
-  String get bodySmallFamily => 'Ubuntu';
-  bool get bodySmallIsCustom => false;
-  TextStyle get bodySmall => GoogleFonts.ubuntu(
+  String get bodySmallFamily => 'Satoshi';
+  bool get bodySmallIsCustom => true;
+  TextStyle get bodySmall => TextStyle(
+        fontFamily: 'Satoshi',
         color: theme.primaryText,
-        fontWeight: FontWeight.normal,
+        fontWeight: FontWeight.w400,
         fontSize: 12.0,
       );
 }

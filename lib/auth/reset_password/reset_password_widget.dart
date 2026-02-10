@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 
 class ResetPasswordWidget extends StatefulWidget {
   const ResetPasswordWidget({super.key});
@@ -24,7 +25,8 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
   bool _submitting = false;
   String? _email;
   String? _oobCode;
-  String? _errorText;
+  String? _errorKey;
+  String? _errorDetails;
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
     if (mode != 'resetPassword' || oobCode == null || oobCode.isEmpty) {
       if (!mounted) return;
       setState(() {
-        _errorText = 'Invalid or incomplete reset link.';
+        _errorKey = 'invalid_or_incomplete_reset_link';
         _loading = false;
       });
       return;
@@ -84,13 +86,14 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorText = e.message ?? 'This reset link is invalid or expired.';
+        _errorKey = 'reset_link_invalid_or_expired';
+        _errorDetails = e.message;
         _loading = false;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _errorText = 'Unable to validate reset link.';
+        _errorKey = 'unable_to_validate_reset_link';
         _loading = false;
       });
     }
@@ -104,14 +107,14 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
 
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 6 characters')),
+        SnackBar(content: Text(context.tr('password_min_6'))),
       );
       return;
     }
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
+        SnackBar(content: Text(context.tr('passwords_do_not_match'))),
       );
       return;
     }
@@ -124,13 +127,13 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password updated successfully')),
+        SnackBar(content: Text(context.tr('password_updated_successfully'))),
       );
       context.goNamed(AutWidget.routeName);
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Unable to reset password')),
+        SnackBar(content: Text(e.message ?? context.tr('unable_to_reset_password'))),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -151,7 +154,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
               padding: const EdgeInsets.all(20),
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
-                  : _errorText != null
+                  : _errorKey != null
                       ? _buildErrorState(theme)
                       : _buildResetForm(theme),
             ),
@@ -167,7 +170,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Reset link issue',
+          context.tr('reset_link_issue'),
           style: theme.headlineMedium.override(
             fontFamily: theme.headlineMediumFamily,
             fontWeight: FontWeight.bold,
@@ -177,7 +180,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
         ),
         const SizedBox(height: 12),
         Text(
-          _errorText!,
+          _errorDetails ?? context.tr(_errorKey!),
           style: theme.bodyMedium.override(
             fontFamily: theme.bodyMediumFamily,
             color: theme.secondaryText,
@@ -188,7 +191,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () => context.goNamed(AutWidget.routeName),
-          child: const Text('Back to Login'),
+          child: Text(context.tr('back_to_login')),
         ),
       ],
     );
@@ -200,7 +203,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Set a new password',
+          context.tr('set_new_password'),
           style: theme.headlineMedium.override(
             fontFamily: theme.headlineMediumFamily,
             fontWeight: FontWeight.bold,
@@ -210,7 +213,9 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
         ),
         const SizedBox(height: 8),
         Text(
-          _email == null ? 'Reset your password' : 'Account: $_email',
+          _email == null
+              ? context.tr('reset_your_password')
+              : '${context.tr('account')}: $_email',
           style: theme.bodyMedium.override(
             fontFamily: theme.bodyMediumFamily,
             color: theme.secondaryText,
@@ -223,7 +228,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
           controller: _passwordController,
           obscureText: !_passwordVisible,
           decoration: InputDecoration(
-            labelText: 'New Password',
+            labelText: context.tr('new_password'),
             suffixIcon: IconButton(
               onPressed: () {
                 setState(() => _passwordVisible = !_passwordVisible);
@@ -238,7 +243,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
           controller: _confirmPasswordController,
           obscureText: !_confirmPasswordVisible,
           decoration: InputDecoration(
-            labelText: 'Confirm Password',
+            labelText: context.tr('confirm_new_password'),
             suffixIcon: IconButton(
               onPressed: () {
                 setState(
@@ -259,7 +264,7 @@ class _ResetPasswordWidgetState extends State<ResetPasswordWidget> {
                   height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Update Password'),
+              : Text(context.tr('continue')),
         ),
       ],
     );

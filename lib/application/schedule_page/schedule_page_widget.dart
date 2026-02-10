@@ -8,6 +8,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -169,7 +170,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                         }.withoutNulls,
                                       );
                                     },
-                                    text: 'Go to Ride',
+                                    text: context.tr('go_to_ride'),
                                     icon: Icon(
                                       Icons.directions_car_rounded,
                                       size: 15.0,
@@ -245,14 +246,14 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                     .primaryText,
                                                 size: 28.0,
                                               ),
-                                              tooltip: 'Back',
+                                              tooltip: context.tr('back'),
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(),
                                             ),
                                           ),
                                           const SizedBox(height: 8.0),
                                           Text(
-                                            'Book Your Ride',
+                                            context.tr('book_your_ride'),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleLarge
                                                 .override(
@@ -278,7 +279,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Pickup Point',
+                                                  context.tr('pickup_point'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -318,7 +319,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                             place);
                                                       },
                                                       defaultText:
-                                                          'Select Pickup Point',
+                                                          context.tr('select_pickup_point'),
                                                       icon: Icon(
                                                         Icons
                                                             .location_on_outlined,
@@ -382,7 +383,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Destination',
+                                                  context.tr('destination'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -422,7 +423,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                             place);
                                                       },
                                                       defaultText:
-                                                          'Select Destination',
+                                                          context.tr('select_destination'),
                                                       icon: Icon(
                                                         Icons
                                                             .outlined_flag_sharp,
@@ -486,7 +487,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                     .fromSTEB(
                                                         0.0, 0.0, 0.0, 5.0),
                                                 child: Text(
-                                                  'Time',
+                                                  context.tr('time'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -572,7 +573,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                         ? dateTimeFormat(
                                                             "d/M H:mm",
                                                             _model.datePicked)
-                                                        : 'Pick Time Of Ride',
+                                                        : context.tr('pick_time_of_ride'),
                                                     options: FFButtonOptions(
                                                       width: MediaQuery.sizeOf(
                                                                   context)
@@ -643,7 +644,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  'Ride fee',
+                                                  context.tr('ride_fee'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelMedium
@@ -975,7 +976,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                               safeSetState(
                                                                   () {});
                                                             },
-                                                            text: 'Order Ride',
+                                                            text: context.tr('order_ride'),
                                                             options:
                                                                 FFButtonOptions(
                                                               width: 200.0,

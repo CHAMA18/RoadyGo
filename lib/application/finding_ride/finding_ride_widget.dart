@@ -9,6 +9,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -58,13 +59,13 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
             context: context,
             builder: (alertDialogContext) {
               return AlertDialog(
-                title: Text('Ride Complete'),
+                title: Text(context.tr('ride_complete')),
                 content: Text(
-                    'You have arrived at your destination. Thank you for traveling with MaxiTaxi'),
+                    context.tr('ride_complete_desc')),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(alertDialogContext),
-                    child: Text('Dismiss'),
+                    child: Text(context.tr('dismiss')),
                   ),
                 ],
               );
@@ -246,7 +247,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                 alignment: AlignmentDirectional(
                                                     0.0, 0.0),
                                                 child: Text(
-                                                  'Ride Found',
+                                                  context.tr('ride_found'),
                                                   style: FlutterFlowTheme.of(
                                                           context)
                                                       .labelLarge
@@ -296,25 +297,23 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         (alertDialogContext) {
                                                       return AlertDialog(
                                                         title:
-                                                            Text('Cancel Ride'),
+                                                            Text(context.tr('cancel_ride')),
                                                         content: Text(
-                                                            'Are you sure you want to cancel the ride'),
+                                                            context.tr('cancel_ride_q')),
                                                         actions: [
                                                           TextButton(
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     alertDialogContext,
                                                                     false),
-                                                            child:
-                                                                Text('Cancel'),
+                                                            child: Text(context.tr('cancel')),
                                                           ),
                                                           TextButton(
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     alertDialogContext,
                                                                     true),
-                                                            child:
-                                                                Text('Confirm'),
+                                                            child: Text(context.tr('confirm')),
                                                           ),
                                                         ],
                                                       );
@@ -337,7 +336,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                             return;
                                           }
                                         },
-                                        text: 'Cancel ride',
+                                        text: context.tr('cancel_ride'),
                                         options: FFButtonOptions(
                                           height: 40.0,
                                           padding:

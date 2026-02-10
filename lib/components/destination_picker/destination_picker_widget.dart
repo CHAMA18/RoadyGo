@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
 import 'package:go_taxi_rider/flutter_flow/place.dart';
 import 'package:go_taxi_rider/flutter_flow/lat_lng.dart';
+import '/l10n/roadygo_i18n.dart';
 import 'package:uuid/uuid.dart';
 
 // Web-specific imports
@@ -69,67 +70,65 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     }
   }
 
-  // Popular destinations with categories
-  final List<PopularDestination> _popularDestinations = [
-    PopularDestination(
-      name: 'Airport',
-      icon: Icons.flight_takeoff_rounded,
-      category: 'airport',
-      color: Color(0xFF5C6BC0),
-    ),
-    PopularDestination(
-      name: 'Mall',
-      icon: Icons.shopping_bag_rounded,
-      category: 'shopping_mall',
-      color: Color(0xFFEC407A),
-    ),
-    PopularDestination(
-      name: 'Hospital',
-      icon: Icons.local_hospital_rounded,
-      category: 'hospital',
-      color: Color(0xFFEF5350),
-    ),
-    PopularDestination(
-      name: 'Restaurant',
-      icon: Icons.restaurant_rounded,
-      category: 'restaurant',
-      color: Color(0xFFFF7043),
-    ),
-    PopularDestination(
-      name: 'Hotel',
-      icon: Icons.hotel_rounded,
-      category: 'lodging',
-      color: Color(0xFF26A69A),
-    ),
-    PopularDestination(
-      name: 'Station',
-      icon: Icons.train_rounded,
-      category: 'train_station',
-      color: Color(0xFF42A5F5),
-    ),
-  ];
+  List<PopularDestination> _popularDestinations(BuildContext context) => [
+        PopularDestination(
+          name: context.tr('airport'),
+          icon: Icons.flight_takeoff_rounded,
+          category: 'airport',
+          color: Color(0xFF5C6BC0),
+        ),
+        PopularDestination(
+          name: context.tr('mall'),
+          icon: Icons.shopping_bag_rounded,
+          category: 'shopping_mall',
+          color: Color(0xFFEC407A),
+        ),
+        PopularDestination(
+          name: context.tr('hospital'),
+          icon: Icons.local_hospital_rounded,
+          category: 'hospital',
+          color: Color(0xFFEF5350),
+        ),
+        PopularDestination(
+          name: context.tr('restaurant'),
+          icon: Icons.restaurant_rounded,
+          category: 'restaurant',
+          color: Color(0xFFFF7043),
+        ),
+        PopularDestination(
+          name: context.tr('hotel'),
+          icon: Icons.hotel_rounded,
+          category: 'lodging',
+          color: Color(0xFF26A69A),
+        ),
+        PopularDestination(
+          name: context.tr('station'),
+          icon: Icons.train_rounded,
+          category: 'train_station',
+          color: Color(0xFF42A5F5),
+        ),
+      ];
 
-  // Recent/Saved locations (sample data)
-  final List<SavedLocation> _savedLocations = [
-    SavedLocation(
-      name: 'Home',
-      address: '123 Main Street, Downtown',
-      icon: Icons.home_rounded,
-      latLng: LatLng(-15.4167, 28.2833),
-    ),
-    SavedLocation(
-      name: 'Work',
-      address: 'Business Park, Tower A',
-      icon: Icons.work_rounded,
-      latLng: LatLng(-15.3875, 28.3228),
-    ),
-    SavedLocation(
-      name: 'Gym',
-      address: 'Fitness Center, East Mall',
-      icon: Icons.fitness_center_rounded,
-      latLng: LatLng(-15.4000, 28.3000),
-    ),
-  ];
+  List<SavedLocation> _savedLocations(BuildContext context) => [
+        SavedLocation(
+          name: context.tr('home'),
+          address: '123 Main Street, Downtown',
+          icon: Icons.home_rounded,
+          latLng: LatLng(-15.4167, 28.2833),
+        ),
+        SavedLocation(
+          name: context.tr('work'),
+          address: 'Business Park, Tower A',
+          icon: Icons.work_rounded,
+          latLng: LatLng(-15.3875, 28.3228),
+        ),
+        SavedLocation(
+          name: context.tr('gym'),
+          address: 'Fitness Center, East Mall',
+          icon: Icons.fitness_center_rounded,
+          latLng: LatLng(-15.4000, 28.3000),
+        ),
+      ];
 
   @override
   void initState() {
@@ -585,6 +584,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
   }
 
   Widget _buildDefaultContent(FlutterFlowTheme theme) {
+    final popularDestinations = _popularDestinations(context);
+    final savedLocations = _savedLocations(context);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -593,7 +594,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         children: [
           // Quick categories
           Text(
-            '✨ Quick Search',
+            '✨ ${context.tr('quick_search')}',
             style: theme.titleMedium.override(
               fontFamily: theme.titleMediumFamily,
               fontWeight: FontWeight.w600,
@@ -602,12 +603,12 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
             ),
           ),
           const SizedBox(height: 12),
-          _buildCategoryGrid(theme),
+          _buildCategoryGrid(theme, popularDestinations),
           const SizedBox(height: 24),
           
           // Saved places
           Text(
-            '📍 Saved Places',
+            '📍 ${context.tr('saved_places')}',
             style: theme.titleMedium.override(
               fontFamily: theme.titleMediumFamily,
               fontWeight: FontWeight.w600,
@@ -616,7 +617,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
             ),
           ),
           const SizedBox(height: 12),
-          ..._savedLocations.asMap().entries.map((entry) {
+          ...savedLocations.asMap().entries.map((entry) {
             final index = entry.key;
             return TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.0, end: 1.0),
@@ -638,7 +639,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           
           // Recent destinations
           Text(
-            '🕐 Recent Destinations',
+            '🕐 ${context.tr('recent_destinations')}',
             style: theme.titleMedium.override(
               fontFamily: theme.titleMediumFamily,
               fontWeight: FontWeight.w600,
@@ -654,7 +655,10 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
-  Widget _buildCategoryGrid(FlutterFlowTheme theme) {
+  Widget _buildCategoryGrid(
+    FlutterFlowTheme theme,
+    List<PopularDestination> popularDestinations,
+  ) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -664,9 +668,9 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: _popularDestinations.length,
+      itemCount: popularDestinations.length,
       itemBuilder: (context, index) {
-        final destination = _popularDestinations[index];
+        final destination = popularDestinations[index];
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: 1.0),
           duration: Duration(milliseconds: 300 + (index * 50)),

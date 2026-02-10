@@ -1,4 +1,4 @@
-package com.mycompany.atoz
+package com.example.remologin
 
 import io.flutter.embedding.android.FlutterActivity
 

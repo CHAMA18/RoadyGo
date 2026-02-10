@@ -82,11 +82,18 @@ class _MyAppState extends State<MyApp> {
 
   void setThemeMode(ThemeMode mode) => safeSetState(() {
         _themeMode = mode;
+        FFAppState().themeMode = mode.name;
       });
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<FFAppState>();
+    final persistedMode = appState.themeMode;
+    final computedThemeMode = switch (persistedMode) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'GoTaxiRider',
@@ -107,7 +114,11 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.light,
         useMaterial3: false,
       ),
-      themeMode: _themeMode,
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: false,
+      ),
+      themeMode: computedThemeMode,
       locale: Locale(appState.languageCode),
       routerConfig: _router,
     );

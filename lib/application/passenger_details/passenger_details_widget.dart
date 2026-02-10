@@ -490,36 +490,223 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                             },
                           ),
                           const SizedBox(height: 24),
+                          _ActionCard(
+                            icon: Theme.of(context).brightness ==
+                                    Brightness.dark
+                                ? Icons.light_mode
+                                : Icons.dark_mode,
+                            title: 'Dark/Light Mode',
+                            subtitle: Theme.of(context).brightness ==
+                                    Brightness.dark
+                                ? 'Switch to Light Mode'
+                                : 'Switch to Dark Mode',
+                            onTap: () async {
+                              final isDark = Theme.of(context).brightness ==
+                                  Brightness.dark;
+                              setDarkModeSetting(
+                                context,
+                                isDark ? ThemeMode.light : ThemeMode.dark,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 18),
                           InkWell(
                             onTap: () async {
+                              final theme = FlutterFlowTheme.of(context);
+                              final confirmed =
+                                  await showModalBottomSheet<bool>(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (context) {
+                                  return SafeArea(
+                                    child: Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                          16, 0, 16, 16),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          18, 14, 18, 18),
+                                      decoration: BoxDecoration(
+                                        color: theme.secondaryBackground,
+                                        borderRadius: BorderRadius.circular(22),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                                alpha: 0.25),
+                                            blurRadius: 30,
+                                            offset: const Offset(0, 12),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              width: 44,
+                                              height: 4,
+                                              decoration: BoxDecoration(
+                                                color: theme.lineColor
+                                                    .withValues(alpha: 0.8),
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 14),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: 44,
+                                                height: 44,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFEF4444)
+                                                      .withValues(alpha: 0.12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(14),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.logout_rounded,
+                                                  color: Color(0xFFEF4444),
+                                                  size: 22,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Log out?',
+                                                      style:
+                                                          theme.titleMedium
+                                                              .override(
+                                                        fontFamily: theme
+                                                            .titleMediumFamily,
+                                                        color: theme.primaryText,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts: !theme
+                                                            .titleMediumIsCustom,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 2),
+                                                    Text(
+                                                      currentUserEmail.isNotEmpty
+                                                          ? 'Signed in as $currentUserEmail'
+                                                          : 'You can sign back in anytime.',
+                                                      style:
+                                                          theme.bodySmall
+                                                              .override(
+                                                        fontFamily: theme
+                                                            .bodySmallFamily,
+                                                        color:
+                                                            theme.secondaryText,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts: !theme
+                                                            .bodySmallIsCustom,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: OutlinedButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, false),
+                                                  style:
+                                                      OutlinedButton.styleFrom(
+                                                    foregroundColor:
+                                                        theme.primaryText,
+                                                    side: BorderSide(
+                                                      color: theme.lineColor,
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      vertical: 14,
+                                                    ),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16),
+                                                    ),
+                                                  ),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: ElevatedButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, true),
+                                                  style: ElevatedButton
+                                                      .styleFrom(
+                                                    backgroundColor:
+                                                        const Color(0xFFEF4444),
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      vertical: 14,
+                                                    ),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16),
+                                                    ),
+                                                  ),
+                                                  child: const Text('Log out'),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+
+                              if (confirmed != true) return;
+
                               GoRouter.of(context).prepareAuthEvent();
                               await authManager.signOut();
                               GoRouter.of(context).clearRedirectLocation();
-
-                              context.goNamedAuth(
-                                  HomePageWidget.routeName, context.mounted);
+                              if (!context.mounted) return;
+                              context.goNamed(AutWidget.routeName);
                             },
-                            borderRadius: BorderRadius.circular(32),
+                            borderRadius: BorderRadius.circular(22),
                             child: Container(
                               width: double.infinity,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFEF4444),
-                                    Color(0xFFF87171),
-                                  ],
+                                color: FlutterFlowTheme.of(context)
+                                    .secondaryBackground
+                                    .withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(22),
+                                border: Border.all(
+                                  color: const Color(0xFFEF4444)
+                                      .withValues(alpha: 0.25),
+                                  width: 1,
                                 ),
-                                borderRadius: BorderRadius.circular(32),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        const Color(0xFFEF4444).withValues(
-                                      alpha: 0.25,
-                                    ),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
+                                    color: const Color(0xFFEF4444)
+                                        .withValues(alpha: 0.12),
+                                    blurRadius: 18,
+                                    offset: const Offset(0, 8),
                                   ),
                                 ],
                               ),
@@ -527,11 +714,11 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(
-                                    Icons.logout,
-                                    color: Colors.white,
+                                    Icons.logout_rounded,
+                                    color: Color(0xFFEF4444),
                                     size: 20,
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 10),
                                   Text(
                                     'Log Out',
                                     style: FlutterFlowTheme.of(context)
@@ -540,9 +727,9 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                           fontFamily:
                                               FlutterFlowTheme.of(context)
                                                   .titleSmallFamily,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.6,
+                                          color: const Color(0xFFEF4444),
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.4,
                                           useGoogleFonts:
                                               !FlutterFlowTheme.of(context)
                                                   .titleSmallIsCustom,

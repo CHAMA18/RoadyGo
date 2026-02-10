@@ -14,7 +14,8 @@ abstract class FlutterFlowTheme {
 
   static FlutterFlowTheme of(BuildContext context) {
     deviceSize = getDeviceSize(context);
-    return LightModeTheme();
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? DarkModeTheme() : LightModeTheme();
   }
 
   @Deprecated('Use primary instead')
@@ -164,6 +165,35 @@ class LightModeTheme extends FlutterFlowTheme {
 
   late Color primaryBtnText = const Color(0xFFFFFFFF);
   late Color lineColor = const Color(0xFFE0E3E7);
+}
+
+class DarkModeTheme extends FlutterFlowTheme {
+  @Deprecated('Use primary instead')
+  Color get primaryColor => primary;
+  @Deprecated('Use secondary instead')
+  Color get secondaryColor => secondary;
+  @Deprecated('Use tertiary instead')
+  Color get tertiaryColor => tertiary;
+
+  late Color primary = const Color(0xFFE53935);
+  late Color secondary = const Color(0xFFFF6B6B);
+  late Color tertiary = const Color(0xFF0B0F19);
+  late Color alternate = const Color(0xFF151A24);
+  late Color primaryText = const Color(0xFFF8FAFC);
+  late Color secondaryText = const Color(0xFFB0B7C3);
+  late Color primaryBackground = const Color(0xFF0B0F19);
+  late Color secondaryBackground = const Color(0xFF0F1629);
+  late Color accent1 = const Color(0x33E53935);
+  late Color accent2 = const Color(0x33FF6B6B);
+  late Color accent3 = const Color(0x3391A4FF);
+  late Color accent4 = const Color(0x1AFFFFFF);
+  late Color success = const Color(0xFF22C55E);
+  late Color warning = const Color(0xFFF59E0B);
+  late Color error = const Color(0xFFFF5963);
+  late Color info = const Color(0xFFFFFFFF);
+
+  late Color primaryBtnText = const Color(0xFFFFFFFF);
+  late Color lineColor = const Color(0xFF243041);
 }
 
 abstract class Typography {

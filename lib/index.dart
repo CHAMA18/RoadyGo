@@ -21,3 +21,4 @@ export '/application/onboarding/onboarding_widget.dart'
     show OnboardingWidget;
 export '/application/profile_page/profile_page_widget.dart'
     show ProfilePageWidget;
+export '/auth/reset_password/reset_password_widget.dart' show ResetPasswordWidget;

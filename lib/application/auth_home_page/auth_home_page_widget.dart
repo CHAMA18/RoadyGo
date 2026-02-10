@@ -343,12 +343,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                   Expanded(
                                                     child:
                                                         FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey:
-                                                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                                                      androidGoogleMapsApiKey:
-                                                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                                                      webGoogleMapsApiKey:
-                                                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                                       onSelect: (place) async {
                                                         safeSetState(() => _model
                                                                 .placePickerValue1 =
@@ -450,12 +447,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                   Expanded(
                                                     child:
                                                         FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey:
-                                                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                                                      androidGoogleMapsApiKey:
-                                                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                                                      webGoogleMapsApiKey:
-                                                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                                       onSelect: (place) async {
                                                         safeSetState(() => _model
                                                                 .placePickerValue2 =
@@ -572,7 +566,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                       },
                                                       child: Container(
                                                         width: 100.0,
-                                                        height: 100.0,
+                                                        height: 160.0,
                                                         decoration:
                                                             BoxDecoration(
                                                           color: FFAppState()
@@ -593,7 +587,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                         child: Padding(
                                                           padding:
                                                               EdgeInsets.all(
-                                                                  8.0),
+                                                                  6.0),
                                                           child: Column(
                                                             mainAxisSize:
                                                                 MainAxisSize
@@ -609,8 +603,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                             8.0),
                                                                 child:
                                                                     Image.asset(
-                                                                  'assets/images/Truck.png',
-                                                                  height: 60.0,
+                                                                  'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
+                                                                  height: 120.0,
                                                                   fit: BoxFit
                                                                       .scaleDown,
                                                                 ),
@@ -664,7 +658,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                         safeSetState(() {});
                                                       },
                                                       child: Container(
-                                                        height: 100.0,
+                                                        height: 160.0,
                                                         decoration:
                                                             BoxDecoration(
                                                           color: valueOrDefault<
@@ -689,7 +683,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                         child: Padding(
                                                           padding:
                                                               EdgeInsets.all(
-                                                                  8.0),
+                                                                  6.0),
                                                           child: Column(
                                                             mainAxisSize:
                                                                 MainAxisSize
@@ -703,8 +697,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 child:
                                                                     Image.asset(
                                                                   'assets/images/Truck_tow.png',
-                                                                  height: 50.0,
-                                                                  width: 80.0,
+                                                                  height: 100.0,
+                                                                  width: 160.0,
                                                                   fit: BoxFit
                                                                       .contain,
                                                                   errorBuilder:
@@ -713,9 +707,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                           stackTrace) {
                                                                     return Container(
                                                                       height:
-                                                                          50.0,
+                                                                          100.0,
                                                                       width:
-                                                                          80.0,
+                                                                          160.0,
                                                                       alignment:
                                                                           Alignment
                                                                               .center,

@@ -217,6 +217,20 @@ bool get isAndroid => !kIsWeb && Platform.isAndroid;
 bool get isiOS => !kIsWeb && Platform.isIOS;
 bool get isWeb => kIsWeb;
 
+// Centralized Google Maps SDK keys for app-level map and place picker usage.
+const kGoogleMapsApiKeyIOS = String.fromEnvironment(
+  'GOOGLE_MAPS_IOS_API_KEY',
+  defaultValue: 'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
+);
+const kGoogleMapsApiKeyAndroid = String.fromEnvironment(
+  'GOOGLE_MAPS_ANDROID_API_KEY',
+  defaultValue: 'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
+);
+const kGoogleMapsApiKeyWeb = String.fromEnvironment(
+  'GOOGLE_MAPS_WEB_API_KEY',
+  defaultValue: 'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+);
+
 const kBreakpointSmall = 479.0;
 const kBreakpointMedium = 767.0;
 const kBreakpointLarge = 991.0;

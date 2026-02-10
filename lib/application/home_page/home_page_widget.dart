@@ -525,12 +525,9 @@ class _HomePageWidgetState extends State<HomePageWidget>
                     context: context,
                     label: 'Pickup Point',
                     child: FlutterFlowPlacePicker(
-                      iOSGoogleMapsApiKey:
-                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                      androidGoogleMapsApiKey:
-                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                      webGoogleMapsApiKey:
-                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                       onSelect: (place) async {
                         safeSetState(() => _model.placePickerValue1 = place);
                       },
@@ -995,9 +992,9 @@ class _DestinationPickerButtonState extends State<_DestinationPickerButton>
     showDestinationPicker(
       context: context,
       onSelect: widget.onSelect,
-      iOSGoogleMapsApiKey: 'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-      androidGoogleMapsApiKey: 'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-      webGoogleMapsApiKey: 'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
       title: 'Where to?',
       hintText: 'Search for destination...',
       currentLocation: widget.currentLocation,

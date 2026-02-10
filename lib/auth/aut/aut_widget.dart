@@ -274,8 +274,8 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
 
   Widget _buildLogo(BuildContext context) {
     return Container(
-      width: 120.0,
-      height: 120.0,
+      width: 240.0,
+      height: 240.0,
       decoration: BoxDecoration(
         color: FlutterFlowTheme.of(context).primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(30.0),
@@ -288,7 +288,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(22.0),
           child: Container(
@@ -542,9 +542,7 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {
-                  // TODO: Implement forgot password
-                },
+                onPressed: _handleForgotPassword,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 ),
@@ -1079,7 +1077,18 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
       );
 
       if (user != null && mounted) {
-        context.goNamed(OnboardingWidget.routeName);
+        await authManager.refreshUser();
+        await authManager.sendEmailVerification();
+        await authManager.signOut();
+        if (!mounted) return;
+        _model.tabBarController?.animateTo(1);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Verification email sent to $email. Verify your email before logging in.',
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -1106,10 +1115,47 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
       );
 
       if (user != null && mounted) {
+        await authManager.refreshUser();
+        if (!currentUserEmailVerified) {
+          await authManager.sendEmailVerification();
+          await authManager.signOut();
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Please verify your email before continuing. A new verification email was sent to $email.',
+              ),
+            ),
+          );
+          return;
+        }
         context.goNamed(AuthHomePageWidget.routeName);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final email = _model.emailAddress22TextController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your email to reset password')),
+      );
+      return;
+    }
+
+    if (!RegExp(kTextValidatorEmailRegex).hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      return;
+    }
+
+    await authManager.resetPassword(
+      email: email,
+      context: context,
+    );
   }
 }

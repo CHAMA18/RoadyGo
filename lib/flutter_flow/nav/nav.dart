@@ -70,19 +70,16 @@ class AppStateNotifier extends ChangeNotifier {
 }
 
 GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
-      initialLocation: '/',
+      initialLocation: AuthHomePageWidget.routePath,
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? AuthHomePageWidget() : HomePageWidget(),
+      errorBuilder: (context, state) => AuthHomePageWidget(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.loggedIn
-              ? AuthHomePageWidget()
-              : HomePageWidget(),
+          builder: (context, _) => AuthHomePageWidget(),
         ),
         FFRoute(
           name: HomePageWidget.routeName,
@@ -157,6 +154,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: ProfilePageWidget.routeName,
           path: ProfilePageWidget.routePath,
           builder: (context, params) => ProfilePageWidget(),
+        ),
+        FFRoute(
+          name: ResetPasswordWidget.routeName,
+          path: ResetPasswordWidget.routePath,
+          builder: (context, params) => ResetPasswordWidget(),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

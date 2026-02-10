@@ -167,12 +167,9 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                         findingRideRideRecord.pickupAddress,
                                     destinationAddress: findingRideRideRecord
                                         .destinationAddress,
-                                    iOSGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
-                                    androidGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
-                                    webGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
+                                    iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                    androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                    webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     endCoordinate: findingRideRideRecord
                                         .destinationLocation!,
                                     startCoordinate:
@@ -195,12 +192,9 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                         findingRideRideRecord.pickupAddress,
                                     destinationAddress: findingRideRideRecord
                                         .destinationAddress,
-                                    iOSGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
-                                    androidGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
-                                    webGoogleMapsApiKey:
-                                        'AIzaSyCL1TanJF5A6XYjxuB6t32AFrcXdawNNtY',
+                                    iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                    androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                    webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     startCoordinate:
                                         findingRideRideRecord.pickupLocation!,
                                     endCoordinate: findingRideRideRecord

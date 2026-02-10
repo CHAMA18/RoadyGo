@@ -235,6 +235,22 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: IconButton(
+                                              onPressed: () => context.safePop(),
+                                              icon: Icon(
+                                                Icons.arrow_back_rounded,
+                                                color: FlutterFlowTheme.of(context)
+                                                    .primaryText,
+                                                size: 28.0,
+                                              ),
+                                              tooltip: 'Back',
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8.0),
                                           Text(
                                             'Book Your Ride',
                                             style: FlutterFlowTheme.of(context)
@@ -293,12 +309,9 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                   Expanded(
                                                     child:
                                                         FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey:
-                                                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                                                      androidGoogleMapsApiKey:
-                                                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                                                      webGoogleMapsApiKey:
-                                                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                                       onSelect: (place) async {
                                                         safeSetState(() => _model
                                                                 .placePickerValue1 =
@@ -400,12 +413,9 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                   Expanded(
                                                     child:
                                                         FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey:
-                                                          'AIzaSyAugAMTT-SxuNhu1KhmoqRPtZaKDOS0Hg4',
-                                                      androidGoogleMapsApiKey:
-                                                          'AIzaSyD1ugXQT8BZpkhr3H7aoZAvmRwVK2tbJmU',
-                                                      webGoogleMapsApiKey:
-                                                          'AIzaSyDYzHlT9F93CI8wnb34fNAGwFjEDXaZGpQ',
+                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                                       onSelect: (place) async {
                                                         safeSetState(() => _model
                                                                 .placePickerValue2 =

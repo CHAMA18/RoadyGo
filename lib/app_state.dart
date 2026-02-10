@@ -27,6 +27,9 @@ class FFAppState extends ChangeNotifier {
       _hasSelectedLanguage =
           prefs.getBool('ff_hasSelectedLanguage') ?? _hasSelectedLanguage;
     });
+    _safeInit(() {
+      _themeMode = prefs.getString('ff_themeMode') ?? _themeMode;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -110,6 +113,14 @@ class FFAppState extends ChangeNotifier {
   set hasSelectedLanguage(bool value) {
     _hasSelectedLanguage = value;
     prefs.setBool('ff_hasSelectedLanguage', value);
+  }
+
+  String _themeMode = 'system';
+  String get themeMode => _themeMode;
+  set themeMode(String value) {
+    _themeMode = value;
+    prefs.setString('ff_themeMode', value);
+    notifyListeners();
   }
 
   void setLanguageCode(String code) {

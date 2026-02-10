@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../auth_manager.dart';
+import '/firebase_options.dart';
 
 import '/backend/backend.dart';
 import 'anonymous_auth.dart';
@@ -53,6 +54,17 @@ class FirebaseAuthManager extends AuthManager
   // Set when using phone sign in in web mode (ignored otherwise).
   ConfirmationResult? _webPhoneAuthConfirmationResult;
   FirebasePhoneAuthManager phoneAuthManager = FirebasePhoneAuthManager();
+
+  ActionCodeSettings get _passwordResetActionCodeSettings {
+    final baseUrl = kIsWeb
+        ? Uri.base.origin
+        : 'https://${DefaultFirebaseOptions.web.authDomain}';
+    return ActionCodeSettings(
+      url: '$baseUrl/reset-password',
+      handleCodeInApp: true,
+      iOSBundleId: DefaultFirebaseOptions.ios.iosBundleId,
+    );
+  }
 
   @override
   Future signOut() {
@@ -130,7 +142,10 @@ class FirebaseAuthManager extends AuthManager
     required BuildContext context,
   }) async {
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: email,
+        actionCodeSettings: _passwordResetActionCodeSettings,
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(

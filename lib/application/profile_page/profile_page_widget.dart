@@ -4,6 +4,7 @@ import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import 'profile_page_model.dart';
 
@@ -487,38 +488,117 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
   }
 
   Widget _buildStatsGrid(BuildContext context, FlutterFlowTheme theme) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.directions_car,
-            iconBgColor: const Color(0xFFEFF6FF),
-            iconColor: const Color(0xFF3B82F6),
-            value: '142',
-            label: 'Total Rides',
+    final userRef = currentUserReference;
+    if (userRef == null) {
+      return Row(
+        children: const [
+          Expanded(
+            child: _StatCard(
+              icon: Icons.directions_car,
+              iconBgColor: Color(0xFFEFF6FF),
+              iconColor: Color(0xFF3B82F6),
+              value: '0',
+              label: 'Total Rides',
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.loyalty,
-            iconBgColor: const Color(0xFFFFF7ED),
-            iconColor: const Color(0xFFF97316),
-            value: '4.8k',
-            label: 'Points',
+          SizedBox(width: 12),
+          Expanded(
+            child: _StatCard(
+              icon: Icons.loyalty,
+              iconBgColor: Color(0xFFFFF7ED),
+              iconColor: Color(0xFFF97316),
+              value: '0',
+              label: 'Points',
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.forest,
-            iconBgColor: const Color(0xFFF0FDF4),
-            iconColor: const Color(0xFF22C55E),
-            value: '26g',
-            label: 'CO2 Saved',
+          SizedBox(width: 12),
+          Expanded(
+            child: _StatCard(
+              icon: Icons.forest,
+              iconBgColor: Color(0xFFF0FDF4),
+              iconColor: Color(0xFF22C55E),
+              value: '0g',
+              label: 'CO2 Saved',
+            ),
           ),
+        ],
+      );
+    }
+
+    return StreamBuilder<List<RideRecord>>(
+      stream: queryRideRecord(
+        queryBuilder: (rideRecord) => rideRecord.where(
+          'PassengerId',
+          isEqualTo: userRef,
         ),
-      ],
+      ),
+      builder: (context, snapshot) {
+        final rides = snapshot.data ?? const <RideRecord>[];
+        final totalRides = rides.length;
+        final completedRides =
+            rides.where((r) => r.status.toLowerCase() == 'completed').toList();
+
+        double totalDistanceKm = 0.0;
+        for (final r in completedRides) {
+          final pickup = r.pickupLocation;
+          final dest = r.destinationLocation;
+          if (pickup == null || dest == null) continue;
+          totalDistanceKm += functions.calculateDistance(pickup, dest) ?? 0.0;
+        }
+
+        // Simple, data-backed stats derived from real rides:
+        // - Points: 10 points per km traveled (completed rides only).
+        // - CO2 saved: 120g per km (completed rides only).
+        final points = (totalDistanceKm * 10).round();
+        final co2SavedGrams = totalDistanceKm * 120.0;
+
+        String formatCo2(num grams) {
+          if (grams >= 1000) {
+            return '${formatNumber(grams / 1000, formatType: FormatType.decimal, decimalType: DecimalType.automatic)}kg';
+          }
+          return '${formatNumber(grams, formatType: FormatType.compact)}g';
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _StatCard(
+                icon: Icons.directions_car,
+                iconBgColor: const Color(0xFFEFF6FF),
+                iconColor: const Color(0xFF3B82F6),
+                value: formatNumber(
+                  totalRides,
+                  formatType: FormatType.compact,
+                ),
+                label: 'Total Rides',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.loyalty,
+                iconBgColor: const Color(0xFFFFF7ED),
+                iconColor: const Color(0xFFF97316),
+                value: formatNumber(
+                  points,
+                  formatType: FormatType.compact,
+                ),
+                label: 'Points',
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.forest,
+                iconBgColor: const Color(0xFFF0FDF4),
+                iconColor: const Color(0xFF22C55E),
+                value: formatCo2(co2SavedGrams),
+                label: 'CO2 Saved',
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

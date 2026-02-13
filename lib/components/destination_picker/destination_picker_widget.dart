@@ -8,7 +8,6 @@ import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
 import 'package:go_taxi_rider/flutter_flow/place.dart';
 import 'package:go_taxi_rider/flutter_flow/lat_lng.dart';
 import '/l10n/roadygo_i18n.dart';
-import 'package:uuid/uuid.dart';
 
 // Web-specific imports
 import 'places_service_stub.dart'
@@ -54,8 +53,6 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
   bool _showResults = false;
   GoogleMapsPlaces? _places;
   Timer? _debounceTimer;
-  final String _sessionToken = const Uuid().v4();
-
   String get googleMapsApiKey {
     if (kIsWeb) {
       return widget.webGoogleMapsApiKey;

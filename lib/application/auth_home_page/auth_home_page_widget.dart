@@ -842,17 +842,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                   ),
                                                                 );
                                                               }
-                                                              List<RideVariablesRecord>
-                                                                  containerRideVariablesRecordList =
-                                                                  snapshot
-                                                                      .data!;
-                                                              final containerRideVariablesRecord =
-                                                                  containerRideVariablesRecordList
-                                                                          .isNotEmpty
-                                                                      ? containerRideVariablesRecordList
-                                                                          .first
-                                                                      : null;
-
                                                               return Container(
                                                                 width: MediaQuery.sizeOf(
                                                                             context)

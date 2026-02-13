@@ -707,17 +707,6 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                                                                   ),
                                                                 );
                                                               }
-                                                              List<RideVariablesRecord>
-                                                                  containerRideVariablesRecordList =
-                                                                  snapshot
-                                                                      .data!;
-                                                              final containerRideVariablesRecord =
-                                                                  containerRideVariablesRecordList
-                                                                          .isNotEmpty
-                                                                      ? containerRideVariablesRecordList
-                                                                          .first
-                                                                      : null;
-
                                                               return Container(
                                                                 width: MediaQuery.sizeOf(
                                                                             context)

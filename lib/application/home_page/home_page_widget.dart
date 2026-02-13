@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:easy_debounce/easy_debounce.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as google_maps_flutter;
 
 import '/backend/backend.dart';
@@ -784,7 +782,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                     ),
                   ),
                   Text(
-                    price ?? '\$0.00',
+                    price,
                     style: theme.headlineSmall.override(
                       fontFamily: theme.headlineSmallFamily,
                       color: theme.primaryText,

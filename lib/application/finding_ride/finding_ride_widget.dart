@@ -44,40 +44,12 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
   LatLng? currentUserLocationValue;
 
   final animationsMap = <String, AnimationInfo>{};
+  bool _handledCompletion = false;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => FindingRideModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      while (true) {
-        _model.ride = await RideRecord.getDocumentOnce(widget.rideDetails!);
-        if (_model.ride?.status == 'Completed') {
-          await showDialog(
-            context: context,
-            builder: (alertDialogContext) {
-              return AlertDialog(
-                title: Text(context.tr('ride_complete')),
-                content: Text(
-                    context.tr('ride_complete_desc')),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(alertDialogContext),
-                    child: Text(context.tr('dismiss')),
-                  ),
-                ],
-              );
-            },
-          );
-          FFAppState().starteRide = null;
-          safeSetState(() {});
-
-          context.pushNamed(HomePageWidget.routeName);
-        }
-      }
-    });
 
     animationsMap.addAll({
       'containerOnPageLoadAnimation': AnimationInfo(
@@ -128,6 +100,33 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
         }
 
         final findingRideRideRecord = snapshot.data!;
+        // Handle completion using the existing stream instead of a tight polling loop.
+        if (!_handledCompletion &&
+            findingRideRideRecord.status.trim().toLowerCase() == 'completed') {
+          _handledCompletion = true;
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            if (!mounted) return;
+            await showDialog(
+              context: context,
+              builder: (alertDialogContext) {
+                return AlertDialog(
+                  title: Text(context.tr('ride_complete')),
+                  content: Text(context.tr('ride_complete_desc')),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(alertDialogContext),
+                      child: Text(context.tr('dismiss')),
+                    ),
+                  ],
+                );
+              },
+            );
+            if (!mounted) return;
+            FFAppState().starteRide = null;
+            safeSetState(() {});
+            context.goNamed(HomePageWidget.routeName);
+          });
+        }
 
         return GestureDetector(
           onTap: () {
@@ -514,13 +513,15 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                     imageDriverRecordList =
                                                                     snapshot
                                                                         .data!;
-                                                                final imageDriverRecord =
-                                                                    imageDriverRecordList
-                                                                            .isNotEmpty
-                                                                        ? imageDriverRecordList
+                                                                final imageUrl = imageDriverRecordList.isNotEmpty &&
+                                                                        imageDriverRecordList
                                                                             .first
-                                                                        : null;
-
+                                                                            .imageUrl
+                                                                            .isNotEmpty
+                                                                    ? imageDriverRecordList
+                                                                        .first
+                                                                        .imageUrl
+                                                                    : 'https://storage.googleapis.com/flutterflow-io-6f20.appspot.com/projects/ride-driver-56i7br/assets/sjkpqor3sn9m/SignUP.png';
                                                                 return ClipRRect(
                                                                   borderRadius:
                                                                       BorderRadius
@@ -528,7 +529,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                               8.0),
                                                                   child: Image
                                                                       .network(
-                                                                    'https://picsum.photos/seed/907/600',
+                                                                    imageUrl,
                                                                     width: 70.0,
                                                                     height:
                                                                         70.0,
@@ -1211,13 +1212,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                           safeSetState(() {});
                                                         return;
                                                       } else {
-                                                        if (_shouldSetState)
-                                                          safeSetState(() {});
                                                         return;
                                                       }
-
-                                                      if (_shouldSetState)
-                                                        safeSetState(() {});
                                                     },
                                                     text: 'Cancel ride',
                                                     options: FFButtonOptions(

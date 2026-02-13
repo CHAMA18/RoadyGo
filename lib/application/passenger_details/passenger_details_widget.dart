@@ -1,14 +1,13 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:http/http.dart' as http;
 import 'passenger_details_model.dart';
 export 'passenger_details_model.dart';
 
@@ -29,6 +28,9 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   final animationsMap = <String, AnimationInfo>{};
+  bool _attemptedLocationResolve = false;
+  bool _resolvingLocation = false;
+  String? _resolvedLocationLabel;
 
   @override
   void initState() {
@@ -225,6 +227,122 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
     );
   }
 
+  String _mapsKey() {
+    if (isWeb) return kGoogleMapsApiKeyWeb;
+    if (isAndroid) return kGoogleMapsApiKeyAndroid;
+    if (isiOS) return kGoogleMapsApiKeyIOS;
+    return kGoogleMapsApiKeyWeb;
+  }
+
+  Future<String?> _reverseGeocode(LatLng latLng) async {
+    final key = _mapsKey();
+    if (key.isEmpty) return null;
+
+    final uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/geocode/json',
+      {
+        'latlng': '${latLng.latitude},${latLng.longitude}',
+        'key': key,
+        'language': FFAppState().languageCode,
+      },
+    );
+
+    final res = await http.get(uri);
+    if (res.statusCode != 200) return null;
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (body['status'] != 'OK') return null;
+
+    final results = (body['results'] as List?) ?? const [];
+    if (results.isEmpty) return null;
+    final first = results.first as Map<String, dynamic>;
+
+    final comps = (first['address_components'] as List?) ?? const [];
+    String? city;
+    String? region;
+    String? country;
+    for (final c in comps) {
+      final m = c as Map<String, dynamic>;
+      final types = (m['types'] as List?)?.cast<String>() ?? const [];
+      final longName = m['long_name'] as String?;
+      if (longName == null || longName.isEmpty) continue;
+      if (city == null &&
+          (types.contains('locality') ||
+              types.contains('postal_town') ||
+              types.contains('sublocality'))) {
+        city = longName;
+      }
+      if (region == null && types.contains('administrative_area_level_1')) {
+        region = longName;
+      }
+      if (country == null && types.contains('country')) {
+        country = longName;
+      }
+    }
+
+    final parts = <String>[
+      if (city != null) city,
+      if (region != null && region != city) region,
+      if (country != null) country,
+    ];
+    if (parts.isNotEmpty) return parts.join(', ');
+
+    final formatted = first['formatted_address'] as String?;
+    return (formatted != null && formatted.isNotEmpty) ? formatted : null;
+  }
+
+  Future<void> _resolveAndPersistCurrentLocation(
+    PassengerRecord? passenger,
+  ) async {
+    if (_attemptedLocationResolve) return;
+    _attemptedLocationResolve = true;
+
+    setState(() => _resolvingLocation = true);
+    try {
+      final loc = await getCurrentUserLocation(
+        defaultLocation: const LatLng(0.0, 0.0),
+        cached: false,
+      );
+
+      if (!mounted) return;
+      if (loc.latitude == 0.0 && loc.longitude == 0.0) {
+        setState(() => _resolvedLocationLabel = null);
+        return;
+      }
+
+      final label = await _reverseGeocode(loc);
+      if (!mounted) return;
+
+      final fallback = 'Lat ${loc.latitude.toStringAsFixed(5)}, '
+          'Lng ${loc.longitude.toStringAsFixed(5)}';
+      final resolved = (label != null && label.isNotEmpty) ? label : fallback;
+      setState(() => _resolvedLocationLabel = resolved);
+
+      if (passenger != null) {
+        await passenger.reference.update(
+          createPassengerRecordData(location: resolved),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('permissions') || msg.contains('denied')) {
+        setState(
+          () => _resolvedLocationLabel = context.tr('location_permission_denied'),
+        );
+      } else if (msg.contains('services are disabled')) {
+        setState(
+          () => _resolvedLocationLabel = context.tr('location_services_disabled'),
+        );
+      } else {
+        setState(() => _resolvedLocationLabel = null);
+      }
+    } finally {
+      if (mounted) setState(() => _resolvingLocation = false);
+    }
+  }
+
   @override
   void dispose() {
     _model.dispose();
@@ -289,6 +407,21 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                 ? passengerDetailsPassengerRecord!.email
                 : currentUserEmail;
         final displayPhotoUrl = currentUserPhoto;
+        final persistedLocation =
+            (passengerDetailsPassengerRecord?.location.isNotEmpty == true)
+                ? passengerDetailsPassengerRecord!.location
+                : null;
+        final computedLocation = persistedLocation ??
+            (_resolvingLocation
+                ? context.tr('fetching_location')
+                : (_resolvedLocationLabel ?? context.tr('location_not_set')));
+
+        if (!_attemptedLocationResolve && persistedLocation == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _resolveAndPersistCurrentLocation(passengerDetailsPassengerRecord);
+          });
+        }
 
         return GestureDetector(
           onTap: () {
@@ -450,11 +583,7 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                passengerDetailsPassengerRecord?.location
-                                                .isNotEmpty ==
-                                            true
-                                    ? passengerDetailsPassengerRecord!.location
-                                    : context.tr('location_not_set'),
+                                computedLocation,
                                 style: FlutterFlowTheme.of(context)
                                     .bodySmall
                                     .override(

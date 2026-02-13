@@ -41,7 +41,6 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
     const primaryColor = Color(0xFFFF6B6B);
-    const primaryHoverColor = Color(0xFFFF5252);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -162,7 +161,10 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               return _buildProfileHeader(
                                 context,
                                 theme,
-                                passenger?.name ?? currentUserEmail ?? 'User',
+                                passenger?.name ??
+                                    (currentUserEmail.isNotEmpty
+                                        ? currentUserEmail
+                                        : context.tr('user')),
                                 currentUserPhoto,
                               );
                             },

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:js_util' as js_util;
 import 'package:flutter/foundation.dart';

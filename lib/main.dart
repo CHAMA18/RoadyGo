@@ -35,7 +35,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
   static const Set<String> _supportedLanguageCodes = {
     'en',
     'es',
@@ -109,10 +108,10 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  void setThemeMode(ThemeMode mode) => safeSetState(() {
-        _themeMode = mode;
-        FFAppState().themeMode = mode.name;
-      });
+  void setThemeMode(ThemeMode mode) {
+    // FlutterFlow calls this. Persist via FFAppState so MaterialApp picks it up.
+    FFAppState().themeMode = mode.name;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -366,7 +366,34 @@ class _HomePageWidgetState extends State<HomePageWidget>
   }) {
     return Stack(
       children: [
-        FlutterFlowGoogleMap(
+        // Map background - shows while map is loading
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: const Color(0xFFE8F4E8), // Light green map-like background
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: primaryColor,
+                  strokeWidth: 3,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Loading map...',
+                  style: TextStyle(
+                    color: theme.secondaryText,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Google Map
+        Positioned.fill(
+          child: FlutterFlowGoogleMap(
           controller: _model.googleMapsController,
           onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
           initialLocation: _model.googleMapsCenter ?? effectiveLocation,
@@ -393,6 +420,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
           showMapToolbar: false,
           showTraffic: false,
           centerMapOnMarkerTap: false,
+        ),
         ),
         // Gradient overlay
         Positioned.fill(
@@ -772,15 +800,19 @@ class _HomePageWidgetState extends State<HomePageWidget>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    context.tr('estimated_fare'),
-                    style: theme.bodyMedium.override(
-                      fontFamily: theme.bodyMediumFamily,
-                      color: theme.secondaryText,
-                      letterSpacing: 0,
-                      useGoogleFonts: !theme.bodyMediumIsCustom,
+                  Flexible(
+                    child: Text(
+                      context.tr('estimated_fare'),
+                      style: theme.bodyMedium.override(
+                        fontFamily: theme.bodyMediumFamily,
+                        color: theme.secondaryText,
+                        letterSpacing: 0,
+                        useGoogleFonts: !theme.bodyMediumIsCustom,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 12),
                   Text(
                     price,
                     style: theme.headlineSmall.override(

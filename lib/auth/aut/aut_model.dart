@@ -4,6 +4,18 @@ import 'aut_widget.dart' show AutWidget;
 import 'package:flutter/material.dart';
 
 class AutModel extends FlutterFlowModel<AutWidget> {
+  /// Converts a 2-letter country code to its corresponding flag emoji.
+  /// Uses Unicode regional indicator symbols.
+  static String countryCodeToFlag(String countryCode) {
+    final code = countryCode.toUpperCase();
+    if (code.length != 2) return '';
+    
+    final firstLetter = code.codeUnitAt(0) - 0x41 + 0x1F1E6;
+    final secondLetter = code.codeUnitAt(1) - 0x41 + 0x1F1E6;
+    
+    return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+  }
+
   ///  State fields for stateful widgets in this page.
 
   // State field(s) for TabBar widget.

@@ -137,37 +137,51 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                           ),
                           const SizedBox(height: 16),
                           // Profile Picture and Info
-                          StreamBuilder<List<PassengerRecord>>(
-                            stream: queryPassengerRecord(
-                              queryBuilder: (passengerRecord) =>
-                                  passengerRecord.where(
-                                'email',
-                                isEqualTo: currentUserEmail,
+                          AuthUserStreamWidget(
+                            builder: (context) => StreamBuilder<List<PassengerRecord>>(
+                              stream: queryPassengerRecord(
+                                queryBuilder: (passengerRecord) =>
+                                    passengerRecord.where(
+                                  'email',
+                                  isEqualTo: currentUserEmail,
+                                ),
+                                singleRecord: true,
                               ),
-                              singleRecord: true,
-                            ),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return _buildProfileHeader(
+                                    context,
+                                    theme,
+                                    currentUserDisplayName.isNotEmpty
+                                        ? currentUserDisplayName
+                                        : (currentUserEmail.isNotEmpty
+                                            ? currentUserEmail
+                                            : context.tr('loading')),
+                                    currentUserPhoto,
+                                  );
+                                }
+                                final passenger = snapshot.data?.isNotEmpty == true
+                                    ? snapshot.data!.first
+                                    : null;
+                                // Priority: PassengerRecord name > Firebase displayName > email > 'User'
+                                String displayName = passenger?.name ?? '';
+                                if (displayName.isEmpty) {
+                                  displayName = currentUserDisplayName;
+                                }
+                                if (displayName.isEmpty) {
+                                  displayName = currentUserEmail;
+                                }
+                                if (displayName.isEmpty) {
+                                  displayName = context.tr('user');
+                                }
                                 return _buildProfileHeader(
                                   context,
                                   theme,
-                                  context.tr('loading'),
-                                  null,
+                                  displayName,
+                                  currentUserPhoto,
                                 );
-                              }
-                              final passenger = snapshot.data?.isNotEmpty == true
-                                  ? snapshot.data!.first
-                                  : null;
-                              return _buildProfileHeader(
-                                context,
-                                theme,
-                                passenger?.name ??
-                                    (currentUserEmail.isNotEmpty
-                                        ? currentUserEmail
-                                        : context.tr('user')),
-                                currentUserPhoto,
-                              );
-                            },
+                              },
+                            ),
                           ),
                         ],
                       ),

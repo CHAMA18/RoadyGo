@@ -5,6 +5,7 @@ import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:collection/collection.dart';
 
+import '/components/destination_picker/destination_picker_widget.dart';
 import 'flutter_flow_widgets.dart';
 import 'lat_lng.dart';
 import 'place.dart';
@@ -62,23 +63,48 @@ class _FFPlacePickerState extends State<FlutterFlowPlacePicker> {
       text: _selectedPlace ?? widget.defaultText ?? 'Search places',
       icon: widget.icon,
       onPressed: () async {
-        final p = await PlacesAutocomplete.show(
-          context: context,
-          apiKey: googleMapsApiKey,
-          onError: (response) =>
-              print('Error occured when getting places response:'
-                  '\n${response.errorMessage}'),
-          mode: Mode.overlay,
-          types: [],
-          components: [],
-          strictbounds: false,
-          proxyBaseUrl: widget.proxyBaseUrl,
-          language: languageCode,
-        );
+        if (kIsWeb) {
+          // Use custom destination picker for web (uses JS Places API)
+          await _showWebPlacePicker(context);
+        } else {
+          // Use flutter_google_places for mobile
+          final p = await PlacesAutocomplete.show(
+            context: context,
+            apiKey: googleMapsApiKey,
+            onError: (response) =>
+                debugPrint('Error occured when getting places response:'
+                    '\n${response.errorMessage}'),
+            mode: Mode.overlay,
+            types: [],
+            components: [],
+            strictbounds: false,
+            proxyBaseUrl: widget.proxyBaseUrl,
+            language: languageCode,
+          );
 
-        await displayPrediction(p, languageCode);
+          await displayPrediction(p, languageCode);
+        }
       },
       options: widget.buttonOptions,
+    );
+  }
+
+  Future<void> _showWebPlacePicker(BuildContext context) async {
+    await showDestinationPicker(
+      context: context,
+      onSelect: (place) {
+        if (mounted) {
+          setState(() {
+            _selectedPlace = place.name.isNotEmpty ? place.name : place.address;
+          });
+        }
+        widget.onSelect(place);
+      },
+      iOSGoogleMapsApiKey: widget.iOSGoogleMapsApiKey,
+      androidGoogleMapsApiKey: widget.androidGoogleMapsApiKey,
+      webGoogleMapsApiKey: widget.webGoogleMapsApiKey,
+      title: 'Search',
+      hintText: widget.defaultText ?? 'Search places...',
     );
   }
 

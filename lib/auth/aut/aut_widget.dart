@@ -718,9 +718,10 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                     ),
                 selectedItemBuilder: (BuildContext context) {
                   return AutModel.countryCodes.map((country) {
+                    final flag = AutModel.countryCodeToFlag(country['country']!);
                     return Center(
                       child: Text(
-                        '${country['country']} ${country['code']}',
+                        '$flag ${country['code']}',
                         style: FlutterFlowTheme.of(context).bodyMedium.override(
                               fontFamily:
                                   FlutterFlowTheme.of(context).bodyMediumFamily,
@@ -735,11 +736,17 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
                   }).toList();
                 },
                 items: AutModel.countryCodes.map((country) {
+                  final flag = AutModel.countryCodeToFlag(country['country']!);
                   return DropdownMenuItem<String>(
                     value: '${country['code']}_${country['country']}',
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Text(
+                          flag,
+                          style: const TextStyle(fontSize: 20.0),
+                        ),
+                        const SizedBox(width: 8.0),
                         Text(
                           country['country']!,
                           style:

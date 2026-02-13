@@ -38,7 +38,19 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
     _model = createModel(context, () => AuthHomePageModel());
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
-        .then((loc) => safeSetState(() => currentUserLocationValue = loc));
+        .then((loc) => safeSetState(() => currentUserLocationValue = loc))
+        .catchError((error) {
+      debugPrint('Error getting user location: $error');
+      // Fallback to a default location (coordinates for Lusaka, Zambia)
+      safeSetState(() => currentUserLocationValue = LatLng(-15.4167, 28.2833));
+    }).timeout(
+      Duration(seconds: 3),
+      onTimeout: () {
+        debugPrint('Location request timed out, using default location');
+        // Fallback to a default location after timeout
+        safeSetState(() => currentUserLocationValue = LatLng(-15.4167, 28.2833));
+      },
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appState = FFAppState();
@@ -86,12 +98,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
         backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
         body: SafeArea(
           top: true,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                height: MediaQuery.sizeOf(context).height * 1.0,
-                child: Stack(
+          child: LayoutBuilder(
+                  builder: (context, constraints) => Stack(
                   alignment: AlignmentDirectional(0.0, 1.0),
                   children: [
                     Align(
@@ -169,7 +177,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                   FFButtonWidget(
                                     onPressed: () async {
                                       context.pushNamed(
-                                          PassengerDetailsWidget.routeName);
+                                          ProfilePageWidget.routeName);
                                     },
                                     text: context.tr('profile'),
                                     icon: Icon(
@@ -264,7 +272,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                               children: [
                                 Container(
                                   width: MediaQuery.sizeOf(context).width * 1.0,
-                                  height: 630.0,
+                                  constraints: BoxConstraints(
+                                    maxHeight: constraints.maxHeight * 0.75,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: FlutterFlowTheme.of(context)
                                         .secondaryBackground,
@@ -597,17 +607,35 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 MainAxisAlignment
                                                                     .center,
                                                             children: [
-                                                              ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8.0),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
-                                                                  height: 120.0,
-                                                                  fit: BoxFit
-                                                                      .scaleDown,
+                                                              Container(
+                                                                height: 120.0,
+                                                                width: 160.0,
+                                                                decoration: BoxDecoration(
+                                                                  color: FFAppState().rideTier == 'Basic'
+                                                                      ? FlutterFlowTheme.of(context).secondary
+                                                                      : FlutterFlowTheme.of(context).secondaryBackground,
+                                                                  borderRadius: BorderRadius.circular(8.0),
+                                                                ),
+                                                                child: ClipRRect(
+                                                                  borderRadius: BorderRadius.circular(8.0),
+                                                                  child: Image.asset(
+                                                                    'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
+                                                                    height: 120.0,
+                                                                    width: 160.0,
+                                                                    fit: BoxFit.contain,
+                                                                    errorBuilder: (context, error, stackTrace) {
+                                                                      return Container(
+                                                                        height: 120.0,
+                                                                        width: 160.0,
+                                                                        alignment: Alignment.center,
+                                                                        color: Colors.transparent,
+                                                                        child: Icon(
+                                                                          Icons.directions_car_outlined,
+                                                                          color: FlutterFlowTheme.of(context).secondaryText,
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
                                                                 ),
                                                               ),
                                                               Text(
@@ -690,41 +718,42 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 MainAxisSize
                                                                     .max,
                                                             children: [
-                                                              ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8.0),
-                                                                child:
-                                                                    Image.asset(
-                                                                  'assets/images/Truck_tow.png',
-                                                                  height: 100.0,
-                                                                  width: 160.0,
-                                                                  fit: BoxFit
-                                                                      .contain,
-                                                                  errorBuilder:
-                                                                      (context,
-                                                                          error,
-                                                                          stackTrace) {
-                                                                    return Container(
-                                                                      height:
-                                                                          100.0,
-                                                                      width:
-                                                                          160.0,
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .center,
-                                                                      color: Colors
-                                                                          .transparent,
-                                                                      child: Icon(
-                                                                        Icons
-                                                                            .local_shipping_outlined,
-                                                                        color: FlutterFlowTheme.of(
-                                                                                context)
-                                                                            .secondaryText,
-                                                                      ),
-                                                                    );
-                                                                  },
+                                                              Container(
+                                                                height: 100.0,
+                                                                width: 160.0,
+                                                                decoration: BoxDecoration(
+                                                                  color: valueOrDefault<Color>(
+                                                                    FFAppState().rideTier == 'Corporate'
+                                                                        ? FlutterFlowTheme.of(context).secondary
+                                                                        : FlutterFlowTheme.of(context).secondaryBackground,
+                                                                    FlutterFlowTheme.of(context).secondaryBackground,
+                                                                  ),
+                                                                  borderRadius: BorderRadius.circular(8.0),
+                                                                ),
+                                                                child: ClipRRect(
+                                                                  borderRadius: BorderRadius.circular(8.0),
+                                                                  child: Image.asset(
+                                                                    'assets/images/Truck_tow.png',
+                                                                    height: 100.0,
+                                                                    width: 160.0,
+                                                                    fit: BoxFit.contain,
+                                                                    color: FFAppState().rideTier == 'Corporate'
+                                                                        ? FlutterFlowTheme.of(context).secondary
+                                                                        : FlutterFlowTheme.of(context).secondaryBackground,
+                                                                    colorBlendMode: BlendMode.multiply,
+                                                                    errorBuilder: (context, error, stackTrace) {
+                                                                      return Container(
+                                                                        height: 100.0,
+                                                                        width: 160.0,
+                                                                        alignment: Alignment.center,
+                                                                        color: Colors.transparent,
+                                                                        child: Icon(
+                                                                          Icons.local_shipping_outlined,
+                                                                          color: FlutterFlowTheme.of(context).secondaryText,
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  ),
                                                                 ),
                                                               ),
                                                               Text(
@@ -1175,7 +1204,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                             ),
                                         ]
                                             .divide(SizedBox(height: 12.0))
-                                            .addToStart(SizedBox(height: 20.0)),
+                                            .addToStart(SizedBox(height: 20.0))
+                                            .addToEnd(SizedBox(height: 20.0)),
                                       ),
                                     ),
                                   ),
@@ -1189,8 +1219,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                   ],
                 ),
               ),
-            ],
-          ),
         ),
       ),
     );

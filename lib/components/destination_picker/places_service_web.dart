@@ -29,11 +29,28 @@ Future<List<PlaceSearchResult>> searchPlaces(
   double lat,
   double lng,
 ) async {
+  debugPrint('searchPlaces called with query: $query');
+  
   if (!_isGoogleMapsLoaded()) {
-    debugPrint('Google Maps not loaded');
+    debugPrint('Google Maps not loaded - checking what is available...');
+    try {
+      final google = js_util.getProperty(js_util.globalThis, 'google');
+      debugPrint('google object: ${google != null}');
+      if (google != null) {
+        final maps = js_util.getProperty(google, 'maps');
+        debugPrint('google.maps object: ${maps != null}');
+        if (maps != null) {
+          final places = js_util.getProperty(maps, 'places');
+          debugPrint('google.maps.places object: ${places != null}');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking Google Maps: $e');
+    }
     return [];
   }
 
+  debugPrint('Google Maps loaded, proceeding with search...');
   final completer = Completer<List<PlaceSearchResult>>();
 
   try {
@@ -44,6 +61,7 @@ Future<List<PlaceSearchResult>> searchPlaces(
     // Create AutocompleteService
     final AutocompleteServiceClass = js_util.getProperty(places, 'AutocompleteService');
     final service = js_util.callConstructor(AutocompleteServiceClass, []);
+    debugPrint('AutocompleteService created');
     
     // Create LatLng
     final LatLngClass = js_util.getProperty(maps, 'LatLng');
@@ -57,10 +75,12 @@ Future<List<PlaceSearchResult>> searchPlaces(
     
     // Create callback
     void callback(dynamic predictions, dynamic status) {
+      debugPrint('Places API callback received - status: $status');
       final results = <PlaceSearchResult>[];
       
       if (predictions != null) {
         final length = js_util.getProperty(predictions, 'length') as int? ?? 0;
+        debugPrint('Number of predictions: $length');
         for (var i = 0; i < length; i++) {
           final p = js_util.getProperty(predictions, i);
           if (p != null) {
@@ -76,6 +96,8 @@ Future<List<PlaceSearchResult>> searchPlaces(
               secondaryText = js_util.getProperty(formatting, 'secondary_text')?.toString() ?? '';
             }
             
+            debugPrint('Found place: $mainText');
+            
             if (placeId.isNotEmpty) {
               results.add(PlaceSearchResult(
                 placeId: placeId,
@@ -85,12 +107,15 @@ Future<List<PlaceSearchResult>> searchPlaces(
             }
           }
         }
+      } else {
+        debugPrint('No predictions returned');
       }
       
       completer.complete(results);
     }
     
     // Call getPlacePredictions
+    debugPrint('Calling getPlacePredictions...');
     js_util.callMethod(service, 'getPlacePredictions', [
       request,
       js_util.allowInterop(callback),
@@ -98,7 +123,10 @@ Future<List<PlaceSearchResult>> searchPlaces(
     
     return completer.future.timeout(
       const Duration(seconds: 10),
-      onTimeout: () => [],
+      onTimeout: () {
+        debugPrint('Places API request timed out');
+        return [];
+      },
     );
   } catch (e) {
     debugPrint('Error in searchPlaces: $e');

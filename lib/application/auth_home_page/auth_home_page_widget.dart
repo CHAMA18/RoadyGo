@@ -580,16 +580,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                         height: 160.0,
                                                         decoration:
                                                             BoxDecoration(
-                                                          color: FFAppState()
-                                                                      .rideTier ==
-                                                                  'Basic'
-                                                              ? FlutterFlowTheme
-                                                                      .of(
-                                                                          context)
-                                                                  .secondary
-                                                              : FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .secondaryBackground,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondaryBackground,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(
@@ -611,9 +604,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 height: 120.0,
                                                                 width: 160.0,
                                                                 decoration: BoxDecoration(
-                                                                  color: FFAppState().rideTier == 'Basic'
-                                                                      ? FlutterFlowTheme.of(context).secondary
-                                                                      : FlutterFlowTheme.of(context).secondaryBackground,
+                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
                                                                   borderRadius: BorderRadius.circular(8.0),
                                                                 ),
                                                                 child: ClipRRect(

@@ -215,14 +215,24 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                               ),
                                             ),
                                             child: ClipOval(
-                                              child: Image.network(
-                                                'https://lh3.googleusercontent.com/aida-public/AB6AXuCnUNZK2NoQ_qVFN9ET0amv4YQa3e9xS-LheyAcMA659It97TAv0rdnDTNR0H43f4cYuuRaBBjIY9uCjox2OLlbbEziy53_ZYMfico3tXroINm0TAw2G8l5oOlEooNLCS1hACRTqsivzW0J9Yv3HiW6Rbv_dEQ6Vj2DWDh2x0SOgvy1VFFtNbm50AjPVoeOR3uHgz_w1Q_0k7F9-65HFB_Y__lX6AHZ3AI67rtkQn_XKhG7tKUW_BvKPbRkJ2TKYaH5CIFbT-GS6A',
-                                                fit: BoxFit.cover,
-                                                color: Colors.black
-                                                    .withValues(alpha: 0.3),
-                                                colorBlendMode:
-                                                    BlendMode.darken,
-                                              ),
+                                              child: currentUserPhoto.isNotEmpty
+                                                  ? Image.network(
+                                                      currentUserPhoto,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (context, error, stackTrace) =>
+                                                          Icon(
+                                                        Icons.person,
+                                                        size: 48,
+                                                        color: FlutterFlowTheme.of(context)
+                                                            .secondaryText,
+                                                      ),
+                                                    )
+                                                  : Icon(
+                                                      Icons.person,
+                                                      size: 48,
+                                                      color: FlutterFlowTheme.of(context)
+                                                          .secondaryText,
+                                                    ),
                                             ),
                                           ),
                                           Container(
@@ -282,7 +292,9 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                             editProfilePassengerRecord?.name !=
                                                 ''
                                         ? editProfilePassengerRecord?.name
-                                        : ' ',
+                                        : currentUserDisplayName.isNotEmpty
+                                            ? currentUserDisplayName
+                                            : '',
                                   ),
                                   focusNode: _model.yourNameFocusNode,
                                   textCapitalization:
@@ -356,7 +368,9 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                                 ''
                                         ? editProfilePassengerRecord
                                             ?.mobileNumber
-                                        : ' ',
+                                        : currentPhoneNumber.isNotEmpty
+                                            ? currentPhoneNumber
+                                            : '',
                                   ),
                                   focusNode: _model.phoneNumberFocusNode,
                                   keyboardType: TextInputType.phone,
@@ -435,7 +449,9 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                             editProfilePassengerRecord?.email !=
                                                 ''
                                         ? editProfilePassengerRecord?.email
-                                        : ' ',
+                                        : currentUserEmail.isNotEmpty
+                                            ? currentUserEmail
+                                            : '',
                                   ),
                                   focusNode: _model.emailFocusNode,
                                   keyboardType: TextInputType.emailAddress,
@@ -507,7 +523,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                                     ?.location !=
                                                 ''
                                         ? editProfilePassengerRecord?.location
-                                        : ' ',
+                                        : '',
                                   ),
                                   focusNode: _model.locationFocusNode,
                                   keyboardType: TextInputType.text,

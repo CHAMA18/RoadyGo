@@ -766,8 +766,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                             width: 160.0,
                                                             decoration:
                                                                 BoxDecoration(
-                                                              color: Colors
-                                                                  .transparent,
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
@@ -797,8 +795,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                     alignment:
                                                                         Alignment
                                                                             .center,
-                                                                    color: Colors
-                                                                        .transparent,
                                                                     child: Icon(
                                                                       Icons
                                                                           .local_shipping_outlined,

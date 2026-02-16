@@ -640,7 +640,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
+                                                                'assets/images/car_tow.png',
                                                                 height: 120.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit

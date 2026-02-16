@@ -161,6 +161,8 @@ flutter:
   assets:
     - assets/fonts/
     - assets/images/
+    - assets/images/Car-tow.png
+    - assets/images/car_tow.png
     - assets/images/Truck_tow.png
     - assets/videos/
     - assets/audios/

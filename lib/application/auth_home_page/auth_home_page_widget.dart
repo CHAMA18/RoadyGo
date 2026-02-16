@@ -31,6 +31,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
+  bool _isMapReady = false;
 
   Future<RideVariablesRecord?> _loadAdminRideVariables() async {
     final defaultPricing = await queryRideVariablesRecordOnce(
@@ -68,12 +69,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
       },
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final appState = FFAppState();
-      if (mounted && !appState.hasSelectedLanguage) {
-        _showLanguagePicker(appState);
-      }
-    });
   }
 
   @override
@@ -123,35 +118,55 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                   child: Container(
                     height: MediaQuery.sizeOf(context).height * 0.6,
                     decoration: BoxDecoration(),
-                    child: FlutterFlowGoogleMap(
-                      controller: _model.googleMapsController,
-                      onCameraIdle: (latLng) =>
-                          _model.googleMapsCenter = latLng,
-                      initialLocation: _model.googleMapsCenter ??=
-                          currentUserLocationValue!,
-                      markers: FFAppState()
-                          .testMarkers
-                          .where((e) => FFAppState().testMarkers.contains(e))
-                          .toList()
-                          .map(
-                            (marker) => FlutterFlowMarker(
-                              marker.serialize(),
-                              marker,
+                    child: Stack(
+                      children: [
+                        _buildFallbackMapBackground(),
+                        Positioned.fill(
+                          child: FlutterFlowGoogleMap(
+                            controller: _model.googleMapsController,
+                            onCameraIdle: (latLng) {
+                              _model.googleMapsCenter = latLng;
+                              if (!_isMapReady && mounted) {
+                                safeSetState(() => _isMapReady = true);
+                              }
+                            },
+                            initialLocation: _model.googleMapsCenter ??=
+                                currentUserLocationValue!,
+                            markers: FFAppState()
+                                .testMarkers
+                                .where((e) => FFAppState().testMarkers.contains(e))
+                                .toList()
+                                .map(
+                                  (marker) => FlutterFlowMarker(
+                                    marker.serialize(),
+                                    marker,
+                                  ),
+                                )
+                                .toList(),
+                            markerColor: GoogleMarkerColor.red,
+                            mapType: MapType.normal,
+                            style: GoogleMapStyle.standard,
+                            initialZoom: 14.0,
+                            allowInteraction: true,
+                            allowZoom: true,
+                            showZoomControls: false,
+                            showLocation: true,
+                            showCompass: false,
+                            showMapToolbar: true,
+                            showTraffic: false,
+                            centerMapOnMarkerTap: false,
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 220),
+                              opacity: _isMapReady ? 0.0 : 1.0,
+                              child: _buildFallbackMapBackground(),
                             ),
-                          )
-                          .toList(),
-                      markerColor: GoogleMarkerColor.red,
-                      mapType: MapType.normal,
-                      style: GoogleMapStyle.standard,
-                      initialZoom: 14.0,
-                      allowInteraction: true,
-                      allowZoom: true,
-                      showZoomControls: false,
-                      showLocation: true,
-                      showCompass: false,
-                      showMapToolbar: true,
-                      showTraffic: false,
-                      centerMapOnMarkerTap: false,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -1338,6 +1353,10 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                 .toList();
 
             return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
               title: Text(
                 context.tr('select_language'),
                 style: theme.titleMedium.override(
@@ -1348,35 +1367,41 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                 ),
               ),
               content: SizedBox(
-                width: 360.0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: searchController,
-                      onChanged: (_) => setModalState(() {}),
-                      decoration: InputDecoration(
-                        hintText: context.tr('search_language'),
-                        prefixIcon: const Icon(Icons.search_rounded),
+                width:
+                    MediaQuery.sizeOf(context).width.clamp(0.0, 360.0).toDouble(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.6,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: searchController,
+                        onChanged: (_) => setModalState(() {}),
+                        decoration: InputDecoration(
+                          hintText: context.tr('search_language'),
+                          prefixIcon: const Icon(Icons.search_rounded),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12.0),
-                    Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: items.length,
-                        itemBuilder: (context, i) {
-                          final item = items[i];
-                          return _languageOption(
-                            label: item.name,
-                            code: item.code,
-                            flag: item.flag,
-                            appState: appState,
-                          );
-                        },
+                      const SizedBox(height: 12.0),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (dialogContext, i) {
+                            final item = items[i];
+                            return _languageOption(
+                              label: item.name,
+                              code: item.code,
+                              flag: item.flag,
+                              appState: appState,
+                              dialogContext: dialogContext,
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -1392,6 +1417,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
     required String code,
     required String flag,
     required FFAppState appState,
+    required BuildContext dialogContext,
   }) {
     final isTranslated = RoadyGoI18n.isLanguageFullyTranslated(code);
     return ListTile(
@@ -1409,16 +1435,101 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
               : null,
       onTap: () {
         if (!isTranslated) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(this.context).showSnackBar(
             SnackBar(
               content: Text(context.tr('language_coming_soon')),
             ),
           );
           return;
         }
-        appState.setLanguageCode(code);
-        Navigator.of(context).pop();
+        Navigator.of(dialogContext).pop();
+        Future.microtask(() => appState.setLanguageCode(code));
       },
     );
   }
+
+  Widget _buildFallbackMapBackground() {
+    final theme = FlutterFlowTheme.of(context);
+    final primary = theme.primary;
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFE8F1F8),
+            Color(0xFFDCEADF),
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.25,
+              child: CustomPaint(
+                painter: _AuthFallbackRoadGridPainter(),
+              ),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.map_rounded,
+                  color: primary.withValues(alpha: 0.85),
+                  size: 34,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr('loading_map'),
+                  style: TextStyle(
+                    color: theme.secondaryText,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthFallbackRoadGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final minor = Paint()
+      ..color = const Color(0xFF90A4AE).withValues(alpha: 0.22)
+      ..strokeWidth = 1;
+    final major = Paint()
+      ..color = const Color(0xFF607D8B).withValues(alpha: 0.25)
+      ..strokeWidth = 2;
+
+    for (double y = 0; y <= size.height; y += 28) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), minor);
+    }
+    for (double x = 0; x <= size.width; x += 28) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), minor);
+    }
+
+    canvas.drawLine(
+      Offset(size.width * 0.08, size.height * 0.15),
+      Offset(size.width * 0.92, size.height * 0.72),
+      major,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.15, size.height * 0.92),
+      Offset(size.width * 0.78, size.height * 0.12),
+      major,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

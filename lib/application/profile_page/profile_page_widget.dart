@@ -128,9 +128,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 // Settings Button
                                 _GlassButton(
                                   icon: Icons.settings,
-                                  onTap: () {
-                                    // TODO: Navigate to settings
-                                  },
+                                  onTap: () =>
+                                      context.pushNamed(EditProfileWidget.routeName),
                                 ),
                               ],
                             ),
@@ -528,16 +527,6 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
               label: context.tr('points'),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _StatCard(
-              icon: Icons.forest,
-              iconBgColor: const Color(0xFFF0FDF4),
-              iconColor: const Color(0xFF22C55E),
-              value: '0g',
-              label: context.tr('co2_saved'),
-            ),
-          ),
         ],
       );
     }
@@ -565,16 +554,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
 
         // Simple, data-backed stats derived from real rides:
         // - Points: 10 points per km traveled (completed rides only).
-        // - CO2 saved: 120g per km (completed rides only).
         final points = (totalDistanceKm * 10).round();
-        final co2SavedGrams = totalDistanceKm * 120.0;
-
-        String formatCo2(num grams) {
-          if (grams >= 1000) {
-            return '${formatNumber(grams / 1000, formatType: FormatType.decimal, decimalType: DecimalType.automatic)}kg';
-          }
-          return '${formatNumber(grams, formatType: FormatType.compact)}g';
-        }
 
         return Row(
           children: [
@@ -601,16 +581,6 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                   formatType: FormatType.compact,
                 ),
                 label: context.tr('points'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _StatCard(
-                icon: Icons.forest,
-                iconBgColor: const Color(0xFFF0FDF4),
-                iconColor: const Color(0xFF22C55E),
-                value: formatCo2(co2SavedGrams),
-                label: context.tr('co2_saved'),
               ),
             ),
           ],

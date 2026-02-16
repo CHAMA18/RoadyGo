@@ -34,6 +34,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
   LatLng? currentUserLocationValue;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  bool _isMapReady = false;
 
   @override
   void initState() {
@@ -366,36 +367,17 @@ class _HomePageWidgetState extends State<HomePageWidget>
   }) {
     return Stack(
       children: [
-        // Map background - shows while map is loading
-        Container(
-          width: double.infinity,
-          height: double.infinity,
-          color: const Color(0xFFE8F4E8), // Light green map-like background
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: primaryColor,
-                  strokeWidth: 3,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  context.tr('loading_map'),
-                  style: TextStyle(
-                    color: theme.secondaryText,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        _buildFallbackMapBackground(theme, primaryColor),
         // Google Map
         Positioned.fill(
           child: FlutterFlowGoogleMap(
           controller: _model.googleMapsController,
-          onCameraIdle: (latLng) => _model.googleMapsCenter = latLng,
+          onCameraIdle: (latLng) {
+            _model.googleMapsCenter = latLng;
+            if (!_isMapReady && mounted) {
+              safeSetState(() => _isMapReady = true);
+            }
+          },
           initialLocation: _model.googleMapsCenter ?? effectiveLocation,
           markers: FFAppState()
               .testMarkers
@@ -421,6 +403,15 @@ class _HomePageWidgetState extends State<HomePageWidget>
           showTraffic: false,
           centerMapOnMarkerTap: false,
         ),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 220),
+              opacity: _isMapReady ? 0.0 : 1.0,
+              child: _buildFallbackMapBackground(theme, primaryColor),
+            ),
+          ),
         ),
         // Gradient overlay
         Positioned.fill(
@@ -479,6 +470,56 @@ class _HomePageWidgetState extends State<HomePageWidget>
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildFallbackMapBackground(FlutterFlowTheme theme, Color primaryColor) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFE8F1F8),
+            Color(0xFFDCEADF),
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.25,
+              child: CustomPaint(
+                painter: _FallbackRoadGridPainter(),
+              ),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.map_rounded,
+                  color: primaryColor.withValues(alpha: 0.85),
+                  size: 34,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr('loading_map'),
+                  style: TextStyle(
+                    color: theme.secondaryText,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -881,6 +922,39 @@ class _HomePageWidgetState extends State<HomePageWidget>
       },
     );
   }
+}
+
+class _FallbackRoadGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final minor = Paint()
+      ..color = const Color(0xFF90A4AE).withValues(alpha: 0.22)
+      ..strokeWidth = 1;
+    final major = Paint()
+      ..color = const Color(0xFF607D8B).withValues(alpha: 0.25)
+      ..strokeWidth = 2;
+
+    for (double y = 0; y <= size.height; y += 28) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), minor);
+    }
+    for (double x = 0; x <= size.width; x += 28) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), minor);
+    }
+
+    canvas.drawLine(
+      Offset(size.width * 0.08, size.height * 0.15),
+      Offset(size.width * 0.92, size.height * 0.72),
+      major,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.15, size.height * 0.92),
+      Offset(size.width * 0.78, size.height * 0.12),
+      major,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// Ride Type Selection Card

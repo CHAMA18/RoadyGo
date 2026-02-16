@@ -197,11 +197,23 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.light,
         useMaterial3: false,
         fontFamily: 'Satoshi',
+        fontFamilyFallback: const [
+          'Noto Sans',
+          'Roboto',
+          'Arial',
+          'sans-serif',
+        ],
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: false,
         fontFamily: 'Satoshi',
+        fontFamilyFallback: const [
+          'Noto Sans',
+          'Roboto',
+          'Arial',
+          'sans-serif',
+        ],
       ),
       themeMode: computedThemeMode,
       // Always keep Material widgets on a locale supported by

@@ -32,6 +32,21 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
 
+  Future<RideVariablesRecord?> _loadAdminRideVariables() async {
+    final defaultPricing = await queryRideVariablesRecordOnce(
+      queryBuilder: (q) => q.where(FieldPath.documentId, isEqualTo: 'default'),
+      singleRecord: true,
+    ).then((s) => s.firstOrNull);
+
+    if (defaultPricing != null) {
+      return defaultPricing;
+    }
+
+    return queryRideVariablesRecordOnce(
+      singleRecord: true,
+    ).then((s) => s.firstOrNull);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +63,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
       onTimeout: () {
         debugPrint('Location request timed out, using default location');
         // Fallback to a default location after timeout
-        safeSetState(() => currentUserLocationValue = LatLng(-15.4167, 28.2833));
+        safeSetState(
+            () => currentUserLocationValue = LatLng(-15.4167, 28.2833));
       },
     );
 
@@ -99,1190 +115,1307 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
         body: SafeArea(
           top: true,
           child: LayoutBuilder(
-                  builder: (context, constraints) => Stack(
-                  alignment: AlignmentDirectional(0.0, 1.0),
-                  children: [
-                    Align(
-                      alignment: AlignmentDirectional(0.0, -1.0),
-                      child: Container(
-                        height: MediaQuery.sizeOf(context).height * 0.6,
-                        decoration: BoxDecoration(),
-                        child: FlutterFlowGoogleMap(
-                          controller: _model.googleMapsController,
-                          onCameraIdle: (latLng) =>
-                              _model.googleMapsCenter = latLng,
-                          initialLocation: _model.googleMapsCenter ??=
-                              currentUserLocationValue!,
-                          markers: FFAppState()
-                              .testMarkers
-                              .where(
-                                  (e) => FFAppState().testMarkers.contains(e))
-                              .toList()
-                              .map(
-                                (marker) => FlutterFlowMarker(
-                                  marker.serialize(),
-                                  marker,
+            builder: (context, constraints) => Stack(
+              alignment: AlignmentDirectional(0.0, 1.0),
+              children: [
+                Align(
+                  alignment: AlignmentDirectional(0.0, -1.0),
+                  child: Container(
+                    height: MediaQuery.sizeOf(context).height * 0.6,
+                    decoration: BoxDecoration(),
+                    child: FlutterFlowGoogleMap(
+                      controller: _model.googleMapsController,
+                      onCameraIdle: (latLng) =>
+                          _model.googleMapsCenter = latLng,
+                      initialLocation: _model.googleMapsCenter ??=
+                          currentUserLocationValue!,
+                      markers: FFAppState()
+                          .testMarkers
+                          .where((e) => FFAppState().testMarkers.contains(e))
+                          .toList()
+                          .map(
+                            (marker) => FlutterFlowMarker(
+                              marker.serialize(),
+                              marker,
+                            ),
+                          )
+                          .toList(),
+                      markerColor: GoogleMarkerColor.red,
+                      mapType: MapType.normal,
+                      style: GoogleMapStyle.standard,
+                      initialZoom: 14.0,
+                      allowInteraction: true,
+                      allowZoom: true,
+                      showZoomControls: false,
+                      showLocation: true,
+                      showCompass: false,
+                      showMapToolbar: true,
+                      showTraffic: false,
+                      centerMapOnMarkerTap: false,
+                    ),
+                  ),
+                ),
+                SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                            15.0, 10.0, 15.0, 10.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Align(
+                                alignment: AlignmentDirectional(1.0, 0.0),
+                                child: FlutterFlowIconButton(
+                                  borderRadius: 20.0,
+                                  borderWidth: 0.0,
+                                  buttonSize: 50.0,
+                                  fillColor: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
+                                  icon: FaIcon(
+                                    FontAwesomeIcons.locationArrow,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    size: 24.0,
+                                  ),
+                                  onPressed: () {
+                                    print('IconButton pressed ...');
+                                  },
                                 ),
-                              )
-                              .toList(),
-                          markerColor: GoogleMarkerColor.red,
-                          mapType: MapType.normal,
-                          style: GoogleMapStyle.standard,
-                          initialZoom: 14.0,
-                          allowInteraction: true,
-                          allowZoom: true,
-                          showZoomControls: false,
-                          showLocation: true,
-                          showCompass: false,
-                          showMapToolbar: true,
-                          showTraffic: false,
-                          centerMapOnMarkerTap: false,
+                              ),
+                              FFButtonWidget(
+                                onPressed: () async {
+                                  context
+                                      .pushNamed(ProfilePageWidget.routeName);
+                                },
+                                text: context.tr('profile'),
+                                icon: Icon(
+                                  Icons.person_2,
+                                  size: 15.0,
+                                ),
+                                options: FFButtonOptions(
+                                  height: 50.0,
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      24.0, 0.0, 24.0, 0.0),
+                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 0.0, 0.0),
+                                  color: FlutterFlowTheme.of(context).secondary,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .titleSmallFamily,
+                                        color: Colors.white,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .titleSmallIsCustom,
+                                      ),
+                                  elevation: 0.0,
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(100.0),
+                                ),
+                              ),
+                              if (FFAppState().starteRide != null)
+                                FFButtonWidget(
+                                  onPressed: () async {
+                                    context.pushNamed(
+                                      FindingRideWidget.routeName,
+                                      queryParameters: {
+                                        'rideDetails': serializeParam(
+                                          FFAppState().starteRide,
+                                          ParamType.DocumentReference,
+                                        ),
+                                      }.withoutNulls,
+                                    );
+                                  },
+                                  text: context.tr('go_to_ride'),
+                                  icon: Icon(
+                                    Icons.directions_car_rounded,
+                                    size: 15.0,
+                                  ),
+                                  options: FFButtonOptions(
+                                    height: 50.0,
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        24.0, 0.0, 24.0, 0.0),
+                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 0.0, 0.0),
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    textStyle: FlutterFlowTheme.of(context)
+                                        .titleSmall
+                                        .override(
+                                          fontFamily:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmallFamily,
+                                          color: Colors.white,
+                                          letterSpacing: 0.0,
+                                          useGoogleFonts:
+                                              !FlutterFlowTheme.of(context)
+                                                  .titleSmallIsCustom,
+                                        ),
+                                    elevation: 0.0,
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(100.0),
+                                  ),
+                                ),
+                            ].divide(SizedBox(width: 15.0)),
+                          ),
                         ),
                       ),
-                    ),
-                    SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                15.0, 10.0, 15.0, 10.0),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Align(
-                                    alignment: AlignmentDirectional(1.0, 0.0),
-                                    child: FlutterFlowIconButton(
-                                      borderRadius: 20.0,
-                                      borderWidth: 0.0,
-                                      buttonSize: 50.0,
-                                      fillColor: FlutterFlowTheme.of(context)
-                                          .secondaryBackground,
-                                      icon: FaIcon(
-                                        FontAwesomeIcons.locationArrow,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 24.0,
-                                      ),
-                                      onPressed: () {
-                                        print('IconButton pressed ...');
-                                      },
-                                    ),
-                                  ),
-                                  FFButtonWidget(
-                                    onPressed: () async {
-                                      context.pushNamed(
-                                          ProfilePageWidget.routeName);
-                                    },
-                                    text: context.tr('profile'),
-                                    icon: Icon(
-                                      Icons.person_2,
-                                      size: 15.0,
-                                    ),
-                                    options: FFButtonOptions(
-                                      height: 50.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          24.0, 0.0, 24.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: FlutterFlowTheme.of(context)
-                                          .secondary,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmallFamily,
-                                            color: Colors.white,
-                                            letterSpacing: 0.0,
-                                            useGoogleFonts:
-                                                !FlutterFlowTheme.of(context)
-                                                    .titleSmallIsCustom,
-                                          ),
-                                      elevation: 0.0,
-                                      borderSide: BorderSide(
-                                        color: Colors.transparent,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(100.0),
-                                    ),
-                                  ),
-                                  if (FFAppState().starteRide != null)
-                                    FFButtonWidget(
-                                      onPressed: () async {
-                                        context.pushNamed(
-                                          FindingRideWidget.routeName,
-                                          queryParameters: {
-                                            'rideDetails': serializeParam(
-                                              FFAppState().starteRide,
-                                              ParamType.DocumentReference,
-                                            ),
-                                          }.withoutNulls,
-                                        );
-                                      },
-                                      text: context.tr('go_to_ride'),
-                                      icon: Icon(
-                                        Icons.directions_car_rounded,
-                                        size: 15.0,
-                                      ),
-                                      options: FFButtonOptions(
-                                        height: 50.0,
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            24.0, 0.0, 24.0, 0.0),
-                                        iconPadding:
-                                            EdgeInsetsDirectional.fromSTEB(
-                                                0.0, 0.0, 0.0, 0.0),
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        textStyle: FlutterFlowTheme.of(context)
-                                            .titleSmall
+                      SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                              width: MediaQuery.sizeOf(context).width * 1.0,
+                              constraints: BoxConstraints(
+                                maxHeight: constraints.maxHeight * 0.75,
+                              ),
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context)
+                                    .secondaryBackground,
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(0.0),
+                                  bottomRight: Radius.circular(0.0),
+                                  topLeft: Radius.circular(20.0),
+                                  topRight: Radius.circular(20.0),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    20.0, 0.0, 20.0, 0.0),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        context.tr('where_are_you_going'),
+                                        style: FlutterFlowTheme.of(context)
+                                            .titleLarge
                                             .override(
                                               fontFamily:
                                                   FlutterFlowTheme.of(context)
-                                                      .titleSmallFamily,
-                                              color: Colors.white,
+                                                      .titleLargeFamily,
                                               letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w900,
                                               useGoogleFonts:
                                                   !FlutterFlowTheme.of(context)
-                                                      .titleSmallIsCustom,
+                                                      .titleLargeIsCustom,
                                             ),
-                                        elevation: 0.0,
-                                        borderSide: BorderSide(
-                                          color: Colors.transparent,
-                                          width: 1.0,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(100.0),
                                       ),
-                                    ),
-                                ].divide(SizedBox(width: 15.0)),
-                              ),
-                            ),
-                          ),
-                          SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Container(
-                                  width: MediaQuery.sizeOf(context).width * 1.0,
-                                  constraints: BoxConstraints(
-                                    maxHeight: constraints.maxHeight * 0.75,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(0.0),
-                                      bottomRight: Radius.circular(0.0),
-                                      topLeft: Radius.circular(20.0),
-                                      topRight: Radius.circular(20.0),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        20.0, 0.0, 20.0, 0.0),
-                                    child: SingleChildScrollView(
-                                      child: Column(
+                                      Column(
                                         mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            context.tr('where_are_you_going'),
-                                            style: FlutterFlowTheme.of(context)
-                                                .titleLarge
-                                                .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLargeFamily,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.w900,
-                                                  useGoogleFonts:
-                                                      !FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLargeIsCustom,
-                                                ),
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 5.0),
+                                            child: Text(
+                                              context.tr('pickup_point'),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumIsCustom,
+                                                  ),
+                                            ),
                                           ),
-                                          Column(
+                                          Row(
                                             mainAxisSize: MainAxisSize.max,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 0.0, 5.0),
-                                                child: Text(
-                                                  context.tr('pickup_point'),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                                ),
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child:
-                                                        FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
-                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
-                                                      onSelect: (place) async {
-                                                        safeSetState(() => _model
-                                                                .placePickerValue1 =
-                                                            place);
-                                                      },
-                                                      defaultText:
-                                                          context.tr('select_pickup_point'),
-                                                      icon: Icon(
-                                                        Icons
-                                                            .location_on_outlined,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        size: 24.0,
-                                                      ),
-                                                      buttonOptions:
-                                                          FFButtonOptions(
-                                                        height: 50.0,
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                        textStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmallFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  useGoogleFonts:
-                                                                      !FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleSmallIsCustom,
-                                                                ),
-                                                        elevation: 0.0,
-                                                        borderSide: BorderSide(
+                                              Expanded(
+                                                child: FlutterFlowPlacePicker(
+                                                  iOSGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyIOS,
+                                                  androidGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyAndroid,
+                                                  webGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyWeb,
+                                                  onSelect: (place) async {
+                                                    safeSetState(() => _model
+                                                            .placePickerValue1 =
+                                                        place);
+                                                  },
+                                                  defaultText: context.tr(
+                                                      'select_pickup_point'),
+                                                  icon: Icon(
+                                                    Icons.location_on_outlined,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    size: 24.0,
+                                                  ),
+                                                  buttonOptions:
+                                                      FFButtonOptions(
+                                                    height: 50.0,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryBackground,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmallFamily,
                                                           color: FlutterFlowTheme
                                                                   .of(context)
-                                                              .lineColor,
-                                                          width: 1.0,
+                                                              .primaryText,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
                                                         ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
+                                                    elevation: 0.0,
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .lineColor,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ].divide(SizedBox(width: 10.0)),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 5.0),
+                                            child: Text(
+                                              context.tr('destination'),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumIsCustom,
+                                                  ),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                child: FlutterFlowPlacePicker(
+                                                  iOSGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyIOS,
+                                                  androidGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyAndroid,
+                                                  webGoogleMapsApiKey:
+                                                      kGoogleMapsApiKeyWeb,
+                                                  onSelect: (place) async {
+                                                    safeSetState(() => _model
+                                                            .placePickerValue2 =
+                                                        place);
+                                                  },
+                                                  defaultText: context
+                                                      .tr('select_destination'),
+                                                  icon: Icon(
+                                                    Icons.outlined_flag_sharp,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    size: 24.0,
+                                                  ),
+                                                  buttonOptions:
+                                                      FFButtonOptions(
+                                                    height: 50.0,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryBackground,
+                                                    textStyle: FlutterFlowTheme
+                                                            .of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmallFamily,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .titleSmallIsCustom,
+                                                        ),
+                                                    elevation: 0.0,
+                                                    borderSide: BorderSide(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .lineColor,
+                                                      width: 1.0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ].divide(SizedBox(width: 10.0)),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.max,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 5.0),
+                                            child: Text(
+                                              context.tr('ride_type'),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumIsCustom,
+                                                  ),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                child: InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    FFAppState().rideTier =
+                                                        'Basic';
+                                                    FFAppState().update(() {});
+                                                  },
+                                                  child: Container(
+                                                    width: 100.0,
+                                                    height: 160.0,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      border: Border.all(
+                                                        color: FFAppState()
+                                                                    .rideTier ==
+                                                                'Basic'
+                                                            ? FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondary
+                                                            : FlutterFlowTheme
+                                                                    .of(context)
+                                                                .alternate,
+                                                        width: FFAppState()
+                                                                    .rideTier ==
+                                                                'Basic'
+                                                            ? 2.0
+                                                            : 1.0,
                                                       ),
                                                     ),
-                                                  ),
-                                                ].divide(SizedBox(width: 10.0)),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 0.0, 5.0),
-                                                child: Text(
-                                                  context.tr('destination'),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                                ),
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child:
-                                                        FlutterFlowPlacePicker(
-                                                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                                                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
-                                                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
-                                                      onSelect: (place) async {
-                                                        safeSetState(() => _model
-                                                                .placePickerValue2 =
-                                                            place);
-                                                      },
-                                                      defaultText:
-                                                          context.tr('select_destination'),
-                                                      icon: Icon(
-                                                        Icons
-                                                            .outlined_flag_sharp,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        size: 24.0,
-                                                      ),
-                                                      buttonOptions:
-                                                          FFButtonOptions(
-                                                        height: 50.0,
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                        textStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .titleSmall
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmallFamily,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .primaryText,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  useGoogleFonts:
-                                                                      !FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleSmallIsCustom,
-                                                                ),
-                                                        elevation: 0.0,
-                                                        borderSide: BorderSide(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .lineColor,
-                                                          width: 1.0,
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.0),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ].divide(SizedBox(width: 10.0)),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            mainAxisSize: MainAxisSize.max,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 0.0, 5.0),
-                                                child: Text(
-                                                  context.tr('ride_type'),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                                ),
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.max,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child: InkWell(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      onTap: () async {
-                                                        FFAppState().rideTier =
-                                                            'Basic';
-                                                        FFAppState()
-                                                            .update(() {});
-                                                      },
-                                                      child: Container(
-                                                        width: 100.0,
-                                                        height: 160.0,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryBackground,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      8.0),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  6.0),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Container(
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(6.0),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Container(
+                                                            height: 120.0,
+                                                            width: 160.0,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
+                                                            ),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
                                                                 height: 120.0,
                                                                 width: 160.0,
-                                                                decoration: BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                                                                  borderRadius: BorderRadius.circular(8.0),
-                                                                ),
-                                                                child: ClipRRect(
-                                                                  borderRadius: BorderRadius.circular(8.0),
-                                                                  child: Image.asset(
-                                                                    'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (3).jpeg',
-                                                                    height: 120.0,
-                                                                    width: 160.0,
-                                                                    fit: BoxFit.contain,
-                                                                    errorBuilder: (context, error, stackTrace) {
-                                                                      return Container(
-                                                                        height: 120.0,
-                                                                        width: 160.0,
-                                                                        alignment: Alignment.center,
-                                                                        color: Colors.transparent,
-                                                                        child: Icon(
-                                                                          Icons.directions_car_outlined,
-                                                                          color: FlutterFlowTheme.of(context).secondaryText,
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                context.tr('car_tow'),
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily,
-                                                                      color: FFAppState().rideTier ==
-                                                                              'Basic'
-                                                                          ? FlutterFlowTheme.of(context)
-                                                                              .secondaryBackground
-                                                                          : FlutterFlowTheme.of(context)
-                                                                              .primaryText,
-                                                                      fontSize:
-                                                                          16.0,
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      useGoogleFonts:
-                                                                          !FlutterFlowTheme.of(context)
-                                                                              .bodyMediumIsCustom,
+                                                                fit: BoxFit
+                                                                    .contain,
+                                                                errorBuilder:
+                                                                    (context,
+                                                                        error,
+                                                                        stackTrace) {
+                                                                  return Container(
+                                                                    height:
+                                                                        120.0,
+                                                                    width:
+                                                                        160.0,
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    color: Colors
+                                                                        .transparent,
+                                                                    child: Icon(
+                                                                      Icons
+                                                                          .directions_car_outlined,
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryText,
                                                                     ),
+                                                                  );
+                                                                },
                                                               ),
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
+                                                          Text(
+                                                            context
+                                                                .tr('car_tow'),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                                  color: FFAppState()
+                                                                              .rideTier ==
+                                                                          'Basic'
+                                                                      ? FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondary
+                                                                      : FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .primaryText,
+                                                                  fontSize:
+                                                                      16.0,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
+                                                                ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
-                                                  Expanded(
-                                                    child: InkWell(
-                                                      splashColor:
-                                                          Colors.transparent,
-                                                      focusColor:
-                                                          Colors.transparent,
-                                                      hoverColor:
-                                                          Colors.transparent,
-                                                      highlightColor:
-                                                          Colors.transparent,
-                                                      onTap: () async {
-                                                        FFAppState().rideTier =
-                                                            'Corporate';
-                                                        safeSetState(() {});
-                                                      },
-                                                      child: Container(
-                                                        height: 160.0,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: valueOrDefault<
-                                                              Color>(
-                                                            FFAppState().rideTier ==
-                                                                    'Corporate'
-                                                                ? FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondary
-                                                                : FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryBackground,
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .secondaryBackground,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      8.0),
-                                                        ),
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                  6.0),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            children: [
-                                                              Container(
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: InkWell(
+                                                  splashColor:
+                                                      Colors.transparent,
+                                                  focusColor:
+                                                      Colors.transparent,
+                                                  hoverColor:
+                                                      Colors.transparent,
+                                                  highlightColor:
+                                                      Colors.transparent,
+                                                  onTap: () async {
+                                                    FFAppState().rideTier =
+                                                        'Corporate';
+                                                    safeSetState(() {});
+                                                  },
+                                                  child: Container(
+                                                    height: 160.0,
+                                                    decoration: BoxDecoration(
+                                                      color: FFAppState()
+                                                                  .rideTier ==
+                                                              'Corporate'
+                                                          ? FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondary
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8.0),
+                                                      border: Border.all(
+                                                        color: FFAppState()
+                                                                    .rideTier ==
+                                                                'Corporate'
+                                                            ? FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondary
+                                                            : FlutterFlowTheme
+                                                                    .of(context)
+                                                                .alternate,
+                                                        width: FFAppState()
+                                                                    .rideTier ==
+                                                                'Corporate'
+                                                            ? 2.0
+                                                            : 1.0,
+                                                      ),
+                                                    ),
+                                                    child: Padding(
+                                                      padding:
+                                                          EdgeInsets.all(6.0),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        children: [
+                                                          Container(
+                                                            height: 100.0,
+                                                            width: 160.0,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
+                                                            ),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8.0),
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/images/Truck_tow.png',
                                                                 height: 100.0,
                                                                 width: 160.0,
-                                                                decoration: BoxDecoration(
-                                                                  color: valueOrDefault<Color>(
-                                                                    FFAppState().rideTier == 'Corporate'
-                                                                        ? FlutterFlowTheme.of(context).secondary
-                                                                        : FlutterFlowTheme.of(context).secondaryBackground,
-                                                                    FlutterFlowTheme.of(context).secondaryBackground,
-                                                                  ),
-                                                                  borderRadius: BorderRadius.circular(8.0),
-                                                                ),
-                                                                child: ClipRRect(
-                                                                  borderRadius: BorderRadius.circular(8.0),
-                                                                  child: Image.asset(
-                                                                    'assets/images/Truck_tow.png',
-                                                                    height: 100.0,
-                                                                    width: 160.0,
-                                                                    fit: BoxFit.contain,
-                                                                    color: FFAppState().rideTier == 'Corporate'
-                                                                        ? FlutterFlowTheme.of(context).secondary
-                                                                        : FlutterFlowTheme.of(context).secondaryBackground,
-                                                                    colorBlendMode: BlendMode.multiply,
-                                                                    errorBuilder: (context, error, stackTrace) {
-                                                                      return Container(
-                                                                        height: 100.0,
-                                                                        width: 160.0,
-                                                                        alignment: Alignment.center,
-                                                                        color: Colors.transparent,
-                                                                        child: Icon(
-                                                                          Icons.local_shipping_outlined,
-                                                                          color: FlutterFlowTheme.of(context).secondaryText,
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                context.tr('truck_tow'),
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMedium
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyMediumFamily,
-                                                                      color: valueOrDefault<
-                                                                          Color>(
-                                                                        FFAppState().rideTier ==
-                                                                                'Corporate'
-                                                                            ? FlutterFlowTheme.of(context).secondaryBackground
-                                                                            : FlutterFlowTheme.of(context).primaryText,
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .primaryText,
-                                                                      ),
-                                                                      fontSize:
-                                                                          16.0,
-                                                                      letterSpacing:
-                                                                          0.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                      useGoogleFonts:
-                                                                          !FlutterFlowTheme.of(context)
-                                                                              .bodyMediumIsCustom,
+                                                                fit: BoxFit
+                                                                    .contain,
+                                                                errorBuilder:
+                                                                    (context,
+                                                                        error,
+                                                                        stackTrace) {
+                                                                  return Container(
+                                                                    height:
+                                                                        100.0,
+                                                                    width:
+                                                                        160.0,
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    color: Colors
+                                                                        .transparent,
+                                                                    child: Icon(
+                                                                      Icons
+                                                                          .local_shipping_outlined,
+                                                                      color: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .secondaryText,
                                                                     ),
+                                                                  );
+                                                                },
                                                               ),
-                                                            ],
+                                                            ),
                                                           ),
-                                                        ),
+                                                          Text(
+                                                            context.tr(
+                                                                'truck_tow'),
+                                                            style: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .bodyMedium
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMediumFamily,
+                                                                  color:
+                                                                      valueOrDefault<
+                                                                          Color>(
+                                                                    FFAppState().rideTier ==
+                                                                            'Corporate'
+                                                                        ? FlutterFlowTheme.of(context)
+                                                                            .secondaryBackground
+                                                                        : FlutterFlowTheme.of(context)
+                                                                            .primaryText,
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
+                                                                  ),
+                                                                  fontSize:
+                                                                      16.0,
+                                                                  letterSpacing:
+                                                                      0.0,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  useGoogleFonts:
+                                                                      !FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .bodyMediumIsCustom,
+                                                                ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
-                                                ].divide(SizedBox(width: 10.0)),
-                                              ),
-                                            ],
-                                          ),
-                                          if ((_model.placePickerValue2
-                                                          .address !=
-                                                      '') &&
-                                              (_model.placePickerValue1
-                                                          .address !=
-                                                      ''))
-                                            Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  context.tr('ride_fee'),
-                                                  style: FlutterFlowTheme.of(
-                                                          context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .primaryText,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
                                                 ),
-                                                Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Stack(
-                                                        alignment:
-                                                            AlignmentDirectional(
-                                                                1.0, 0.0),
-                                                        children: [
-                                                          StreamBuilder<
-                                                              List<
-                                                                  RideVariablesRecord>>(
-                                                            stream:
-                                                                queryRideVariablesRecord(
-                                                              singleRecord:
-                                                                  true,
-                                                            ),
-                                                            builder: (context,
-                                                                snapshot) {
-                                                              // Customize what your widget looks like when it's loading.
-                                                              if (!snapshot
-                                                                  .hasData) {
-                                                                return Center(
-                                                                  child:
-                                                                      SizedBox(
-                                                                    width: 50.0,
-                                                                    height:
-                                                                        50.0,
-                                                                    child:
-                                                                        CircularProgressIndicator(
-                                                                      valueColor:
-                                                                          AlwaysStoppedAnimation<
-                                                                              Color>(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .primary,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              }
-                                                              return Container(
-                                                                width: MediaQuery.sizeOf(
-                                                                            context)
-                                                                        .width *
-                                                                    0.9,
-                                                                height: 50.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .alternate,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              100.0),
-                                                                ),
-                                                                child: Align(
-                                                                  alignment:
-                                                                      AlignmentDirectional(
-                                                                          -1.0,
-                                                                          0.0),
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            30.0,
-                                                                            0.0,
-                                                                            0.0,
-                                                                            0.0),
-                                                                    child: StreamBuilder<
-                                                                        List<
-                                                                            RideVariablesRecord>>(
-                                                                      stream:
-                                                                          queryRideVariablesRecord(
-                                                                        singleRecord:
-                                                                            true,
-                                                                      ),
-                                                                      builder:
-                                                                          (context,
-                                                                              snapshot) {
-                                                                        // Customize what your widget looks like when it's loading.
-                                                                        if (!snapshot
-                                                                            .hasData) {
-                                                                          return Center(
-                                                                            child:
-                                                                                SizedBox(
-                                                                              width: 50.0,
-                                                                              height: 50.0,
-                                                                              child: CircularProgressIndicator(
-                                                                                valueColor: AlwaysStoppedAnimation<Color>(
-                                                                                  FlutterFlowTheme.of(context).primary,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          );
-                                                                        }
-                                                                        List<RideVariablesRecord>
-                                                                            textRideVariablesRecordList =
-                                                                            snapshot.data!;
-                                                                        final textRideVariablesRecord = textRideVariablesRecordList.isNotEmpty
-                                                                            ? textRideVariablesRecordList.first
-                                                                            : null;
-
-                                                                        return Text(
-                                                                          formatNumber(
-                                                                            functions.calculatePrice(_model.placePickerValue1.latLng, _model.placePickerValue2.latLng,
-                                                                                () {
-                                                                              if (FFAppState().rideTier == 'Basic') {
-                                                                                return textRideVariablesRecord!.costOfRide;
-                                                                              } else if (FFAppState().rideTier == 'Corporate') {
-                                                                                return textRideVariablesRecord!.corporateCostOfRide;
-                                                                              } else {
-                                                                                return textRideVariablesRecord!.costOfRide;
-                                                                              }
-                                                                            }(), () {
-                                                                              if (FFAppState().rideTier == 'Basic') {
-                                                                                return textRideVariablesRecord!.costPerDistance;
-                                                                              } else if (FFAppState().rideTier == 'Corporate') {
-                                                                                return textRideVariablesRecord!.corporateCostPerDistance;
-                                                                              } else {
-                                                                                return textRideVariablesRecord!.costPerDistance;
-                                                                              }
-                                                                            }(), () {
-                                                                              if (FFAppState().rideTier == 'Basic') {
-                                                                                return textRideVariablesRecord!.costPerMinute;
-                                                                              } else if (FFAppState().rideTier == 'Corporate') {
-                                                                                return textRideVariablesRecord!.corporateCostPerMinute;
-                                                                              } else {
-                                                                                return textRideVariablesRecord!.costPerMinute;
-                                                                              }
-                                                                            }()),
-                                                                            formatType:
-                                                                                FormatType.decimal,
-                                                                            decimalType:
-                                                                                DecimalType.periodDecimal,
-                                                                            currency:
-                                                                                'K',
-                                                                          ),
-                                                                          style: FlutterFlowTheme.of(context)
-                                                                              .headlineSmall
-                                                                              .override(
-                                                                                fontFamily: FlutterFlowTheme.of(context).headlineSmallFamily,
-                                                                                letterSpacing: 0.0,
-                                                                                useGoogleFonts: !FlutterFlowTheme.of(context).headlineSmallIsCustom,
-                                                                              ),
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              );
-                                                            },
+                                              ),
+                                            ].divide(SizedBox(width: 10.0)),
+                                          ),
+                                        ],
+                                      ),
+                                      if ((_model.placePickerValue2.address !=
+                                              '') &&
+                                          (_model.placePickerValue1.address !=
+                                              ''))
+                                        Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              context.tr('ride_fee'),
+                                              style: FlutterFlowTheme.of(
+                                                      context)
+                                                  .labelMedium
+                                                  .override(
+                                                    fontFamily:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumFamily,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primaryText,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight: FontWeight.w600,
+                                                    useGoogleFonts:
+                                                        !FlutterFlowTheme.of(
+                                                                context)
+                                                            .labelMediumIsCustom,
+                                                  ),
+                                            ),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Expanded(
+                                                  child: Stack(
+                                                    alignment:
+                                                        AlignmentDirectional(
+                                                            1.0, 0.0),
+                                                    children: [
+                                                      StreamBuilder<
+                                                          List<
+                                                              RideVariablesRecord>>(
+                                                        stream:
+                                                            queryRideVariablesRecord(
+                                                          queryBuilder: (q) =>
+                                                              q.where(
+                                                            FieldPath
+                                                                .documentId,
+                                                            isEqualTo:
+                                                                'default',
                                                           ),
-                                                          FFButtonWidget(
-                                                            onPressed:
-                                                                () async {
-                                                              _model.variables =
-                                                                  await queryRideVariablesRecordOnce(
-                                                                singleRecord:
-                                                                    true,
-                                                              ).then((s) => s
-                                                                      .firstOrNull);
-                                                              _model.passenger =
-                                                                  await queryPassengerRecordOnce(
-                                                                queryBuilder:
-                                                                    (passengerRecord) =>
-                                                                        passengerRecord
-                                                                            .where(
-                                                                  'UserId',
-                                                                  isEqualTo:
-                                                                      currentUserReference,
+                                                          singleRecord: true,
+                                                        ),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          // Customize what your widget looks like when it's loading.
+                                                          if (!snapshot
+                                                              .hasData) {
+                                                            return Center(
+                                                              child: SizedBox(
+                                                                width: 50.0,
+                                                                height: 50.0,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primary,
+                                                                  ),
                                                                 ),
-                                                                singleRecord:
-                                                                    true,
-                                                              ).then((s) => s
-                                                                      .firstOrNull);
-
-                                                              var rideRecordReference =
-                                                                  RideRecord
-                                                                      .collection
-                                                                      .doc();
-                                                              await rideRecordReference
-                                                                  .set(
-                                                                      createRideRecordData(
-                                                                destinationLocation:
-                                                                    _model
-                                                                        .placePickerValue2
-                                                                        .latLng,
-                                                                destinationAddress:
-                                                                    _model
-                                                                        .placePickerValue2
-                                                                        .name,
-                                                                isDriverAssigned:
-                                                                    false,
-                                                                pickupLocation:
-                                                                    _model
-                                                                        .placePickerValue1
-                                                                        .latLng,
-                                                                pickupAddress:
-                                                                    _model
-                                                                        .placePickerValue1
-                                                                        .name,
-                                                                userNumber: _model
-                                                                    .passenger
-                                                                    ?.mobileNumber,
-                                                                status:
-                                                                    'Active',
-                                                                rideFee: functions
-                                                                    .calculatePrice(
-                                                                        _model
-                                                                            .placePickerValue1
-                                                                            .latLng,
-                                                                        _model
-                                                                            .placePickerValue2
-                                                                            .latLng,
-                                                                        FFAppState().rideTier ==
-                                                                                'Basic'
-                                                                            ? _model
-                                                                                .variables!.costOfRide
-                                                                            : _model
-                                                                                .variables!.corporateCostOfRide,
-                                                                        FFAppState().rideTier ==
-                                                                                'Basic'
-                                                                            ? _model
-                                                                                .variables!.costPerDistance
-                                                                            : _model
-                                                                                .variables!.corporateCostPerDistance,
-                                                                        FFAppState().rideTier ==
-                                                                                'Basic'
-                                                                            ? _model.variables!.costPerMinute
-                                                                            : _model.variables!.corporateCostPerMinute)
-                                                                    .toDouble(),
-                                                                rideType:
-                                                                    FFAppState()
-                                                                        .rideTier,
-                                                                passengerId:
-                                                                    currentUserReference,
-                                                              ));
-                                                              _model.rideDetails =
-                                                                  RideRecord.getDocumentFromData(
-                                                                      createRideRecordData(
-                                                                        destinationLocation: _model
-                                                                            .placePickerValue2
-                                                                            .latLng,
-                                                                        destinationAddress: _model
-                                                                            .placePickerValue2
-                                                                            .name,
-                                                                        isDriverAssigned:
-                                                                            false,
-                                                                        pickupLocation: _model
-                                                                            .placePickerValue1
-                                                                            .latLng,
-                                                                        pickupAddress: _model
-                                                                            .placePickerValue1
-                                                                            .name,
-                                                                        userNumber: _model
-                                                                            .passenger
-                                                                            ?.mobileNumber,
-                                                                        status:
-                                                                            'Active',
-                                                                        rideFee: functions
-                                                                            .calculatePrice(
-                                                                                _model.placePickerValue1.latLng,
-                                                                                _model.placePickerValue2.latLng,
-                                                                                FFAppState().rideTier == 'Basic' ? _model.variables!.costOfRide : _model.variables!.corporateCostOfRide,
-                                                                                FFAppState().rideTier == 'Basic' ? _model.variables!.costPerDistance : _model.variables!.corporateCostPerDistance,
-                                                                                FFAppState().rideTier == 'Basic' ? _model.variables!.costPerMinute : _model.variables!.corporateCostPerMinute)
-                                                                            .toDouble(),
-                                                                        rideType:
-                                                                            FFAppState().rideTier,
-                                                                        passengerId:
-                                                                            currentUserReference,
-                                                                      ),
-                                                                      rideRecordReference);
-                                                              FFAppState()
-                                                                      .starteRide =
-                                                                  _model
-                                                                      .rideDetails
-                                                                      ?.reference;
-                                                              safeSetState(
-                                                                  () {});
-
-                                                              context.pushNamed(
-                                                                FindingRideWidget
-                                                                    .routeName,
-                                                                queryParameters:
-                                                                    {
-                                                                  'rideDetails':
-                                                                      serializeParam(
-                                                                    _model
-                                                                        .rideDetails
-                                                                        ?.reference,
-                                                                    ParamType
-                                                                        .DocumentReference,
-                                                                  ),
-                                                                }.withoutNulls,
-                                                                extra: <String,
-                                                                    dynamic>{
-                                                                  kTransitionInfoKey:
-                                                                      TransitionInfo(
-                                                                    hasTransition:
-                                                                        true,
-                                                                    transitionType:
-                                                                        PageTransitionType
-                                                                            .fade,
-                                                                  ),
-                                                                },
-                                                              );
-
-                                                              safeSetState(
-                                                                  () {});
-                                                            },
-                                                            text: context.tr('order_ride'),
-                                                            options:
-                                                                FFButtonOptions(
-                                                              width: 200.0,
-                                                              height: 50.0,
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          24.0,
-                                                                          0.0,
-                                                                          24.0,
-                                                                          0.0),
-                                                              iconPadding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0,
-                                                                          0.0),
+                                                              ),
+                                                            );
+                                                          }
+                                                          return Container(
+                                                            width: MediaQuery
+                                                                        .sizeOf(
+                                                                            context)
+                                                                    .width *
+                                                                0.9,
+                                                            height: 50.0,
+                                                            decoration:
+                                                                BoxDecoration(
                                                               color: FlutterFlowTheme
                                                                       .of(context)
-                                                                  .secondary,
-                                                              textStyle:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .titleSmall
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).titleSmallFamily,
-                                                                        color: FlutterFlowTheme.of(context)
-                                                                            .primaryBackground,
-                                                                        letterSpacing:
-                                                                            0.0,
-                                                                        fontWeight:
-                                                                            FontWeight.w600,
-                                                                        useGoogleFonts:
-                                                                            !FlutterFlowTheme.of(context).titleSmallIsCustom,
-                                                                      ),
-                                                              elevation: 0.0,
-                                                              borderSide:
-                                                                  BorderSide(
-                                                                color: Colors
-                                                                    .transparent,
-                                                                width: 1.0,
-                                                              ),
+                                                                  .alternate,
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
                                                                           100.0),
                                                             ),
-                                                          ),
-                                                        ],
+                                                            child: Align(
+                                                              alignment:
+                                                                  AlignmentDirectional(
+                                                                      -1.0,
+                                                                      0.0),
+                                                              child: Padding(
+                                                                padding:
+                                                                    EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            30.0,
+                                                                            0.0,
+                                                                            0.0,
+                                                                            0.0),
+                                                                child: StreamBuilder<
+                                                                    List<
+                                                                        RideVariablesRecord>>(
+                                                                  stream:
+                                                                      queryRideVariablesRecord(
+                                                                    queryBuilder:
+                                                                        (q) => q
+                                                                            .where(
+                                                                      FieldPath
+                                                                          .documentId,
+                                                                      isEqualTo:
+                                                                          'default',
+                                                                    ),
+                                                                    singleRecord:
+                                                                        true,
+                                                                  ),
+                                                                  builder: (context,
+                                                                      snapshot) {
+                                                                    // Customize what your widget looks like when it's loading.
+                                                                    if (!snapshot
+                                                                        .hasData) {
+                                                                      return Center(
+                                                                        child:
+                                                                            SizedBox(
+                                                                          width:
+                                                                              50.0,
+                                                                          height:
+                                                                              50.0,
+                                                                          child:
+                                                                              CircularProgressIndicator(
+                                                                            valueColor:
+                                                                                AlwaysStoppedAnimation<Color>(
+                                                                              FlutterFlowTheme.of(context).primary,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      );
+                                                                    }
+                                                                    List<RideVariablesRecord>
+                                                                        textRideVariablesRecordList =
+                                                                        snapshot
+                                                                            .data!;
+                                                                    final textRideVariablesRecord = textRideVariablesRecordList
+                                                                            .isNotEmpty
+                                                                        ? textRideVariablesRecordList
+                                                                            .first
+                                                                        : null;
+                                                                    final selectedCostOfRide = FFAppState().rideTier ==
+                                                                            'Corporate'
+                                                                        ? textRideVariablesRecord?.corporateCostOfRide ??
+                                                                            0.0
+                                                                        : textRideVariablesRecord?.costOfRide ??
+                                                                            0.0;
+                                                                    final selectedCostPerDistance = FFAppState().rideTier ==
+                                                                            'Corporate'
+                                                                        ? textRideVariablesRecord?.corporateCostPerDistance ??
+                                                                            0.0
+                                                                        : textRideVariablesRecord?.costPerDistance ??
+                                                                            0.0;
+                                                                    final selectedCostPerMinute = FFAppState().rideTier ==
+                                                                            'Corporate'
+                                                                        ? textRideVariablesRecord?.corporateCostPerMinute ??
+                                                                            0.0
+                                                                        : textRideVariablesRecord?.costPerMinute ??
+                                                                            0.0;
+
+                                                                    return Text(
+                                                                      formatNumber(
+                                                                        functions.calculatePrice(
+                                                                            _model.placePickerValue1.latLng,
+                                                                            _model.placePickerValue2.latLng,
+                                                                            selectedCostOfRide,
+                                                                            selectedCostPerDistance,
+                                                                            selectedCostPerMinute),
+                                                                        formatType:
+                                                                            FormatType.decimal,
+                                                                        decimalType:
+                                                                            DecimalType.periodDecimal,
+                                                                        currency:
+                                                                            '\$',
+                                                                      ),
+                                                                      style: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .headlineSmall
+                                                                          .override(
+                                                                            fontFamily:
+                                                                                FlutterFlowTheme.of(context).headlineSmallFamily,
+                                                                            letterSpacing:
+                                                                                0.0,
+                                                                            useGoogleFonts:
+                                                                                !FlutterFlowTheme.of(context).headlineSmallIsCustom,
+                                                                          ),
+                                                                    );
+                                                                  },
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
                                                       ),
-                                                    ),
-                                                  ].divide(
-                                                      SizedBox(width: 10.0)),
+                                                      FFButtonWidget(
+                                                        onPressed: () async {
+                                                          _model.variables =
+                                                              await _loadAdminRideVariables();
+                                                          _model.passenger =
+                                                              await queryPassengerRecordOnce(
+                                                            queryBuilder:
+                                                                (passengerRecord) =>
+                                                                    passengerRecord
+                                                                        .where(
+                                                              'UserId',
+                                                              isEqualTo:
+                                                                  currentUserReference,
+                                                            ),
+                                                            singleRecord: true,
+                                                          ).then((s) => s
+                                                                  .firstOrNull);
+                                                          if (_model
+                                                                  .variables ==
+                                                              null) {
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  context.tr('ride_pricing_unavailable'),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
+                                                                  ),
+                                                                ),
+                                                                duration: Duration(
+                                                                    milliseconds:
+                                                                        3000),
+                                                                backgroundColor:
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .secondaryBackground,
+                                                              ),
+                                                            );
+                                                            return;
+                                                          }
+
+                                                          var rideRecordReference =
+                                                              RideRecord
+                                                                  .collection
+                                                                  .doc();
+                                                          await rideRecordReference
+                                                              .set(
+                                                                  createRideRecordData(
+                                                            destinationLocation:
+                                                                _model
+                                                                    .placePickerValue2
+                                                                    .latLng,
+                                                            destinationAddress:
+                                                                _model
+                                                                    .placePickerValue2
+                                                                    .name,
+                                                            isDriverAssigned:
+                                                                false,
+                                                            pickupLocation: _model
+                                                                .placePickerValue1
+                                                                .latLng,
+                                                            pickupAddress: _model
+                                                                .placePickerValue1
+                                                                .name,
+                                                            userNumber: _model
+                                                                .passenger
+                                                                ?.mobileNumber,
+                                                            status: 'Active',
+                                                            rideFee: functions
+                                                                .calculatePrice(
+                                                                    _model
+                                                                        .placePickerValue1
+                                                                        .latLng,
+                                                                    _model
+                                                                        .placePickerValue2
+                                                                        .latLng,
+                                                                    FFAppState().rideTier ==
+                                                                            'Basic'
+                                                                        ? _model
+                                                                            .variables!
+                                                                            .costOfRide
+                                                                        : _model
+                                                                            .variables!
+                                                                            .corporateCostOfRide,
+                                                                    FFAppState().rideTier ==
+                                                                            'Basic'
+                                                                        ? _model
+                                                                            .variables!
+                                                                            .costPerDistance
+                                                                        : _model
+                                                                            .variables!
+                                                                            .corporateCostPerDistance,
+                                                                    FFAppState().rideTier ==
+                                                                            'Basic'
+                                                                        ? _model
+                                                                            .variables!
+                                                                            .costPerMinute
+                                                                        : _model
+                                                                            .variables!
+                                                                            .corporateCostPerMinute)
+                                                                .toDouble(),
+                                                            rideType:
+                                                                FFAppState()
+                                                                    .rideTier,
+                                                            passengerId:
+                                                                currentUserReference,
+                                                          ));
+                                                          _model.rideDetails = RideRecord
+                                                              .getDocumentFromData(
+                                                                  createRideRecordData(
+                                                                    destinationLocation: _model
+                                                                        .placePickerValue2
+                                                                        .latLng,
+                                                                    destinationAddress:
+                                                                        _model
+                                                                            .placePickerValue2
+                                                                            .name,
+                                                                    isDriverAssigned:
+                                                                        false,
+                                                                    pickupLocation: _model
+                                                                        .placePickerValue1
+                                                                        .latLng,
+                                                                    pickupAddress:
+                                                                        _model
+                                                                            .placePickerValue1
+                                                                            .name,
+                                                                    userNumber: _model
+                                                                        .passenger
+                                                                        ?.mobileNumber,
+                                                                    status:
+                                                                        'Active',
+                                                                    rideFee: functions
+                                                                        .calculatePrice(
+                                                                            _model
+                                                                                .placePickerValue1.latLng,
+                                                                            _model
+                                                                                .placePickerValue2.latLng,
+                                                                            FFAppState().rideTier == 'Basic'
+                                                                                ? _model.variables!.costOfRide
+                                                                                : _model.variables!.corporateCostOfRide,
+                                                                            FFAppState().rideTier == 'Basic' ? _model.variables!.costPerDistance : _model.variables!.corporateCostPerDistance,
+                                                                            FFAppState().rideTier == 'Basic' ? _model.variables!.costPerMinute : _model.variables!.corporateCostPerMinute)
+                                                                        .toDouble(),
+                                                                    rideType:
+                                                                        FFAppState()
+                                                                            .rideTier,
+                                                                    passengerId:
+                                                                        currentUserReference,
+                                                                  ),
+                                                                  rideRecordReference);
+                                                          FFAppState()
+                                                                  .starteRide =
+                                                              _model.rideDetails
+                                                                  ?.reference;
+                                                          safeSetState(() {});
+
+                                                          context.pushNamed(
+                                                            FindingRideWidget
+                                                                .routeName,
+                                                            queryParameters: {
+                                                              'rideDetails':
+                                                                  serializeParam(
+                                                                _model
+                                                                    .rideDetails
+                                                                    ?.reference,
+                                                                ParamType
+                                                                    .DocumentReference,
+                                                              ),
+                                                            }.withoutNulls,
+                                                            extra: <String,
+                                                                dynamic>{
+                                                              kTransitionInfoKey:
+                                                                  TransitionInfo(
+                                                                hasTransition:
+                                                                    true,
+                                                                transitionType:
+                                                                    PageTransitionType
+                                                                        .fade,
+                                                              ),
+                                                            },
+                                                          );
+
+                                                          safeSetState(() {});
+                                                        },
+                                                        text: context
+                                                            .tr('order_ride'),
+                                                        options:
+                                                            FFButtonOptions(
+                                                          width: 200.0,
+                                                          height: 50.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      24.0,
+                                                                      0.0,
+                                                                      24.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondary,
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .titleSmallFamily,
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryBackground,
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .titleSmallIsCustom,
+                                                                  ),
+                                                          elevation: 0.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      100.0),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ].divide(SizedBox(height: 10.0)),
+                                              ].divide(SizedBox(width: 10.0)),
                                             ),
-                                        ]
-                                            .divide(SizedBox(height: 12.0))
-                                            .addToStart(SizedBox(height: 20.0))
-                                            .addToEnd(SizedBox(height: 20.0)),
-                                      ),
-                                    ),
+                                          ].divide(SizedBox(height: 10.0)),
+                                        ),
+                                    ]
+                                        .divide(SizedBox(height: 12.0))
+                                        .addToStart(SizedBox(height: 20.0))
+                                        .addToEnd(SizedBox(height: 20.0)),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Future<void> _showLanguagePicker(FFAppState appState) async {
+    final searchController = TextEditingController();
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         final theme = FlutterFlowTheme.of(context);
-        return AlertDialog(
-          title: Text(
-            context.tr('select_language'),
-            style: theme.titleMedium.override(
-              fontFamily: theme.titleMediumFamily,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.0,
-              useGoogleFonts: !theme.titleMediumIsCustom,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _languageOption(
-                label: 'English',
-                code: 'en',
-                appState: appState,
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final q = searchController.text.trim().toLowerCase();
+            final items = RoadyGoI18n.europeanLanguages
+                .where((e) =>
+                    q.isEmpty ||
+                    e.name.toLowerCase().contains(q) ||
+                    e.code.toLowerCase().contains(q))
+                .toList();
+
+            return AlertDialog(
+              title: Text(
+                context.tr('select_language'),
+                style: theme.titleMedium.override(
+                  fontFamily: theme.titleMediumFamily,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.0,
+                  useGoogleFonts: !theme.titleMediumIsCustom,
+                ),
               ),
-              _languageOption(
-                label: 'Español',
-                code: 'es',
-                appState: appState,
+              content: SizedBox(
+                width: 360.0,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      onChanged: (_) => setModalState(() {}),
+                      decoration: InputDecoration(
+                        hintText: context.tr('search_language'),
+                        prefixIcon: const Icon(Icons.search_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 12.0),
+                    Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (context, i) {
+                          final item = items[i];
+                          return _languageOption(
+                            label: item.name,
+                            code: item.code,
+                            flag: item.flag,
+                            appState: appState,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              _languageOption(
-                label: 'Français',
-                code: 'fr',
-                appState: appState,
-              ),
-              _languageOption(
-                label: 'Deutsch',
-                code: 'de',
-                appState: appState,
-              ),
-              _languageOption(
-                label: 'Português',
-                code: 'pt',
-                appState: appState,
-              ),
-              _languageOption(
-                label: 'العربية',
-                code: 'ar',
-                appState: appState,
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
+    searchController.dispose();
   }
 
   Widget _languageOption({
     required String label,
     required String code,
+    required String flag,
     required FFAppState appState,
   }) {
+    final isTranslated = RoadyGoI18n.isLanguageFullyTranslated(code);
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      leading: Text(
+        flag,
+        style: const TextStyle(fontSize: 22.0),
+      ),
       title: Text(label),
+      subtitle: Text(code.toUpperCase()),
       trailing: appState.languageCode == code
           ? const Icon(Icons.check, color: Colors.green)
-          : null,
+          : !isTranslated
+              ? const Icon(Icons.lock_outline_rounded)
+              : null,
       onTap: () {
+        if (!isTranslated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr('language_coming_soon')),
+            ),
+          );
+          return;
+        }
         appState.setLanguageCode(code);
         Navigator.of(context).pop();
       },

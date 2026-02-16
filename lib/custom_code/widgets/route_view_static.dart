@@ -183,7 +183,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
         markerId: MarkerId(startCoordinatesString),
         position: latlng.LatLng(startLatitude, startLongitude),
         infoWindow: InfoWindow(
-          title: 'Start $startCoordinatesString',
+          title: startCoordinatesString,
           snippet: widget.startAddress ?? '',
         ),
         icon: BitmapDescriptor.defaultMarker,
@@ -194,7 +194,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
         markerId: MarkerId(destinationCoordinatesString),
         position: latlng.LatLng(destinationLatitude, destinationLongitude),
         infoWindow: InfoWindow(
-          title: 'Destination $destinationCoordinatesString',
+          title: destinationCoordinatesString,
           snippet: widget.destinationAddress ?? '',
         ),
         icon: BitmapDescriptor.defaultMarker,

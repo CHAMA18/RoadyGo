@@ -5,8 +5,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:collection/collection.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
-import 'package:go_taxi_rider/flutter_flow/place.dart';
-import 'package:go_taxi_rider/flutter_flow/lat_lng.dart';
+import 'package:go_taxi_rider/flutter_flow/flutter_flow_util.dart';
 import '/l10n/roadygo_i18n.dart';
 
 // Web-specific imports
@@ -35,19 +34,20 @@ class DestinationPickerWidget extends StatefulWidget {
   final LatLng? currentLocation;
 
   @override
-  State<DestinationPickerWidget> createState() => _DestinationPickerWidgetState();
+  State<DestinationPickerWidget> createState() =>
+      _DestinationPickerWidgetState();
 }
 
 class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   late AnimationController _slideController;
   late AnimationController _fadeController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   List<PlaceSearchResult> _searchResults = [];
   bool _isLoading = false;
   bool _showResults = false;
@@ -132,7 +132,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     super.initState();
     _initPlaces();
     _initAnimations();
-    
+
     // Auto focus the search field
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
@@ -157,7 +157,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
@@ -165,7 +165,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
       parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -173,7 +173,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
       parent: _fadeController,
       curve: Curves.easeOut,
     ));
-    
+
     _slideController.forward();
     _fadeController.forward();
   }
@@ -215,7 +215,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           widget.currentLocation?.latitude ?? -15.4167,
           widget.currentLocation?.longitude ?? 28.2833,
         );
-        
+
         setState(() {
           _searchResults = results;
           _showResults = true;
@@ -237,11 +237,16 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
 
         if (response?.status == 'OK' && response?.predictions != null) {
           setState(() {
-            _searchResults = response!.predictions.map((p) => PlaceSearchResult(
-              placeId: p.placeId ?? '',
-              mainText: p.structuredFormatting?.mainText ?? p.description ?? '',
-              secondaryText: p.structuredFormatting?.secondaryText ?? '',
-            )).toList();
+            _searchResults = response!.predictions
+                .map((p) => PlaceSearchResult(
+                      placeId: p.placeId ?? '',
+                      mainText: p.structuredFormatting?.mainText ??
+                          p.description ??
+                          '',
+                      secondaryText:
+                          p.structuredFormatting?.secondaryText ?? '',
+                    ))
+                .toList();
             _showResults = true;
             _isLoading = false;
           });
@@ -273,9 +278,9 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           widget.currentLocation?.latitude ?? -15.4167,
           widget.currentLocation?.longitude ?? 28.2833,
         );
-        
+
         setState(() => _isLoading = false);
-        
+
         if (results.isNotEmpty) {
           _showCategoryResults(results, category);
         }
@@ -350,7 +355,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           result.placeId,
           googleMapsApiKey,
         );
-        
+
         if (details != null) {
           _selectPlace(details);
         }
@@ -404,10 +409,39 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     Navigator.pop(context);
   }
 
+  Future<void> _useCurrentLocation() async {
+    setState(() => _isLoading = true);
+    try {
+      final loc = widget.currentLocation ??
+          await getCurrentUserLocation(
+            defaultLocation: const LatLng(0.0, 0.0),
+            cached: true,
+          );
+      _selectPlace(
+        FFPlace(
+          latLng: loc,
+          name: context.tr('pickup_point'),
+          address: context.tr('use_current_location'),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error getting current location: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr('location_permission_denied'))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
@@ -421,6 +455,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         children: [
           _buildHeader(theme),
           _buildSearchField(theme),
+          _buildGooglePlacesApiBadge(theme),
+          _buildUseCurrentLocation(theme),
           Expanded(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -493,9 +529,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         color: theme.primaryBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _searchFocusNode.hasFocus
-              ? theme.secondary
-              : theme.lineColor,
+          color: _searchFocusNode.hasFocus ? theme.secondary : theme.lineColor,
           width: _searchFocusNode.hasFocus ? 2 : 1,
         ),
         boxShadow: _searchFocusNode.hasFocus
@@ -580,6 +614,88 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
+  Widget _buildUseCurrentLocation(FlutterFlowTheme theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      child: InkWell(
+        onTap: _useCurrentLocation,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.primaryBackground,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: theme.lineColor,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.my_location_rounded,
+                color: theme.secondary,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                context.tr('use_current_location'),
+                style: theme.bodyMedium.override(
+                  fontFamily: theme.bodyMediumFamily,
+                  color: theme.primaryText,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0,
+                  useGoogleFonts: !theme.bodyMediumIsCustom,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGooglePlacesApiBadge(FlutterFlowTheme theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: theme.alternate.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: theme.lineColor,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.travel_explore_rounded,
+              color: theme.secondary,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Google Places API',
+                style: theme.bodySmall.override(
+                  fontFamily: theme.bodySmallFamily,
+                  color: theme.primaryText,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0,
+                  useGoogleFonts: !theme.bodySmallIsCustom,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDefaultContent(FlutterFlowTheme theme) {
     final popularDestinations = _popularDestinations(context);
     final savedLocations = _savedLocations(context);
@@ -602,7 +718,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           const SizedBox(height: 12),
           _buildCategoryGrid(theme, popularDestinations),
           const SizedBox(height: 24),
-          
+
           // Saved places
           Text(
             '📍 ${context.tr('saved_places')}',
@@ -633,20 +749,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
             );
           }),
           const SizedBox(height: 24),
-          
-          // Recent destinations
-          Text(
-            '🕐 ${context.tr('recent_destinations')}',
-            style: theme.titleMedium.override(
-              fontFamily: theme.titleMediumFamily,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0,
-              useGoogleFonts: !theme.titleMediumIsCustom,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildRecentDestinations(theme),
-          const SizedBox(height: 40),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -684,7 +788,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
-  Widget _buildCategoryCard(PopularDestination destination, FlutterFlowTheme theme) {
+  Widget _buildCategoryCard(
+      PopularDestination destination, FlutterFlowTheme theme) {
     return GestureDetector(
       onTap: () => _searchByCategory(destination.category),
       child: AnimatedContainer(
@@ -729,7 +834,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
-  Widget _buildSavedLocationTile(SavedLocation location, FlutterFlowTheme theme) {
+  Widget _buildSavedLocationTile(
+      SavedLocation location, FlutterFlowTheme theme) {
     return GestureDetector(
       onTap: () {
         _selectPlace(FFPlace(
@@ -803,99 +909,6 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
-  Widget _buildRecentDestinations(FlutterFlowTheme theme) {
-    final recentPlaces = [
-      {'name': 'Downtown Mall', 'address': 'Cairo Road, Lusaka', 'time': '2 days ago'},
-      {'name': 'Kenneth Kaunda Airport', 'address': 'Airport Road', 'time': '1 week ago'},
-      {'name': 'University of Zambia', 'address': 'Great East Road', 'time': '2 weeks ago'},
-    ];
-
-    return Column(
-      children: recentPlaces.asMap().entries.map((entry) {
-        final index = entry.key;
-        final place = entry.value;
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 400 + (index * 100)),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(20 * (1 - value), 0),
-              child: Opacity(
-                opacity: value,
-                child: child,
-              ),
-            );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            child: GestureDetector(
-              onTap: () {
-                // For demo purposes, select with dummy coordinates
-                _selectPlace(FFPlace(
-                  latLng: LatLng(-15.4167 + (index * 0.01), 28.2833 + (index * 0.01)),
-                  name: place['name']!,
-                  address: place['address']!,
-                ));
-              },
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.alternate.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.history_rounded,
-                      color: theme.secondaryText,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          place['name']!,
-                          style: theme.bodyMedium.override(
-                            fontFamily: theme.bodyMediumFamily,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0,
-                            useGoogleFonts: !theme.bodyMediumIsCustom,
-                          ),
-                        ),
-                        Text(
-                          place['address']!,
-                          style: theme.bodySmall.override(
-                            fontFamily: theme.bodySmallFamily,
-                            color: theme.secondaryText,
-                            letterSpacing: 0,
-                            useGoogleFonts: !theme.bodySmallIsCustom,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    place['time']!,
-                    style: theme.labelSmall.override(
-                      fontFamily: theme.labelSmallFamily,
-                      color: theme.secondaryText,
-                      letterSpacing: 0,
-                      useGoogleFonts: !theme.labelSmallIsCustom,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _buildSearchResults(FlutterFlowTheme theme) {
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
@@ -922,7 +935,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     );
   }
 
-  Widget _buildSearchResultTile(PlaceSearchResult result, FlutterFlowTheme theme) {
+  Widget _buildSearchResultTile(
+      PlaceSearchResult result, FlutterFlowTheme theme) {
     return GestureDetector(
       onTap: () => _selectSearchResult(result),
       child: Container(
@@ -1075,7 +1089,7 @@ class _CategoryResultsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: BoxDecoration(
@@ -1145,7 +1159,7 @@ class _CategoryResultsSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'No places found nearby',
+                          context.tr('no_places_found_nearby'),
                           style: theme.bodyLarge.override(
                             fontFamily: theme.bodyLargeFamily,
                             color: theme.secondaryText,
@@ -1193,7 +1207,8 @@ class _CategoryResultsSheet extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: theme.secondary.withValues(alpha: 0.1),
+                                    color:
+                                        theme.secondary.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
@@ -1205,7 +1220,8 @@ class _CategoryResultsSheet extends StatelessWidget {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         result.mainText,
@@ -1213,7 +1229,8 @@ class _CategoryResultsSheet extends StatelessWidget {
                                           fontFamily: theme.bodyLargeFamily,
                                           fontWeight: FontWeight.w600,
                                           letterSpacing: 0,
-                                          useGoogleFonts: !theme.bodyLargeIsCustom,
+                                          useGoogleFonts:
+                                              !theme.bodyLargeIsCustom,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -1225,7 +1242,8 @@ class _CategoryResultsSheet extends StatelessWidget {
                                           fontFamily: theme.bodySmallFamily,
                                           color: theme.secondaryText,
                                           letterSpacing: 0,
-                                          useGoogleFonts: !theme.bodySmallIsCustom,
+                                          useGoogleFonts:
+                                              !theme.bodySmallIsCustom,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

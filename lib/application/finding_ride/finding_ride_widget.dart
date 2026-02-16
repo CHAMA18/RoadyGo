@@ -398,7 +398,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Finding a ride',
+                                                context.tr('finding_a_ride'),
                                                 style:
                                                     FlutterFlowTheme.of(context)
                                                         .headlineSmall
@@ -720,7 +720,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                     CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
-                                                    'Ride Fee: ',
+                                                    '${context.tr('ride_fee')}: ',
                                                     style: FlutterFlowTheme.of(
                                                             context)
                                                         .titleSmall
@@ -747,7 +747,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                           FormatType.decimal,
                                                       decimalType: DecimalType
                                                           .periodDecimal,
-                                                      currency: 'K',
+                                                      currency: '\$',
                                                     ),
                                                     style: FlutterFlowTheme.of(
                                                             context)
@@ -799,7 +799,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         size: 24.0,
                                                       ),
                                                       Text(
-                                                        'Pickup Point',
+                                                        context.tr('pickup_point'),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -885,7 +885,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         size: 24.0,
                                                       ),
                                                       Text(
-                                                        'Destination',
+                                                        context.tr('destination'),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -1058,23 +1058,23 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                     (alertDialogContext) {
                                                                   return AlertDialog(
                                                                     title: Text(
-                                                                        'Cancel Ride?'),
+                                                                        context.tr('cancel_ride')),
                                                                     content: Text(
-                                                                        'Are you sure you want to cancel this ride?'),
+                                                                        context.tr('cancel_ride_q')),
                                                                     actions: [
                                                                       TextButton(
                                                                         onPressed: () => Navigator.pop(
                                                                             alertDialogContext,
                                                                             false),
                                                                         child: Text(
-                                                                            'No'),
+                                                                            context.tr('cancel')),
                                                                       ),
                                                                       TextButton(
                                                                         onPressed: () => Navigator.pop(
                                                                             alertDialogContext,
                                                                             true),
                                                                         child: Text(
-                                                                            'Yes'),
+                                                                            context.tr('confirm')),
                                                                       ),
                                                                     ],
                                                                   );

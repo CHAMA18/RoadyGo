@@ -37,14 +37,20 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   static const Set<String> _supportedLanguageCodes = {
     'en',
-    'es',
+    'sq',
+    'mk',
+    'tr',
+    'sr',
+    'hr',
     'fr',
     'de',
-    'pt',
+    'es',
     'it',
+    'pt',
     'nl',
     'sv',
     'nb',
+    'nn',
     'da',
     'fi',
     'pl',
@@ -54,15 +60,22 @@ class _MyAppState extends State<MyApp> {
     'ro',
     'bg',
     'el',
-    'hr',
-    'sr',
     'sl',
     'lt',
     'lv',
     'et',
+    'is',
     'ga',
     'mt',
-    'ar',
+    'bs',
+    'uk',
+    'ru',
+    'be',
+    'ca',
+    'eu',
+    'gl',
+    'lb',
+    'cy',
   };
 
   late AppStateNotifier _appStateNotifier;
@@ -122,9 +135,14 @@ class _MyAppState extends State<MyApp> {
       'dark' => ThemeMode.dark,
       _ => ThemeMode.system,
     };
-    final appLocale = _supportedLanguageCodes.contains(appState.languageCode)
-        ? Locale(appState.languageCode)
-        : null;
+    final selectedLanguageCode =
+        _supportedLanguageCodes.contains(appState.languageCode)
+            ? appState.languageCode
+            : 'en';
+    final materialLocale = GlobalMaterialLocalizations.delegate
+            .isSupported(Locale(selectedLanguageCode))
+        ? Locale(selectedLanguageCode)
+        : const Locale('en');
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'RoadyGo',
@@ -135,16 +153,20 @@ class _MyAppState extends State<MyApp> {
       ],
       supportedLocales: const [
         Locale('en', ''),
-        Locale('es', ''),
+        Locale('sq', ''),
+        Locale('mk', ''),
+        Locale('tr', ''),
+        Locale('sr', ''),
+        Locale('hr', ''),
         Locale('fr', ''),
         Locale('de', ''),
-        Locale('pt', ''),
+        Locale('es', ''),
         Locale('it', ''),
+        Locale('pt', ''),
         Locale('nl', ''),
         Locale('sv', ''),
-        // Norwegian (Bokmal). 'no' is a legacy/ambiguous tag and can break
-        // locale resolution on some platforms.
         Locale('nb', ''),
+        Locale('nn', ''),
         Locale('da', ''),
         Locale('fi', ''),
         Locale('pl', ''),
@@ -154,15 +176,22 @@ class _MyAppState extends State<MyApp> {
         Locale('ro', ''),
         Locale('bg', ''),
         Locale('el', ''),
-        Locale('hr', ''),
-        Locale('sr', ''),
         Locale('sl', ''),
         Locale('lt', ''),
         Locale('lv', ''),
         Locale('et', ''),
+        Locale('is', ''),
         Locale('ga', ''),
         Locale('mt', ''),
-        Locale('ar', ''),
+        Locale('bs', ''),
+        Locale('uk', ''),
+        Locale('ru', ''),
+        Locale('be', ''),
+        Locale('ca', ''),
+        Locale('eu', ''),
+        Locale('gl', ''),
+        Locale('lb', ''),
+        Locale('cy', ''),
       ],
       theme: ThemeData(
         brightness: Brightness.light,
@@ -175,8 +204,9 @@ class _MyAppState extends State<MyApp> {
         fontFamily: 'Satoshi',
       ),
       themeMode: computedThemeMode,
-      // Guard against invalid/unknown persisted language codes (Web asserts are brutal).
-      locale: appLocale,
+      // Always keep Material widgets on a locale supported by
+      // GlobalMaterialLocalizations to avoid TextField/DatePicker crashes.
+      locale: materialLocale,
       routerConfig: _router,
     );
   }

@@ -1,7 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
-import 'dart:js_util' as js_util;
+import 'js_util_compat_stub.dart'
+    if (dart.library.js_util) 'dart:js_util' as js_util;
 import 'package:flutter/foundation.dart';
 import 'package:go_taxi_rider/flutter_flow/place.dart';
 import 'package:go_taxi_rider/flutter_flow/lat_lng.dart';

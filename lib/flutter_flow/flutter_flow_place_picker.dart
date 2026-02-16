@@ -1,14 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_api_headers/google_api_headers.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:collection/collection.dart';
+import '../l10n/roadygo_i18n.dart';
 
 import '/components/destination_picker/destination_picker_widget.dart';
 import 'flutter_flow_widgets.dart';
-import 'lat_lng.dart';
-import 'place.dart';
+import 'flutter_flow_util.dart';
 
 class FlutterFlowPlacePicker extends StatefulWidget {
   const FlutterFlowPlacePicker({
@@ -58,38 +54,23 @@ class _FFPlacePickerState extends State<FlutterFlowPlacePicker> {
 
   @override
   Widget build(BuildContext context) {
-    String? languageCode = Localizations.localeOf(context).languageCode;
     return FFButtonWidget(
       text: _selectedPlace ?? widget.defaultText ?? 'Search places',
       icon: widget.icon,
       onPressed: () async {
-        if (kIsWeb) {
-          // Use custom destination picker for web (uses JS Places API)
-          await _showWebPlacePicker(context);
-        } else {
-          // Use flutter_google_places for mobile
-          final p = await PlacesAutocomplete.show(
-            context: context,
-            apiKey: googleMapsApiKey,
-            onError: (response) =>
-                debugPrint('Error occured when getting places response:'
-                    '\n${response.errorMessage}'),
-            mode: Mode.overlay,
-            types: [],
-            components: [],
-            strictbounds: false,
-            proxyBaseUrl: widget.proxyBaseUrl,
-            language: languageCode,
-          );
-
-          await displayPrediction(p, languageCode);
-        }
+        // Use one unified picker on all platforms so Google Places search and
+        // "Use Current Location" behave consistently.
+        await _showWebPlacePicker(context);
       },
       options: widget.buttonOptions,
     );
   }
 
   Future<void> _showWebPlacePicker(BuildContext context) async {
+    final currentLocation = await getCurrentUserLocation(
+      defaultLocation: const LatLng(0.0, 0.0),
+      cached: true,
+    );
     await showDestinationPicker(
       context: context,
       onSelect: (place) {
@@ -103,61 +84,9 @@ class _FFPlacePickerState extends State<FlutterFlowPlacePicker> {
       iOSGoogleMapsApiKey: widget.iOSGoogleMapsApiKey,
       androidGoogleMapsApiKey: widget.androidGoogleMapsApiKey,
       webGoogleMapsApiKey: widget.webGoogleMapsApiKey,
-      title: 'Search',
+      title: widget.defaultText ?? context.tr('search'),
       hintText: widget.defaultText ?? 'Search places...',
-    );
-  }
-
-  Future displayPrediction(Prediction? p, String? languageCode) async {
-    if (p == null) {
-      return;
-    }
-    final placeId = p.placeId;
-    if (placeId == null) {
-      return;
-    }
-    GoogleMapsPlaces _places = GoogleMapsPlaces(
-      apiKey: googleMapsApiKey,
-      baseUrl: widget.proxyBaseUrl,
-      apiHeaders: await const GoogleApiHeaders().getHeaders(),
-    );
-    PlacesDetailsResponse detail =
-        await _places.getDetailsByPlaceId(placeId, language: languageCode);
-    if (mounted) {
-      setState(() {
-        _selectedPlace = detail.result.name;
-      });
-    }
-
-    widget.onSelect(
-      FFPlace(
-        latLng: LatLng(
-          detail.result.geometry?.location.lat ?? 0,
-          detail.result.geometry?.location.lng ?? 0,
-        ),
-        name: detail.result.name,
-        address: detail.result.formattedAddress ?? '',
-        city: detail.result.addressComponents
-                .firstWhereOrNull((e) => e.types.contains('locality'))
-                ?.shortName ??
-            detail.result.addressComponents
-                .firstWhereOrNull((e) => e.types.contains('sublocality'))
-                ?.shortName ??
-            '',
-        state: detail.result.addressComponents
-                .firstWhereOrNull(
-                    (e) => e.types.contains('administrative_area_level_1'))
-                ?.shortName ??
-            '',
-        country: detail.result.addressComponents
-                .firstWhereOrNull((e) => e.types.contains('country'))
-                ?.shortName ??
-            '',
-        zipCode: detail.result.addressComponents
-                .firstWhereOrNull((e) => e.types.contains('postal_code'))
-                ?.shortName ??
-            '',
-      ),
+      currentLocation: currentLocation,
     );
   }
 }

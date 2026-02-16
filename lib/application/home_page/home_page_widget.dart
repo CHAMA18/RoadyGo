@@ -381,7 +381,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Loading map...',
+                  context.tr('loading_map'),
                   style: TextStyle(
                     color: theme.secondaryText,
                     fontSize: 14,

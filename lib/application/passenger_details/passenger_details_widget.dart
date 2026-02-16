@@ -329,11 +329,13 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
       final msg = e.toString().toLowerCase();
       if (msg.contains('permissions') || msg.contains('denied')) {
         setState(
-          () => _resolvedLocationLabel = context.tr('location_permission_denied'),
+          () =>
+              _resolvedLocationLabel = context.tr('location_permission_denied'),
         );
       } else if (msg.contains('services are disabled')) {
         setState(
-          () => _resolvedLocationLabel = context.tr('location_services_disabled'),
+          () =>
+              _resolvedLocationLabel = context.tr('location_services_disabled'),
         );
       } else {
         setState(() => _resolvedLocationLabel = null);
@@ -456,8 +458,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                             children: [
                               IconButton(
                                 onPressed: () async {
-                                  context.pushNamed(
-                                      AuthHomePageWidget.routeName);
+                                  context
+                                      .pushNamed(AuthHomePageWidget.routeName);
                                 },
                                 icon: const Icon(
                                   Icons.arrow_back,
@@ -512,8 +514,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                           fit: BoxFit.cover,
                                           errorBuilder: (_, __, ___) =>
                                               Container(
-                                            color: Colors.white.withValues(
-                                                alpha: 0.2),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
                                             child: const Icon(
                                               Icons.person,
                                               color: Colors.white,
@@ -522,8 +524,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                           ),
                                         )
                                       : Container(
-                                          color: Colors.white.withValues(
-                                              alpha: 0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                           child: const Icon(
                                             Icons.person,
                                             color: Colors.white,
@@ -536,8 +538,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                 width: 32,
                                 height: 32,
                                 decoration: BoxDecoration(
-                                  color:
-                                      FlutterFlowTheme.of(context).secondaryBackground,
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
@@ -567,9 +569,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.2,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .headlineSmallIsCustom,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .headlineSmallIsCustom,
                                 ),
                           ),
                           const SizedBox(height: 4),
@@ -589,7 +590,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                     .override(
                                       fontFamily: FlutterFlowTheme.of(context)
                                           .bodySmallFamily,
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.9),
                                       letterSpacing: 0.0,
                                       useGoogleFonts:
                                           !FlutterFlowTheme.of(context)
@@ -608,9 +610,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                       .bodySmallFamily,
                                   color: Colors.white.withValues(alpha: 0.8),
                                   letterSpacing: 0.0,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .bodySmallIsCustom,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodySmallIsCustom,
                                 ),
                           ),
                         ],
@@ -638,6 +639,16 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                               final controller = TextEditingController();
 
                               Future<void> applyLanguage(String code) async {
+                                if (!RoadyGoI18n.isLanguageFullyTranslated(
+                                    code)) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text(context.tr('language_coming_soon')),
+                                    ),
+                                  );
+                                  return;
+                                }
                                 FFAppState().setLanguageCode(code);
                                 // Small UX win: close sheet after applying.
                                 Navigator.pop(context);
@@ -655,8 +666,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
 
                                   return StatefulBuilder(
                                     builder: (context, setModalState) {
-                                      final q = controller.text.trim()
-                                          .toLowerCase();
+                                      final q =
+                                          controller.text.trim().toLowerCase();
                                       final items = RoadyGoI18n
                                           .europeanLanguages
                                           .where((e) =>
@@ -664,9 +675,7 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                               e.name
                                                   .toLowerCase()
                                                   .contains(q) ||
-                                              e.code
-                                                  .toLowerCase()
-                                                  .contains(q))
+                                              e.code.toLowerCase().contains(q))
                                           .toList();
 
                                       return SafeArea(
@@ -681,8 +690,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                 BorderRadius.circular(26),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withValues(
-                                                    alpha: 0.25),
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.25),
                                                 blurRadius: 30,
                                                 offset: const Offset(0, 12),
                                               ),
@@ -699,8 +708,7 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                   height: 4,
                                                   decoration: BoxDecoration(
                                                     color: theme.lineColor
-                                                        .withValues(
-                                                            alpha: 0.8),
+                                                        .withValues(alpha: 0.8),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             4),
@@ -720,7 +728,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                             .titleMediumFamily,
                                                         fontWeight:
                                                             FontWeight.w800,
-                                                        color: theme.primaryText,
+                                                        color:
+                                                            theme.primaryText,
                                                         useGoogleFonts: !theme
                                                             .titleMediumIsCustom,
                                                       ),
@@ -745,8 +754,7 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                       BorderRadius.circular(16),
                                                   border: Border.all(
                                                     color: theme.lineColor
-                                                        .withValues(
-                                                            alpha: 0.8),
+                                                        .withValues(alpha: 0.8),
                                                   ),
                                                 ),
                                                 padding:
@@ -765,7 +773,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                       child: TextField(
                                                         controller: controller,
                                                         onChanged: (_) =>
-                                                            setModalState(() {}),
+                                                            setModalState(
+                                                                () {}),
                                                         decoration:
                                                             InputDecoration(
                                                           hintText: context.tr(
@@ -781,10 +790,10 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                               const SizedBox(height: 12),
                                               Text(
                                                 context.tr('current_language'),
-                                                style: theme.labelMedium
-                                                    .override(
-                                                  fontFamily: theme
-                                                      .labelMediumFamily,
+                                                style:
+                                                    theme.labelMedium.override(
+                                                  fontFamily:
+                                                      theme.labelMediumFamily,
                                                   color: theme.secondaryText,
                                                   fontWeight: FontWeight.w700,
                                                   useGoogleFonts: !theme
@@ -805,10 +814,14 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                     final item = items[i];
                                                     final selected =
                                                         item.code == current;
+                                                    final isTranslated = RoadyGoI18n
+                                                        .isLanguageFullyTranslated(
+                                                            item.code);
                                                     return InkWell(
-                                                      onTap: () =>
-                                                          applyLanguage(
-                                                              item.code),
+                                                      onTap: isTranslated
+                                                          ? () => applyLanguage(
+                                                              item.code)
+                                                          : null,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               18),
@@ -840,7 +853,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                                     .withValues(
                                                                         alpha:
                                                                             0.35)
-                                                                : theme.lineColor
+                                                                : theme
+                                                                    .lineColor
                                                                     .withValues(
                                                                         alpha:
                                                                             0.7),
@@ -869,15 +883,15 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                                         .circular(
                                                                             14),
                                                               ),
-                                                              child: Icon(
-                                                                Icons
-                                                                    .translate_rounded,
-                                                                color: selected
-                                                                    ? theme
-                                                                        .primary
-                                                                    : theme
-                                                                        .secondaryText,
-                                                                size: 20,
+                                                              child: Center(
+                                                                child: Text(
+                                                                  item.flag,
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        20,
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
                                                             const SizedBox(
@@ -935,8 +949,15 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                               Icon(
                                                                 Icons
                                                                     .check_circle_rounded,
-                                                                color:
-                                                                    theme.primary,
+                                                                color: theme
+                                                                    .primary,
+                                                              )
+                                                            else if (!isTranslated)
+                                                              Icon(
+                                                                Icons
+                                                                    .lock_outline_rounded,
+                                                                color: theme
+                                                                    .secondaryText,
                                                               ),
                                                           ],
                                                         ),
@@ -1007,15 +1028,15 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                           ),
                           const SizedBox(height: 24),
                           _ActionCard(
-                            icon: Theme.of(context).brightness ==
-                                    Brightness.dark
-                                ? Icons.light_mode
-                                : Icons.dark_mode,
-                            title: 'Dark/Light Mode',
-                            subtitle: Theme.of(context).brightness ==
-                                    Brightness.dark
-                                ? context.tr('switch_to_light')
-                                : context.tr('switch_to_dark'),
+                            icon:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Icons.light_mode
+                                    : Icons.dark_mode,
+                            title: context.tr('dark_light_mode'),
+                            subtitle:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? context.tr('switch_to_light')
+                                    : context.tr('switch_to_dark'),
                             onTap: () async {
                               final isDark = Theme.of(context).brightness ==
                                   Brightness.dark;
@@ -1046,8 +1067,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                         borderRadius: BorderRadius.circular(22),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(
-                                                alpha: 0.25),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.25),
                                             blurRadius: 30,
                                             offset: const Offset(0, 12),
                                           ),
@@ -1097,12 +1118,12 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                     Text(
                                                       context.tr('log_out_q'),
                                                       // Keep localized copy for title; email line stays as-is.
-                                                      style:
-                                                          theme.titleMedium
-                                                              .override(
+                                                      style: theme.titleMedium
+                                                          .override(
                                                         fontFamily: theme
                                                             .titleMediumFamily,
-                                                        color: theme.primaryText,
+                                                        color:
+                                                            theme.primaryText,
                                                         fontWeight:
                                                             FontWeight.w700,
                                                         letterSpacing: 0.0,
@@ -1112,12 +1133,12 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                     ),
                                                     const SizedBox(height: 2),
                                                     Text(
-                                                      currentUserEmail.isNotEmpty
+                                                      currentUserEmail
+                                                              .isNotEmpty
                                                           ? 'Signed in as $currentUserEmail'
                                                           : 'You can sign back in anytime.',
-                                                      style:
-                                                          theme.bodySmall
-                                                              .override(
+                                                      style: theme.bodySmall
+                                                          .override(
                                                         fontFamily: theme
                                                             .bodySmallFamily,
                                                         color:
@@ -1158,7 +1179,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                               16),
                                                     ),
                                                   ),
-                                                  child: Text(context.tr('cancel')),
+                                                  child: Text(
+                                                      context.tr('cancel')),
                                                 ),
                                               ),
                                               const SizedBox(width: 12),
@@ -1167,8 +1189,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                   onPressed: () =>
                                                       Navigator.pop(
                                                           context, true),
-                                                  style: ElevatedButton
-                                                      .styleFrom(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         const Color(0xFFEF4444),
                                                     foregroundColor:
@@ -1184,7 +1206,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                               16),
                                                     ),
                                                   ),
-                                                  child: Text(context.tr('log_out')),
+                                                  child: Text(
+                                                      context.tr('log_out')),
                                                 ),
                                               ),
                                             ],
@@ -1258,7 +1281,7 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'App Version 2.4.0',
+                            '${context.tr('app_version')} 2.4.0',
                             style: FlutterFlowTheme.of(context)
                                 .labelSmall
                                 .override(
@@ -1268,9 +1291,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                       .secondaryText
                                       .withValues(alpha: 0.6),
                                   letterSpacing: 0.0,
-                                  useGoogleFonts:
-                                      !FlutterFlowTheme.of(context)
-                                          .labelSmallIsCustom,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .labelSmallIsCustom,
                                 ),
                           ),
                         ],

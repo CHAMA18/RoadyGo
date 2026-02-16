@@ -951,7 +951,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                                     .start,
                                                             children: [
                                                               Text(
-                                                                'Haily Brown',
+                                                                context.tr('sample_driver_name'),
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyLarge
@@ -975,7 +975,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                                             0.0,
                                                                             0.0),
                                                                 child: Text(
-                                                                  '@brownisthenewblack',
+                                                                  context.tr('sample_driver_handle'),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .labelSmall
@@ -1026,7 +1026,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                             .fromSTEB(16.0, 8.0,
                                                                 0.0, 0.0),
                                                     child: Text(
-                                                      '123 West Hollywood Blvd. San Mateo, CA. 90294',
+                                                      context.tr('sample_driver_address'),
                                                       style: FlutterFlowTheme
                                                               .of(context)
                                                           .bodyMedium

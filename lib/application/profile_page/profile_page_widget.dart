@@ -128,8 +128,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 // Settings Button
                                 _GlassButton(
                                   icon: Icons.settings,
-                                  onTap: () =>
-                                      context.pushNamed(EditProfileWidget.routeName),
+                                  onTap: () => context.pushNamed(
+                                      PassengerDetailsWidget.routeName),
                                 ),
                               ],
                             ),
@@ -137,7 +137,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                           const SizedBox(height: 16),
                           // Profile Picture and Info
                           AuthUserStreamWidget(
-                            builder: (context) => StreamBuilder<List<PassengerRecord>>(
+                            builder: (context) =>
+                                StreamBuilder<List<PassengerRecord>>(
                               stream: queryPassengerRecord(
                                 queryBuilder: (passengerRecord) =>
                                     passengerRecord.where(
@@ -159,9 +160,10 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                     currentUserPhoto,
                                   );
                                 }
-                                final passenger = snapshot.data?.isNotEmpty == true
-                                    ? snapshot.data!.first
-                                    : null;
+                                final passenger =
+                                    snapshot.data?.isNotEmpty == true
+                                        ? snapshot.data!.first
+                                        : null;
                                 // Priority: PassengerRecord name > Firebase displayName > email > 'User'
                                 String displayName = passenger?.name ?? '';
                                 if (displayName.isEmpty) {
@@ -246,7 +248,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               iconBgColor: const Color(0xFFF0F4FF),
                               iconColor: const Color(0xFF3B82F6),
                               title: context.tr('payment_methods'),
-                              onTap: () {},
+                              onTap: () => context
+                                  .pushNamed(PaymentMethodsWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildMenuItem(
@@ -256,7 +259,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               iconBgColor: const Color(0xFFFFF4E6),
                               iconColor: const Color(0xFFF97316),
                               title: context.tr('ride_history'),
-                              onTap: () => context.pushNamed(RecentRidesWidget.routeName),
+                              onTap: () => context
+                                  .pushNamed(RecentRidesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildMenuItem(
@@ -266,7 +270,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               iconBgColor: const Color(0xFFE8F5E9),
                               iconColor: const Color(0xFF22C55E),
                               title: context.tr('my_vehicles'),
-                              onTap: () {},
+                              onTap: () =>
+                                  context.pushNamed(MyVehiclesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildMenuItem(
@@ -276,7 +281,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               iconBgColor: const Color(0xFFFCE7F3),
                               iconColor: const Color(0xFFEC4899),
                               title: context.tr('saved_places'),
-                              onTap: () {},
+                              onTap: () => context
+                                  .pushNamed(SavedPlacesWidget.routeName),
                             ),
                             const SizedBox(height: 32),
                             // Edit Profile Button
@@ -284,13 +290,14 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               width: double.infinity,
                               height: 56,
                               child: ElevatedButton(
-                                onPressed: () =>
-                                    context.pushNamed(EditProfileWidget.routeName),
+                                onPressed: () => context
+                                    .pushNamed(EditProfileWidget.routeName),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF1F2937),
                                   foregroundColor: Colors.white,
                                   elevation: 8,
-                                  shadowColor: Colors.black.withValues(alpha: 0.3),
+                                  shadowColor:
+                                      Colors.black.withValues(alpha: 0.3),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
@@ -307,7 +314,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 0,
-                                        useGoogleFonts: !theme.titleSmallIsCustom,
+                                        useGoogleFonts:
+                                            !theme.titleSmallIsCustom,
                                       ),
                                     ),
                                   ],
@@ -336,7 +344,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     side: BorderSide(
-                                      color: primaryColor.withValues(alpha: 0.6),
+                                      color:
+                                          primaryColor.withValues(alpha: 0.6),
                                       width: 1.5,
                                     ),
                                   ),
@@ -353,7 +362,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                         color: primaryColor,
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: 0,
-                                        useGoogleFonts: !theme.titleSmallIsCustom,
+                                        useGoogleFonts:
+                                            !theme.titleSmallIsCustom,
                                       ),
                                     ),
                                   ],
@@ -415,7 +425,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                     ? Image.network(
                         photoUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildDefaultAvatar(theme),
+                        errorBuilder: (_, __, ___) =>
+                            _buildDefaultAvatar(theme),
                       )
                     : _buildDefaultAvatar(theme),
               ),

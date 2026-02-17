@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,6 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:from_css_color/from_css_color.dart';
 import 'dart:math' show pow, pi, sin;
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:json_path/json_path.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -302,6 +304,250 @@ Future<LatLng?> queryCurrentUserLocation() async {
   return position.latitude != 0 && position.longitude != 0
       ? LatLng(position.latitude, position.longitude)
       : null;
+}
+
+String? _cachedCurrencySymbol;
+String? _cachedCountryCodeAlpha3;
+
+const Map<String, String> _countryCodeAlpha2ToAlpha3 = {
+  'US': 'USA',
+  'CA': 'CAN',
+  'GB': 'GBR',
+  'DE': 'DEU',
+  'FR': 'FRA',
+  'ES': 'ESP',
+  'IT': 'ITA',
+  'PT': 'PRT',
+  'NL': 'NLD',
+  'BE': 'BEL',
+  'IE': 'IRL',
+  'AT': 'AUT',
+  'GR': 'GRC',
+  'CY': 'CYP',
+  'MT': 'MLT',
+  'LU': 'LUX',
+  'FI': 'FIN',
+  'SE': 'SWE',
+  'NO': 'NOR',
+  'DK': 'DNK',
+  'CH': 'CHE',
+  'PL': 'POL',
+  'CZ': 'CZE',
+  'HU': 'HUN',
+  'RO': 'ROU',
+  'BG': 'BGR',
+  'TR': 'TUR',
+  'RU': 'RUS',
+  'UA': 'UKR',
+  'AU': 'AUS',
+  'NZ': 'NZL',
+  'JP': 'JPN',
+  'CN': 'CHN',
+  'HK': 'HKG',
+  'IN': 'IND',
+  'SG': 'SGP',
+  'MY': 'MYS',
+  'TH': 'THA',
+  'ID': 'IDN',
+  'PH': 'PHL',
+  'KR': 'KOR',
+  'VN': 'VNM',
+  'BR': 'BRA',
+  'MX': 'MEX',
+  'AR': 'ARG',
+  'CL': 'CHL',
+  'CO': 'COL',
+  'PE': 'PER',
+  'ZA': 'ZAF',
+  'NG': 'NGA',
+  'KE': 'KEN',
+  'GH': 'GHA',
+  'TZ': 'TZA',
+  'UG': 'UGA',
+  'RW': 'RWA',
+  'ZM': 'ZMB',
+  'BW': 'BWA',
+  'MW': 'MWI',
+  'AE': 'ARE',
+  'SA': 'SAU',
+  'QA': 'QAT',
+  'KW': 'KWT',
+  'OM': 'OMN',
+  'BH': 'BHR',
+  'EG': 'EGY',
+};
+
+const Map<String, String> _currencyCodeByCountryCodeAlpha3 = {
+  'USA': 'USD',
+  'CAN': 'CAD',
+  'GBR': 'GBP',
+  'DEU': 'EUR',
+  'FRA': 'EUR',
+  'ESP': 'EUR',
+  'ITA': 'EUR',
+  'PRT': 'EUR',
+  'NLD': 'EUR',
+  'BEL': 'EUR',
+  'IRL': 'EUR',
+  'AUT': 'EUR',
+  'GRC': 'EUR',
+  'CYP': 'EUR',
+  'MLT': 'EUR',
+  'LUX': 'EUR',
+  'FIN': 'EUR',
+  'SWE': 'SEK',
+  'NOR': 'NOK',
+  'DNK': 'DKK',
+  'CHE': 'CHF',
+  'POL': 'PLN',
+  'CZE': 'CZK',
+  'HUN': 'HUF',
+  'ROU': 'RON',
+  'BGR': 'BGN',
+  'TUR': 'TRY',
+  'RUS': 'RUB',
+  'UKR': 'UAH',
+  'AUS': 'AUD',
+  'NZL': 'NZD',
+  'JPN': 'JPY',
+  'CHN': 'CNY',
+  'HKG': 'HKD',
+  'IND': 'INR',
+  'SGP': 'SGD',
+  'MYS': 'MYR',
+  'THA': 'THB',
+  'IDN': 'IDR',
+  'PHL': 'PHP',
+  'KOR': 'KRW',
+  'VNM': 'VND',
+  'BRA': 'BRL',
+  'MEX': 'MXN',
+  'ARG': 'ARS',
+  'CHL': 'CLP',
+  'COL': 'COP',
+  'PER': 'PEN',
+  'ZAF': 'ZAR',
+  'NGA': 'NGN',
+  'KEN': 'KES',
+  'GHA': 'GHS',
+  'TZA': 'TZS',
+  'UGA': 'UGX',
+  'RWA': 'RWF',
+  'ZMB': 'ZMW',
+  'BWA': 'BWP',
+  'MWI': 'MWK',
+  'ARE': 'AED',
+  'SAU': 'SAR',
+  'QAT': 'QAR',
+  'KWT': 'KWD',
+  'OMN': 'OMR',
+  'BHR': 'BHD',
+  'EGY': 'EGP',
+};
+
+String getCurrentCurrencySymbol() {
+  return _cachedCurrencySymbol ?? '\$';
+}
+
+String? getCurrentCountryCodeAlpha3() {
+  return _cachedCountryCodeAlpha3;
+}
+
+String? _toCountryCodeAlpha3(String? rawCountryCode) {
+  if (rawCountryCode == null) return null;
+  final normalized = rawCountryCode.trim().toUpperCase();
+  if (normalized.length == 3) return normalized;
+  if (normalized.length == 2) {
+    return _countryCodeAlpha2ToAlpha3[normalized];
+  }
+  return null;
+}
+
+String _mapsApiKeyForCurrentPlatform() {
+  if (kIsWeb) return kGoogleMapsApiKeyWeb;
+  if (Platform.isAndroid) return kGoogleMapsApiKeyAndroid;
+  if (Platform.isIOS) return kGoogleMapsApiKeyIOS;
+  return kGoogleMapsApiKeyWeb;
+}
+
+Future<String> resolveUserCurrencySymbol({
+  LatLng? location,
+  bool forceRefresh = false,
+}) async {
+  if (!forceRefresh && _cachedCurrencySymbol != null) {
+    return _cachedCurrencySymbol!;
+  }
+
+  try {
+    final loc = location ?? await queryCurrentUserLocation();
+    if (loc == null) {
+      return getCurrentCurrencySymbol();
+    }
+
+    final apiKey = _mapsApiKeyForCurrentPlatform();
+    if (apiKey.isEmpty) {
+      return getCurrentCurrencySymbol();
+    }
+
+    final uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/geocode/json',
+      {
+        'latlng': '${loc.latitude},${loc.longitude}',
+        'key': apiKey,
+        'language': 'en',
+      },
+    );
+
+    final res = await http.get(uri);
+    if (res.statusCode != 200) {
+      return getCurrentCurrencySymbol();
+    }
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (body['status'] != 'OK') {
+      return getCurrentCurrencySymbol();
+    }
+
+    final results = (body['results'] as List?) ?? const [];
+    if (results.isEmpty) {
+      return getCurrentCurrencySymbol();
+    }
+
+    String? countryCodeAlpha3;
+    for (final r in results) {
+      final comps =
+          ((r as Map<String, dynamic>)['address_components'] as List?) ??
+              const [];
+      for (final c in comps) {
+        final m = c as Map<String, dynamic>;
+        final types = (m['types'] as List?)?.cast<String>() ?? const [];
+        if (types.contains('country')) {
+          final shortName = (m['short_name'] as String?)?.toUpperCase();
+          final normalizedCountryCode = _toCountryCodeAlpha3(shortName);
+          if (normalizedCountryCode != null &&
+              normalizedCountryCode.isNotEmpty) {
+            countryCodeAlpha3 = normalizedCountryCode;
+            break;
+          }
+        }
+      }
+      if (countryCodeAlpha3 != null) break;
+    }
+
+    if (countryCodeAlpha3 == null) {
+      return getCurrentCurrencySymbol();
+    }
+
+    final currencyCode =
+        _currencyCodeByCountryCodeAlpha3[countryCodeAlpha3] ?? 'USD';
+    final symbol = NumberFormat.simpleCurrency(name: currencyCode).currencySymbol;
+    _cachedCountryCodeAlpha3 = countryCodeAlpha3;
+    _cachedCurrencySymbol = symbol;
+    return symbol;
+  } catch (_) {
+    return getCurrentCurrencySymbol();
+  }
 }
 
 extension FFTextEditingControllerExt on TextEditingController? {

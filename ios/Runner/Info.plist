@@ -55,6 +55,10 @@
 
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>In order to search nearby, this app requires access to your current location.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>RoadyGo needs photo library access so you can upload your profile image.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>RoadyGo needs photo library access to manage uploaded profile images.</string>
 
 
 

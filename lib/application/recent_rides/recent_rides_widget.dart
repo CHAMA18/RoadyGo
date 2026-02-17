@@ -22,6 +22,7 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
   late RecentRidesModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _currencyResolved = false;
 
   Color _statusColor(FlutterFlowTheme theme, String status) {
     final s = status.trim().toLowerCase();
@@ -95,7 +96,16 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(context.tr('book_a_ride')),
+                child: Text(
+                  context.tr('book_a_ride'),
+                  style: theme.titleSmall.override(
+                    fontFamily: theme.titleSmallFamily,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                    useGoogleFonts: !theme.titleSmallIsCustom,
+                  ),
+                ),
               ),
             ),
           ],
@@ -273,6 +283,7 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                           fee,
                           formatType: FormatType.decimal,
                           decimalType: DecimalType.periodDecimal,
+                          currency: getCurrentCurrencySymbol(),
                         ),
                         style: theme.titleSmall.override(
                           fontFamily: theme.titleSmallFamily,
@@ -336,8 +347,8 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    const headerA = Color(0xFFE53935);
-    const headerB = Color(0xFFFF6B6B);
+    final headerA = theme.primary;
+    final headerB = theme.secondary;
 
     if (currentUserReference == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -383,7 +394,7 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                     ),
                   ),
                   background: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -468,6 +479,12 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                       }
 
                       final rides = snapshot.data!;
+                      if (!_currencyResolved && rides.isNotEmpty) {
+                        _currencyResolved = true;
+                        resolveUserCurrencySymbol(
+                          location: rides.first.pickupLocation,
+                        );
+                      }
                       if (rides.isEmpty) {
                         return _buildEmptyState(theme);
                       }

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:collection/collection.dart';
+import 'package:http/http.dart' as http;
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_util.dart';
 import '/l10n/roadygo_i18n.dart';
@@ -69,39 +71,39 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
 
   List<PopularDestination> _popularDestinations(BuildContext context) => [
         PopularDestination(
-          name: context.tr('airport'),
-          icon: Icons.flight_takeoff_rounded,
-          category: 'airport',
+          name: 'Charging Station',
+          icon: Icons.ev_station_rounded,
+          category: 'electric_vehicle_charging_station',
           color: Color(0xFF5C6BC0),
         ),
         PopularDestination(
-          name: context.tr('mall'),
-          icon: Icons.shopping_bag_rounded,
-          category: 'shopping_mall',
+          name: 'Care Tire',
+          icon: Icons.car_repair_rounded,
+          category: 'car_repair',
           color: Color(0xFFEC407A),
         ),
         PopularDestination(
-          name: context.tr('hospital'),
-          icon: Icons.local_hospital_rounded,
-          category: 'hospital',
+          name: 'Car Battery',
+          icon: Icons.battery_charging_full_rounded,
+          category: 'car_repair',
           color: Color(0xFFEF5350),
         ),
         PopularDestination(
-          name: context.tr('restaurant'),
-          icon: Icons.restaurant_rounded,
-          category: 'restaurant',
+          name: 'Parking Lot',
+          icon: Icons.local_parking_rounded,
+          category: 'parking',
           color: Color(0xFFFF7043),
         ),
         PopularDestination(
-          name: context.tr('hotel'),
-          icon: Icons.hotel_rounded,
-          category: 'lodging',
+          name: 'Petrol Station',
+          icon: Icons.local_gas_station_rounded,
+          category: 'gas_station',
           color: Color(0xFF26A69A),
         ),
         PopularDestination(
-          name: context.tr('station'),
-          icon: Icons.train_rounded,
-          category: 'train_station',
+          name: 'Car Repair Shop',
+          icon: Icons.build_rounded,
+          category: 'car_repair',
           color: Color(0xFF42A5F5),
         ),
       ];
@@ -409,19 +411,57 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     Navigator.pop(context);
   }
 
+  Future<String?> _reverseGeocode(LatLng latLng) async {
+    if (googleMapsApiKey.isEmpty) return null;
+
+    final uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/geocode/json',
+      {
+        'latlng': '${latLng.latitude},${latLng.longitude}',
+        'key': googleMapsApiKey,
+        'language': 'en',
+      },
+    );
+
+    final res = await http.get(uri);
+    if (res.statusCode != 200) return null;
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (body['status'] != 'OK') return null;
+
+    final results = (body['results'] as List?) ?? const [];
+    if (results.isEmpty) return null;
+
+    final first = results.first as Map<String, dynamic>;
+    final formatted = first['formatted_address'] as String?;
+    if (formatted != null && formatted.isNotEmpty) return formatted;
+
+    return null;
+  }
+
   Future<void> _useCurrentLocation() async {
     setState(() => _isLoading = true);
     try {
-      final loc = widget.currentLocation ??
-          await getCurrentUserLocation(
-            defaultLocation: const LatLng(0.0, 0.0),
-            cached: true,
-          );
+      final loc = widget.currentLocation ?? await queryCurrentUserLocation();
+      if (loc == null) {
+        throw Exception('Location unavailable');
+      }
+
+      final resolvedAddress = await _reverseGeocode(loc);
+      final fallbackAddress =
+          'Lat ${loc.latitude.toStringAsFixed(5)}, Lng ${loc.longitude.toStringAsFixed(5)}';
+      final destinationText = (resolvedAddress != null &&
+              resolvedAddress.trim().isNotEmpty)
+          ? resolvedAddress
+          : fallbackAddress;
+      _searchController.text = destinationText;
+
       _selectPlace(
         FFPlace(
           latLng: loc,
-          name: context.tr('pickup_point'),
-          address: context.tr('use_current_location'),
+          name: destinationText,
+          address: destinationText,
         ),
       );
     } catch (e) {
@@ -455,7 +495,6 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         children: [
           _buildHeader(theme),
           _buildSearchField(theme),
-          _buildGooglePlacesApiBadge(theme),
           _buildUseCurrentLocation(theme),
           Expanded(
             child: FadeTransition(
@@ -651,46 +690,6 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGooglePlacesApiBadge(FlutterFlowTheme theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: theme.alternate.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.lineColor,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.travel_explore_rounded,
-              color: theme.secondary,
-              size: 18,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Google Places API',
-                style: theme.bodySmall.override(
-                  fontFamily: theme.bodySmallFamily,
-                  color: theme.primaryText,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0,
-                  useGoogleFonts: !theme.bodySmallIsCustom,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -1069,20 +1068,16 @@ class _CategoryResultsSheet extends StatelessWidget {
 
   String get categoryTitle {
     switch (category) {
-      case 'airport':
-        return '✈️ Airports';
-      case 'shopping_mall':
-        return '🛍️ Shopping Malls';
-      case 'hospital':
-        return '🏥 Hospitals';
-      case 'restaurant':
-        return '🍽️ Restaurants';
-      case 'lodging':
-        return '🏨 Hotels';
-      case 'train_station':
-        return '🚂 Train Stations';
+      case 'electric_vehicle_charging_station':
+        return 'Charging Stations';
+      case 'parking':
+        return 'Parking Lots';
+      case 'gas_station':
+        return 'Petrol Stations';
+      case 'car_repair':
+        return 'Car Repair Shops';
       default:
-        return '📍 Nearby Places';
+        return 'Nearby Places';
     }
   }
 

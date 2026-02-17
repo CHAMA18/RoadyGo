@@ -41,6 +41,7 @@ dependencies:
   firebase_auth_platform_interface: 7.7.0
   firebase_auth_web: 5.15.0
   firebase_core: ^3.14.0
+  firebase_storage: 12.4.7
   firebase_core_platform_interface: 5.4.0
   firebase_core_web: 2.23.0
   firebase_performance: 0.10.1+7
@@ -132,6 +133,7 @@ dev_dependencies:
   flutter_launcher_icons: 0.13.1
   flutter_lints: 4.0.0
   image: 4.2.0
+  image_picker: 1.1.2
   lints: 4.0.0
   flutter_test:
     sdk: flutter
@@ -143,7 +145,7 @@ flutter_launcher_icons:
   remove_alpha_ios: true
   web:
     generate: true
-  image_path: 'assets/images/RoadyGoImage.png'
+  image_path: 'assets/images/WhatsApp Image 2026-02-04 at 00.58.08 (1).jpeg'
 
 
 # For information on the generic Dart part of this file, see the
@@ -163,6 +165,7 @@ flutter:
     - assets/images/
     - assets/images/Car-tow.png
     - assets/images/car_tow.png
+    - assets/images/Truck-tow.png
     - assets/images/Truck_tow.png
     - assets/videos/
     - assets/audios/

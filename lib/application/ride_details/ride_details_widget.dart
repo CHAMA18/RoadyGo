@@ -66,6 +66,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
         }
 
         final rideDetailsRideRecord = snapshot.data!;
+        resolveUserCurrencySymbol(location: rideDetailsRideRecord.pickupLocation);
 
         return GestureDetector(
           onTap: () {
@@ -740,8 +741,14 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                       ),
                                             ),
                                             Text(
-                                              rideDetailsRideRecord.rideFee
-                                                  .toString(),
+                                              formatNumber(
+                                                rideDetailsRideRecord.rideFee,
+                                                formatType: FormatType.decimal,
+                                                decimalType:
+                                                    DecimalType.periodDecimal,
+                                                currency:
+                                                    getCurrentCurrencySymbol(),
+                                              ),
                                               style:
                                                   FlutterFlowTheme.of(context)
                                                       .bodyMedium

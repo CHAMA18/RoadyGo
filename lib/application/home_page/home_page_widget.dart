@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as google_maps_flutter;
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    as google_maps_flutter;
 
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
@@ -42,7 +43,10 @@ class _HomePageWidgetState extends State<HomePageWidget>
     _model = createModel(context, () => HomePageModel());
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
-        .then((loc) => safeSetState(() => currentUserLocationValue = loc));
+        .then((loc) {
+      safeSetState(() => currentUserLocationValue = loc);
+      resolveUserCurrencySymbol(location: loc);
+    });
     _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
 
@@ -219,8 +223,8 @@ class _HomePageWidgetState extends State<HomePageWidget>
                     );
                   },
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: theme.primary,
                       borderRadius: BorderRadius.circular(25),
@@ -315,6 +319,51 @@ class _HomePageWidgetState extends State<HomePageWidget>
             },
           ),
         ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SizedBox(
+            height: 44,
+            child: ElevatedButton(
+              onPressed: () => context.pushNamed(SchedulePageWidget.routeName),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.secondaryBackground,
+                foregroundColor: theme.primaryText,
+                elevation: 0,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  side: BorderSide(color: theme.lineColor, width: 1.0),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.schedule_rounded,
+                    color: primaryColor,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Schedule Ride',
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.bodyMedium.override(
+                        fontFamily: theme.bodyMediumFamily,
+                        color: theme.primaryText,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                        useGoogleFonts: !theme.bodyMediumIsCustom,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
         // Profile Button
         GestureDetector(
           onTap: () => context.pushNamed(ProfilePageWidget.routeName),
@@ -371,38 +420,40 @@ class _HomePageWidgetState extends State<HomePageWidget>
         // Google Map
         Positioned.fill(
           child: FlutterFlowGoogleMap(
-          controller: _model.googleMapsController,
-          onCameraIdle: (latLng) {
-            _model.googleMapsCenter = latLng;
-            if (!_isMapReady && mounted) {
-              safeSetState(() => _isMapReady = true);
-            }
-          },
-          initialLocation: _model.googleMapsCenter ?? effectiveLocation,
-          markers: FFAppState()
-              .testMarkers
-              .where((e) => FFAppState().testMarkers.contains(e))
-              .toList()
-              .map(
-                (marker) => FlutterFlowMarker(
-                  marker.serialize(),
-                  marker,
-                ),
-              )
-              .toList(),
-          markerColor: GoogleMarkerColor.red,
-          mapType: MapType.normal,
-          style: GoogleMapStyle.standard,
-          initialZoom: 14.0,
-          allowInteraction: true,
-          allowZoom: true,
-          showZoomControls: false,
-          showLocation: hasLocation,
-          showCompass: false,
-          showMapToolbar: false,
-          showTraffic: false,
-          centerMapOnMarkerTap: false,
-        ),
+            controller: _model.googleMapsController,
+            onMapReady: () {
+              if (!_isMapReady && mounted) {
+                safeSetState(() => _isMapReady = true);
+              }
+            },
+            onCameraIdle: (latLng) {
+              _model.googleMapsCenter = latLng;
+            },
+            initialLocation: _model.googleMapsCenter ?? effectiveLocation,
+            markers: FFAppState()
+                .testMarkers
+                .where((e) => FFAppState().testMarkers.contains(e))
+                .toList()
+                .map(
+                  (marker) => FlutterFlowMarker(
+                    marker.serialize(),
+                    marker,
+                  ),
+                )
+                .toList(),
+            markerColor: GoogleMarkerColor.red,
+            mapType: MapType.normal,
+            style: GoogleMapStyle.standard,
+            initialZoom: 14.0,
+            allowInteraction: true,
+            allowZoom: true,
+            showZoomControls: false,
+            showLocation: hasLocation,
+            showCompass: false,
+            showMapToolbar: false,
+            showTraffic: false,
+            centerMapOnMarkerTap: false,
+          ),
         ),
         Positioned.fill(
           child: IgnorePointer(
@@ -436,36 +487,39 @@ class _HomePageWidgetState extends State<HomePageWidget>
             left: 0,
             right: 0,
             child: Center(
-              child: AnimatedBuilder(
-                animation: _pulseAnimation,
-                builder: (context, child) {
-                  return Container(
-                    width: 64 * _pulseAnimation.value,
-                    height: 64 * _pulseAnimation.value,
-                    decoration: BoxDecoration(
-                  color: primaryColor.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: primaryColor.withValues(alpha: 0.5),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
+              child: AnimatedScale(
+                scale: _pulseAnimation.value,
+                duration: const Duration(milliseconds: 180),
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.16),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.16),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.directions_car_filled_rounded,
+                        color: primaryColor,
+                        size: 20,
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ),
@@ -473,7 +527,8 @@ class _HomePageWidgetState extends State<HomePageWidget>
     );
   }
 
-  Widget _buildFallbackMapBackground(FlutterFlowTheme theme, Color primaryColor) {
+  Widget _buildFallbackMapBackground(
+      FlutterFlowTheme theme, Color primaryColor) {
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -823,7 +878,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
           ),
           formatType: FormatType.decimal,
           decimalType: DecimalType.periodDecimal,
-          currency: '\$',
+          currency: getCurrentCurrencySymbol(),
         );
 
         return Column(

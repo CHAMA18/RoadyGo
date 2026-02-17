@@ -71,6 +71,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
   const FlutterFlowGoogleMap({
     required this.controller,
     this.onCameraIdle,
+    this.onMapReady,
     this.initialLocation,
     this.markers = const [],
     this.markerColor = GoogleMarkerColor.red,
@@ -86,6 +87,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
     this.showMapToolbar = false,
     this.showTraffic = false,
     this.centerMapOnMarkerTap = false,
+    this.maxWebInitRetries = 5,
     // Whether the map takes gesture preference over the surrounding page.
     // This is useful when the map is inside a scrolling Widget, and you want
     // the gestures within the map to not affect the surrounding page.
@@ -95,6 +97,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
 
   final Completer<GoogleMapController> controller;
   final Function(latlng.LatLng)? onCameraIdle;
+  final VoidCallback? onMapReady;
   final latlng.LatLng? initialLocation;
   final Iterable<FlutterFlowMarker> markers;
   final GoogleMarkerColor markerColor;
@@ -110,6 +113,7 @@ class FlutterFlowGoogleMap extends StatefulWidget {
   final bool showMapToolbar;
   final bool showTraffic;
   final bool centerMapOnMarkerTap;
+  final int maxWebInitRetries;
   final bool mapTakesGesturePreference;
 
   @override
@@ -124,6 +128,25 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   late Completer<GoogleMapController> _controller;
   BitmapDescriptor? _markerDescriptor;
   late LatLng currentMapCenter;
+  Timer? _webInitTimer;
+  int _mapInstanceKey = 0;
+  int _webRetryCount = 0;
+  bool _mapCreated = false;
+
+  void _startWebInitWatchdog() {
+    if (!kIsWeb) return;
+    _webInitTimer?.cancel();
+    if (_mapCreated || _webRetryCount >= widget.maxWebInitRetries) return;
+
+    _webInitTimer = Timer(const Duration(seconds: 8), () {
+      if (!mounted || _mapCreated) return;
+      setState(() {
+        _webRetryCount += 1;
+        _mapInstanceKey += 1;
+      });
+      _startWebInitWatchdog();
+    });
+  }
 
   void initializeMarkerBitmap() {
     final markerImage = widget.markerImage;
@@ -178,6 +201,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     currentMapCenter = initialPosition;
     _controller = widget.controller;
     initializeMarkerBitmap();
+    _startWebInitWatchdog();
   }
 
   @override
@@ -188,6 +212,15 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       initializeMarkerBitmap();
       setState(() {});
     }
+    if (oldWidget.maxWebInitRetries != widget.maxWebInitRetries) {
+      _startWebInitWatchdog();
+    }
+  }
+
+  @override
+  void dispose() {
+    _webInitTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -199,9 +232,15 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     final googleMapWidget = AbsorbPointer(
       absorbing: !widget.allowInteraction,
       child: GoogleMap(
+        key: ValueKey('ff_google_map_$_mapInstanceKey'),
         onMapCreated: (controller) async {
-          _controller.complete(controller);
+          if (!_controller.isCompleted) {
+            _controller.complete(controller);
+          }
           await controller.setMapStyle(googleMapStyleStrings[widget.style]);
+          _mapCreated = true;
+          _webInitTimer?.cancel();
+          widget.onMapReady?.call();
         },
         onCameraIdle: onCameraIdle,
         onCameraMove: (position) => currentMapCenter = position.target,

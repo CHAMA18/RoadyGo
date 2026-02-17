@@ -1,7 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
-import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_place_picker.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -11,7 +10,8 @@ import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    as google_maps_flutter;
 import 'package:provider/provider.dart';
 import 'auth_home_page_model.dart';
 export 'auth_home_page_model.dart';
@@ -26,53 +26,216 @@ class AuthHomePageWidget extends StatefulWidget {
   State<AuthHomePageWidget> createState() => _AuthHomePageWidgetState();
 }
 
-class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
+class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
+    with SingleTickerProviderStateMixin {
   late AuthHomePageModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
   LatLng? currentUserLocationValue;
   bool _isMapReady = false;
+  bool _isSubmittingRideOrder = false;
+  late AnimationController _carAnimationController;
 
-  Future<RideVariablesRecord?> _loadAdminRideVariables() async {
-    final defaultPricing = await queryRideVariablesRecordOnce(
-      queryBuilder: (q) => q.where(FieldPath.documentId, isEqualTo: 'default'),
-      singleRecord: true,
-    ).then((s) => s.firstOrNull);
-
-    if (defaultPricing != null) {
-      return defaultPricing;
+  double? _estimatedDistanceKm() {
+    final hasPickup = _model.placePickerValue1.address.trim().isNotEmpty;
+    final hasDestination = _model.placePickerValue2.address.trim().isNotEmpty;
+    if (!hasPickup || !hasDestination) {
+      return null;
     }
 
-    return queryRideVariablesRecordOnce(
-      singleRecord: true,
-    ).then((s) => s.firstOrNull);
+    final pickup = _model.placePickerValue1.latLng;
+    final destination = _model.placePickerValue2.latLng;
+    if ((pickup.latitude == 0.0 && pickup.longitude == 0.0) ||
+        (destination.latitude == 0.0 && destination.longitude == 0.0)) {
+      return null;
+    }
+
+    return functions.calculateDistance(pickup, destination);
+  }
+
+  Future<RideVariablesRecord?> _loadAdminRideVariables() async {
+    final pricingDocs = await queryRideVariablesRecordOnce(limit: 50);
+    if (pricingDocs.isEmpty) {
+      return null;
+    }
+    return pricingDocs.firstWhereOrNull((d) => d.reference.id == 'default') ??
+        pricingDocs.firstWhereOrNull(
+          (d) => d.region.trim().toLowerCase() == 'default',
+        ) ??
+        pricingDocs.first;
+  }
+
+  Future<void> _recenterMap() async {
+    final loc = await getCurrentUserLocation(
+      defaultLocation: currentUserLocationValue ?? const LatLng(0.0, 0.0),
+      cached: false,
+    );
+    if (!mounted) {
+      return;
+    }
+    safeSetState(() => currentUserLocationValue = loc);
+    final controller = await _model.googleMapsController.future;
+    await controller.animateCamera(
+      google_maps_flutter.CameraUpdate.newLatLng(
+        google_maps_flutter.LatLng(loc.latitude, loc.longitude),
+      ),
+    );
+  }
+
+  Future<void> _handleOrderRide() async {
+    if (_isSubmittingRideOrder) {
+      return;
+    }
+
+    safeSetState(() => _isSubmittingRideOrder = true);
+    try {
+      _model.variables ??= await _loadAdminRideVariables();
+      _model.passenger = await queryPassengerRecordOnce(
+        queryBuilder: (passengerRecord) => passengerRecord.where(
+          'UserId',
+          isEqualTo: currentUserReference,
+        ),
+        singleRecord: true,
+      ).then((s) => s.firstOrNull);
+
+      if (_model.variables == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr('ride_pricing_unavailable'),
+              style: TextStyle(
+                color: FlutterFlowTheme.of(context).primaryText,
+              ),
+            ),
+            duration: const Duration(milliseconds: 3000),
+            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+          ),
+        );
+        return;
+      }
+
+      final rideRecordReference = RideRecord.collection.doc();
+      await rideRecordReference.set(
+        createRideRecordData(
+          destinationLocation: _model.placePickerValue2.latLng,
+          destinationAddress: _model.placePickerValue2.name,
+          isDriverAssigned: false,
+          pickupLocation: _model.placePickerValue1.latLng,
+          pickupAddress: _model.placePickerValue1.name,
+          userNumber: _model.passenger?.mobileNumber,
+          status: 'Active',
+          rideFee: functions
+              .calculatePrice(
+                _model.placePickerValue1.latLng,
+                _model.placePickerValue2.latLng,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costOfRide
+                    : _model.variables!.corporateCostOfRide,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costPerDistance
+                    : _model.variables!.corporateCostPerDistance,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costPerMinute
+                    : _model.variables!.corporateCostPerMinute,
+              )
+              .toDouble(),
+          rideType: FFAppState().rideTier,
+          passengerId: currentUserReference,
+        ),
+      );
+
+      _model.rideDetails = RideRecord.getDocumentFromData(
+        createRideRecordData(
+          destinationLocation: _model.placePickerValue2.latLng,
+          destinationAddress: _model.placePickerValue2.name,
+          isDriverAssigned: false,
+          pickupLocation: _model.placePickerValue1.latLng,
+          pickupAddress: _model.placePickerValue1.name,
+          userNumber: _model.passenger?.mobileNumber,
+          status: 'Active',
+          rideFee: functions
+              .calculatePrice(
+                _model.placePickerValue1.latLng,
+                _model.placePickerValue2.latLng,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costOfRide
+                    : _model.variables!.corporateCostOfRide,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costPerDistance
+                    : _model.variables!.corporateCostPerDistance,
+                FFAppState().rideTier == 'Basic'
+                    ? _model.variables!.costPerMinute
+                    : _model.variables!.corporateCostPerMinute,
+              )
+              .toDouble(),
+          rideType: FFAppState().rideTier,
+          passengerId: currentUserReference,
+        ),
+        rideRecordReference,
+      );
+
+      FFAppState().starteRide = _model.rideDetails?.reference;
+      safeSetState(() {});
+
+      if (!mounted) return;
+      context.pushNamed(
+        FindingRideWidget.routeName,
+        queryParameters: {
+          'rideDetails': serializeParam(
+            _model.rideDetails?.reference,
+            ParamType.DocumentReference,
+          ),
+        }.withoutNulls,
+        extra: <String, dynamic>{
+          kTransitionInfoKey: const TransitionInfo(
+            hasTransition: true,
+            transitionType: PageTransitionType.fade,
+          ),
+        },
+      );
+    } finally {
+      if (mounted) {
+        safeSetState(() => _isSubmittingRideOrder = false);
+      }
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => AuthHomePageModel());
+    _carAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat();
 
     getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
-        .then((loc) => safeSetState(() => currentUserLocationValue = loc))
+        .then((loc) {
+      safeSetState(() => currentUserLocationValue = loc);
+      resolveUserCurrencySymbol(location: loc);
+    })
         .catchError((error) {
       debugPrint('Error getting user location: $error');
       // Fallback to a default location (coordinates for Lusaka, Zambia)
-      safeSetState(() => currentUserLocationValue = LatLng(-15.4167, 28.2833));
+      const fallback = LatLng(-15.4167, 28.2833);
+      safeSetState(() => currentUserLocationValue = fallback);
+      resolveUserCurrencySymbol(location: fallback);
     }).timeout(
       Duration(seconds: 3),
       onTimeout: () {
         debugPrint('Location request timed out, using default location');
         // Fallback to a default location after timeout
-        safeSetState(
-            () => currentUserLocationValue = LatLng(-15.4167, 28.2833));
+        const fallback = LatLng(-15.4167, 28.2833);
+        safeSetState(() => currentUserLocationValue = fallback);
+        resolveUserCurrencySymbol(location: fallback);
       },
     );
-
   }
 
   @override
   void dispose() {
+    _carAnimationController.dispose();
     _model.dispose();
 
     super.dispose();
@@ -124,26 +287,38 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                         Positioned.fill(
                           child: FlutterFlowGoogleMap(
                             controller: _model.googleMapsController,
-                            onCameraIdle: (latLng) {
-                              _model.googleMapsCenter = latLng;
+                            onMapReady: () {
                               if (!_isMapReady && mounted) {
                                 safeSetState(() => _isMapReady = true);
                               }
                             },
+                            onCameraIdle: (latLng) {
+                              _model.googleMapsCenter = latLng;
+                            },
                             initialLocation: _model.googleMapsCenter ??=
                                 currentUserLocationValue!,
-                            markers: FFAppState()
-                                .testMarkers
-                                .where((e) => FFAppState().testMarkers.contains(e))
-                                .toList()
-                                .map(
-                                  (marker) => FlutterFlowMarker(
-                                    marker.serialize(),
-                                    marker,
+                            markers: [
+                              FlutterFlowMarker(
+                                'current_user_marker',
+                                currentUserLocationValue!,
+                              ),
+                              ...FFAppState()
+                                  .testMarkers
+                                  .where((e) => FFAppState().testMarkers.contains(e))
+                                  .toList()
+                                  .map(
+                                    (marker) => FlutterFlowMarker(
+                                      marker.serialize(),
+                                      marker,
+                                    ),
                                   ),
-                                )
-                                .toList(),
+                            ],
                             markerColor: GoogleMarkerColor.red,
+                            markerImage: const MarkerImage(
+                              imagePath: 'assets/images/Car-tow.png',
+                              isAssetImage: true,
+                              size: 52,
+                            ),
                             mapType: MapType.normal,
                             style: GoogleMapStyle.standard,
                             initialZoom: 14.0,
@@ -170,6 +345,45 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                     ),
                   ),
                 ),
+                Positioned(
+                  top: 12.0,
+                  left: 15.0,
+                  right: 15.0,
+                  child: FFButtonWidget(
+                    onPressed: () async {
+                      context.pushNamed(SchedulePageWidget.routeName);
+                    },
+                    text: 'Schedule Ride',
+                    icon: Icon(
+                      Icons.schedule_rounded,
+                      size: 18.0,
+                    ),
+                    options: FFButtonOptions(
+                      width: double.infinity,
+                      height: 52.0,
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                      iconPadding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                      color: FlutterFlowTheme.of(context).secondaryBackground,
+                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                            fontFamily:
+                                FlutterFlowTheme.of(context).titleSmallFamily,
+                            color: FlutterFlowTheme.of(context).primaryText,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.0,
+                            useGoogleFonts: !FlutterFlowTheme.of(context)
+                                .titleSmallIsCustom,
+                          ),
+                      elevation: 2.0,
+                      borderSide: BorderSide(
+                        color: FlutterFlowTheme.of(context).lineColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(14.0),
+                    ),
+                  ),
+                ),
                 SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
@@ -187,21 +401,67 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                             children: [
                               Align(
                                 alignment: AlignmentDirectional(1.0, 0.0),
-                                child: FlutterFlowIconButton(
-                                  borderRadius: 20.0,
-                                  borderWidth: 0.0,
-                                  buttonSize: 50.0,
-                                  fillColor: FlutterFlowTheme.of(context)
-                                      .secondaryBackground,
-                                  icon: FaIcon(
-                                    FontAwesomeIcons.locationArrow,
-                                    color: FlutterFlowTheme.of(context)
-                                        .primaryText,
-                                    size: 24.0,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    onTap: () async {
+                                      await _recenterMap();
+                                    },
+                                    child: Container(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      decoration: BoxDecoration(
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryBackground,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withValues(alpha: 0.12),
+                                            blurRadius: 10.0,
+                                            offset: const Offset(0.0, 3.0),
+                                          ),
+                                        ],
+                                      ),
+                                      child: AnimatedBuilder(
+                                        animation: _carAnimationController,
+                                        builder: (context, _) {
+                                          final pulse = Curves.easeInOut.transform(
+                                            _carAnimationController.value,
+                                          );
+                                          final iconScale = 0.92 + (pulse * 0.18);
+
+                                          return Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Container(
+                                                width: 28 + (pulse * 8),
+                                                height: 28 + (pulse * 8),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: FlutterFlowTheme.of(context)
+                                                      .primary
+                                                      .withValues(alpha: 0.14),
+                                                ),
+                                              ),
+                                              Transform.scale(
+                                                scale: iconScale,
+                                                child: Icon(
+                                                  Icons
+                                                      .directions_car_filled_rounded,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  size: 23.0,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () {
-                                    print('IconButton pressed ...');
-                                  },
                                 ),
                               ),
                               FFButtonWidget(
@@ -590,7 +850,13 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                     width: 100.0,
                                                     height: 160.0,
                                                     decoration: BoxDecoration(
-                                                      color: Colors.transparent,
+                                                      color: FFAppState()
+                                                                  .rideTier ==
+                                                              'Basic'
+                                                          ? FlutterFlowTheme.of(
+                                                                  context)
+                                                              .secondary
+                                                          : Colors.transparent,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               8.0),
@@ -649,23 +915,37 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                     (context,
                                                                         error,
                                                                         stackTrace) {
-                                                                  return Container(
+                                                                  return Image
+                                                                      .asset(
+                                                                    'assets/images/Car-tow.png',
                                                                     height:
                                                                         120.0,
                                                                     width:
                                                                         160.0,
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .center,
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .directions_car_outlined,
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryText,
-                                                                    ),
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    errorBuilder:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      return Container(
+                                                                        height:
+                                                                            120.0,
+                                                                        width:
+                                                                            160.0,
+                                                                        alignment:
+                                                                            Alignment.center,
+                                                                        color: Colors
+                                                                            .transparent,
+                                                                        child:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .directions_car_outlined,
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).secondaryText,
+                                                                        ),
+                                                                      );
+                                                                    },
                                                                   );
                                                                 },
                                                               ),
@@ -686,7 +966,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                           'Basic'
                                                                       ? FlutterFlowTheme.of(
                                                                               context)
-                                                                          .secondary
+                                                                          .secondaryBackground
                                                                       : FlutterFlowTheme.of(
                                                                               context)
                                                                           .primaryText,
@@ -778,7 +1058,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                'assets/images/Truck_tow.png',
+                                                                'assets/images/Truck-tow.png',
                                                                 height: 100.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit
@@ -853,6 +1133,66 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                           ),
                                         ],
                                       ),
+                                      if (_estimatedDistanceKm() != null)
+                                        Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsetsDirectional
+                                              .fromSTEB(14.0, 10.0, 14.0, 10.0),
+                                          decoration: BoxDecoration(
+                                            color: FlutterFlowTheme.of(context)
+                                                .alternate,
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            border: Border.all(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .lineColor,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.route_rounded,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondary,
+                                                size: 18.0,
+                                              ),
+                                              SizedBox(width: 8.0),
+                                              Text(
+                                                'Estimated distance: ${formatNumber(
+                                                  _estimatedDistanceKm(),
+                                                  formatType:
+                                                      FormatType.decimal,
+                                                  decimalType: DecimalType
+                                                      .periodDecimal,
+                                                )} km',
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .bodyMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumFamily,
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primaryText,
+                                                          letterSpacing: 0.0,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          useGoogleFonts:
+                                                              !FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMediumIsCustom,
+                                                        ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (_estimatedDistanceKm() != null)
+                                        SizedBox(height: 10.0),
                                       if ((_model.placePickerValue2.address !=
                                               '') &&
                                           (_model.placePickerValue1.address !=
@@ -897,13 +1237,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                               RideVariablesRecord>>(
                                                         stream:
                                                             queryRideVariablesRecord(
-                                                          queryBuilder: (q) =>
-                                                              q.where(
-                                                            FieldPath
-                                                                .documentId,
-                                                            isEqualTo:
-                                                                'default',
-                                                          ),
                                                           singleRecord: true,
                                                         ),
                                                         builder: (context,
@@ -927,6 +1260,14 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                 ),
                                                               ),
                                                             );
+                                                          }
+                                                          final pricingFromStream =
+                                                              snapshot.data!
+                                                                  .firstOrNull;
+                                                          if (pricingFromStream !=
+                                                              null) {
+                                                            _model.variables =
+                                                                pricingFromStream;
                                                           }
                                                           return Container(
                                                             width: MediaQuery
@@ -963,14 +1304,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                         RideVariablesRecord>>(
                                                                   stream:
                                                                       queryRideVariablesRecord(
-                                                                    queryBuilder:
-                                                                        (q) => q
-                                                                            .where(
-                                                                      FieldPath
-                                                                          .documentId,
-                                                                      isEqualTo:
-                                                                          'default',
-                                                                    ),
                                                                     singleRecord:
                                                                         true,
                                                                   ),
@@ -1005,6 +1338,11 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                         ? textRideVariablesRecordList
                                                                             .first
                                                                         : null;
+                                                                    if (textRideVariablesRecord !=
+                                                                        null) {
+                                                                      _model.variables =
+                                                                          textRideVariablesRecord;
+                                                                    }
                                                                     final selectedCostOfRide = FFAppState().rideTier ==
                                                                             'Corporate'
                                                                         ? textRideVariablesRecord?.corporateCostOfRide ??
@@ -1037,7 +1375,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                                         decimalType:
                                                                             DecimalType.periodDecimal,
                                                                         currency:
-                                                                            '\$',
+                                                                            getCurrentCurrencySymbol(),
                                                                       ),
                                                                       style: FlutterFlowTheme.of(
                                                                               context)
@@ -1058,249 +1396,25 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                                                           );
                                                         },
                                                       ),
-                                                      FFButtonWidget(
-                                                        onPressed: () async {
-                                                          _model.variables =
-                                                              await _loadAdminRideVariables();
-                                                          _model.passenger =
-                                                              await queryPassengerRecordOnce(
-                                                            queryBuilder:
-                                                                (passengerRecord) =>
-                                                                    passengerRecord
-                                                                        .where(
-                                                              'UserId',
-                                                              isEqualTo:
-                                                                  currentUserReference,
-                                                            ),
-                                                            singleRecord: true,
-                                                          ).then((s) => s
-                                                                  .firstOrNull);
-                                                          if (_model
-                                                                  .variables ==
-                                                              null) {
-                                                            ScaffoldMessenger
-                                                                    .of(context)
-                                                                .showSnackBar(
-                                                              SnackBar(
-                                                                content: Text(
-                                                                  context.tr('ride_pricing_unavailable'),
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
-                                                                  ),
-                                                                ),
-                                                                duration: Duration(
-                                                                    milliseconds:
-                                                                        3000),
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .secondaryBackground,
-                                                              ),
-                                                            );
-                                                            return;
-                                                          }
-
-                                                          var rideRecordReference =
-                                                              RideRecord
-                                                                  .collection
-                                                                  .doc();
-                                                          await rideRecordReference
-                                                              .set(
-                                                                  createRideRecordData(
-                                                            destinationLocation:
-                                                                _model
-                                                                    .placePickerValue2
-                                                                    .latLng,
-                                                            destinationAddress:
-                                                                _model
-                                                                    .placePickerValue2
-                                                                    .name,
-                                                            isDriverAssigned:
-                                                                false,
-                                                            pickupLocation: _model
-                                                                .placePickerValue1
-                                                                .latLng,
-                                                            pickupAddress: _model
-                                                                .placePickerValue1
-                                                                .name,
-                                                            userNumber: _model
-                                                                .passenger
-                                                                ?.mobileNumber,
-                                                            status: 'Active',
-                                                            rideFee: functions
-                                                                .calculatePrice(
-                                                                    _model
-                                                                        .placePickerValue1
-                                                                        .latLng,
-                                                                    _model
-                                                                        .placePickerValue2
-                                                                        .latLng,
-                                                                    FFAppState().rideTier ==
-                                                                            'Basic'
-                                                                        ? _model
-                                                                            .variables!
-                                                                            .costOfRide
-                                                                        : _model
-                                                                            .variables!
-                                                                            .corporateCostOfRide,
-                                                                    FFAppState().rideTier ==
-                                                                            'Basic'
-                                                                        ? _model
-                                                                            .variables!
-                                                                            .costPerDistance
-                                                                        : _model
-                                                                            .variables!
-                                                                            .corporateCostPerDistance,
-                                                                    FFAppState().rideTier ==
-                                                                            'Basic'
-                                                                        ? _model
-                                                                            .variables!
-                                                                            .costPerMinute
-                                                                        : _model
-                                                                            .variables!
-                                                                            .corporateCostPerMinute)
-                                                                .toDouble(),
-                                                            rideType:
-                                                                FFAppState()
-                                                                    .rideTier,
-                                                            passengerId:
-                                                                currentUserReference,
-                                                          ));
-                                                          _model.rideDetails = RideRecord
-                                                              .getDocumentFromData(
-                                                                  createRideRecordData(
-                                                                    destinationLocation: _model
-                                                                        .placePickerValue2
-                                                                        .latLng,
-                                                                    destinationAddress:
-                                                                        _model
-                                                                            .placePickerValue2
-                                                                            .name,
-                                                                    isDriverAssigned:
-                                                                        false,
-                                                                    pickupLocation: _model
-                                                                        .placePickerValue1
-                                                                        .latLng,
-                                                                    pickupAddress:
-                                                                        _model
-                                                                            .placePickerValue1
-                                                                            .name,
-                                                                    userNumber: _model
-                                                                        .passenger
-                                                                        ?.mobileNumber,
-                                                                    status:
-                                                                        'Active',
-                                                                    rideFee: functions
-                                                                        .calculatePrice(
-                                                                            _model
-                                                                                .placePickerValue1.latLng,
-                                                                            _model
-                                                                                .placePickerValue2.latLng,
-                                                                            FFAppState().rideTier == 'Basic'
-                                                                                ? _model.variables!.costOfRide
-                                                                                : _model.variables!.corporateCostOfRide,
-                                                                            FFAppState().rideTier == 'Basic' ? _model.variables!.costPerDistance : _model.variables!.corporateCostPerDistance,
-                                                                            FFAppState().rideTier == 'Basic' ? _model.variables!.costPerMinute : _model.variables!.corporateCostPerMinute)
-                                                                        .toDouble(),
-                                                                    rideType:
-                                                                        FFAppState()
-                                                                            .rideTier,
-                                                                    passengerId:
-                                                                        currentUserReference,
-                                                                  ),
-                                                                  rideRecordReference);
-                                                          FFAppState()
-                                                                  .starteRide =
-                                                              _model.rideDetails
-                                                                  ?.reference;
-                                                          safeSetState(() {});
-
-                                                          context.pushNamed(
-                                                            FindingRideWidget
-                                                                .routeName,
-                                                            queryParameters: {
-                                                              'rideDetails':
-                                                                  serializeParam(
-                                                                _model
-                                                                    .rideDetails
-                                                                    ?.reference,
-                                                                ParamType
-                                                                    .DocumentReference,
-                                                              ),
-                                                            }.withoutNulls,
-                                                            extra: <String,
-                                                                dynamic>{
-                                                              kTransitionInfoKey:
-                                                                  TransitionInfo(
-                                                                hasTransition:
-                                                                    true,
-                                                                transitionType:
-                                                                    PageTransitionType
-                                                                        .fade,
-                                                              ),
-                                                            },
-                                                          );
-
-                                                          safeSetState(() {});
-                                                        },
-                                                        text: context
+                                                      _SlideToConfirmAction(
+                                                        width: 200.0,
+                                                        height: 50.0,
+                                                        label: context
                                                             .tr('order_ride'),
-                                                        options:
-                                                            FFButtonOptions(
-                                                          width: 200.0,
-                                                          height: 50.0,
-                                                          padding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      24.0,
-                                                                      0.0,
-                                                                      24.0,
-                                                                      0.0),
-                                                          iconPadding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0,
-                                                                      0.0),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondary,
-                                                          textStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .titleSmall
-                                                                  .override(
-                                                                    fontFamily:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .titleSmallFamily,
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                    letterSpacing:
-                                                                        0.0,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                    useGoogleFonts:
-                                                                        !FlutterFlowTheme.of(context)
-                                                                            .titleSmallIsCustom,
-                                                                  ),
-                                                          elevation: 0.0,
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: Colors
-                                                                .transparent,
-                                                            width: 1.0,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      100.0),
-                                                        ),
+                                                        enabled:
+                                                            !_isSubmittingRideOrder,
+                                                        isLoading:
+                                                            _isSubmittingRideOrder,
+                                                        fillColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondary,
+                                                        textColor:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        onConfirmed:
+                                                            _handleOrderRide,
                                                       ),
                                                     ],
                                                   ),
@@ -1363,8 +1477,10 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget> {
                 ),
               ),
               content: SizedBox(
-                width:
-                    MediaQuery.sizeOf(context).width.clamp(0.0, 360.0).toDouble(),
+                width: MediaQuery.sizeOf(context)
+                    .width
+                    .clamp(0.0, 360.0)
+                    .toDouble(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.sizeOf(context).height * 0.6,
@@ -1528,4 +1644,152 @@ class _AuthFallbackRoadGridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _SlideToConfirmAction extends StatefulWidget {
+  const _SlideToConfirmAction({
+    required this.width,
+    required this.height,
+    required this.label,
+    required this.enabled,
+    required this.isLoading,
+    required this.fillColor,
+    required this.textColor,
+    required this.onConfirmed,
+  });
+
+  final double width;
+  final double height;
+  final String label;
+  final bool enabled;
+  final bool isLoading;
+  final Color fillColor;
+  final Color textColor;
+  final Future<void> Function() onConfirmed;
+
+  @override
+  State<_SlideToConfirmAction> createState() => _SlideToConfirmActionState();
+}
+
+class _SlideToConfirmActionState extends State<_SlideToConfirmAction> {
+  double _dragProgress = 0.0;
+  bool _confirming = false;
+
+  double get _knobSize => widget.height - 8;
+
+  @override
+  void didUpdateWidget(covariant _SlideToConfirmAction oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.enabled && !widget.isLoading) {
+      _dragProgress = 0.0;
+    }
+  }
+
+  Future<void> _completeConfirm() async {
+    if (_confirming || !widget.enabled) return;
+    setState(() {
+      _confirming = true;
+      _dragProgress = 1.0;
+    });
+    try {
+      await widget.onConfirmed();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _confirming = false;
+          _dragProgress = 0.0;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final maxOffset = widget.width - _knobSize - 8;
+    final clampedProgress = _dragProgress.clamp(0.0, 1.0);
+    final knobLeft = 4 + (maxOffset * clampedProgress);
+    final isBusy = widget.isLoading || _confirming;
+
+    return Opacity(
+      opacity: widget.enabled || isBusy ? 1.0 : 0.55,
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Stack(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: (widget.width * clampedProgress)
+                  .clamp(widget.height, widget.width)
+                  .toDouble(),
+              height: widget.height,
+              decoration: BoxDecoration(
+                color: widget.fillColor,
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+            Center(
+              child: Text(
+                isBusy ? 'Ordering...' : 'Slide to ${widget.label}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: clampedProgress > 0.55 ? Colors.white : widget.textColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            Positioned(
+              left: knobLeft,
+              top: 4,
+              child: GestureDetector(
+                onHorizontalDragUpdate: (!widget.enabled || isBusy)
+                    ? null
+                    : (details) {
+                        setState(() {
+                          _dragProgress += details.delta.dx / maxOffset;
+                          _dragProgress = _dragProgress.clamp(0.0, 1.0);
+                        });
+                      },
+                onHorizontalDragEnd: (!widget.enabled || isBusy)
+                    ? null
+                    : (_) async {
+                        if (_dragProgress >= 0.92) {
+                          await _completeConfirm();
+                        } else {
+                          setState(() => _dragProgress = 0.0);
+                        }
+                      },
+                child: Container(
+                  width: _knobSize,
+                  height: _knobSize,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isBusy ? Icons.hourglass_top_rounded : Icons.chevron_right_rounded,
+                    color: widget.fillColor,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

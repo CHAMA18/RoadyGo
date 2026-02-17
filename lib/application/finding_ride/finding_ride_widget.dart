@@ -100,6 +100,7 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
         }
 
         final findingRideRideRecord = snapshot.data!;
+        resolveUserCurrencySymbol(location: findingRideRideRecord.pickupLocation);
         // Handle completion using the existing stream instead of a tight polling loop.
         if (!_handledCompletion &&
             findingRideRideRecord.status.trim().toLowerCase() == 'completed') {
@@ -747,7 +748,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                           FormatType.decimal,
                                                       decimalType: DecimalType
                                                           .periodDecimal,
-                                                      currency: '\$',
+                                                      currency:
+                                                          getCurrentCurrencySymbol(),
                                                     ),
                                                     style: FlutterFlowTheme.of(
                                                             context)

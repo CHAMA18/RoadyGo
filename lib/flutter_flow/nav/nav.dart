@@ -156,6 +156,21 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ProfilePageWidget(),
         ),
         FFRoute(
+          name: PaymentMethodsWidget.routeName,
+          path: PaymentMethodsWidget.routePath,
+          builder: (context, params) => PaymentMethodsWidget(),
+        ),
+        FFRoute(
+          name: MyVehiclesWidget.routeName,
+          path: MyVehiclesWidget.routePath,
+          builder: (context, params) => MyVehiclesWidget(),
+        ),
+        FFRoute(
+          name: SavedPlacesWidget.routeName,
+          path: SavedPlacesWidget.routePath,
+          builder: (context, params) => SavedPlacesWidget(),
+        ),
+        FFRoute(
           name: ResetPasswordWidget.routeName,
           path: ResetPasswordWidget.routePath,
           builder: (context, params) => ResetPasswordWidget(),

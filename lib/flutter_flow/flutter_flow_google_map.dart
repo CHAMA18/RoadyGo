@@ -9,6 +9,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as gmfpi;
 import 'lat_lng.dart' as latlng;
 
 export 'dart:async' show Completer;
@@ -132,6 +134,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   int _mapInstanceKey = 0;
   int _webRetryCount = 0;
   bool _mapCreated = false;
+  bool _webAdvancedMarkersConfigured = !kIsWeb;
 
   void _startWebInitWatchdog() {
     if (!kIsWeb) return;
@@ -143,6 +146,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
       setState(() {
         _webRetryCount += 1;
         _mapInstanceKey += 1;
+        _webAdvancedMarkersConfigured = false;
       });
       _startWebInitWatchdog();
     });
@@ -193,6 +197,53 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
     });
   }
 
+  Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
+    if (!kIsWeb || _webAdvancedMarkersConfigured) return;
+    try {
+      await gmfpi.GoogleMapsFlutterPlatform.instance.updateMapConfiguration(
+        const gmfpi.MapConfiguration(
+          markerType: gmfpi.MarkerType.advancedMarker,
+        ),
+        mapId: controller.mapId,
+      );
+    } catch (e) {
+      debugPrint('Failed to enable web advanced markers: $e');
+    }
+    if (!mounted) return;
+    setState(() {
+      _webAdvancedMarkersConfigured = true;
+    });
+  }
+
+  Marker _buildMarker(FlutterFlowMarker m) {
+    Future<void> handleTap() async {
+      if (widget.centerMapOnMarkerTap) {
+        final controller = await _controller.future;
+        await controller.animateCamera(
+          CameraUpdate.newLatLng(m.location.toGoogleMaps()),
+        );
+        currentMapCenter = m.location.toGoogleMaps();
+        onCameraIdle();
+      }
+      await m.onTap?.call();
+    }
+
+    if (kIsWeb) {
+      return gmfpi.AdvancedMarker(
+        markerId: MarkerId(m.markerId),
+        position: m.location.toGoogleMaps(),
+        icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
+        onTap: handleTap,
+      );
+    }
+    return Marker(
+      markerId: MarkerId(m.markerId),
+      position: m.location.toGoogleMaps(),
+      icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
+      onTap: handleTap,
+    );
+  }
+
   void onCameraIdle() => widget.onCameraIdle?.call(currentMapCenter.toLatLng());
 
   @override
@@ -237,6 +288,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
           if (!_controller.isCompleted) {
             _controller.complete(controller);
           }
+          await _enableWebAdvancedMarkers(controller);
           await controller.setMapStyle(googleMapStyleStrings[widget.style]);
           _mapCreated = true;
           _webInitTimer?.cancel();
@@ -255,26 +307,9 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         compassEnabled: widget.showCompass,
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
-        markers: widget.markers
-            .map(
-              (m) => Marker(
-                markerId: MarkerId(m.markerId),
-                position: m.location.toGoogleMaps(),
-                icon: _markerDescriptor ?? BitmapDescriptor.defaultMarker,
-                onTap: () async {
-                  if (widget.centerMapOnMarkerTap) {
-                    final controller = await _controller.future;
-                    await controller.animateCamera(
-                      CameraUpdate.newLatLng(m.location.toGoogleMaps()),
-                    );
-                    currentMapCenter = m.location.toGoogleMaps();
-                    onCameraIdle();
-                  }
-                  await m.onTap?.call();
-                },
-              ),
-            )
-            .toSet(),
+        markers: (!kIsWeb || _webAdvancedMarkersConfigured)
+            ? widget.markers.map(_buildMarker).toSet()
+            : const <Marker>{},
         gestureRecognizers: {
           if (mapHasGesturePreference)
             const Factory<OneSequenceGestureRecognizer>(

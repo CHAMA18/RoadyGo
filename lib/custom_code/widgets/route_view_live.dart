@@ -21,6 +21,8 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart' hide LatLng;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as latlng;
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as gmfpi;
 
 class RouteViewLive extends StatefulWidget {
   const RouteViewLive({
@@ -59,6 +61,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
   GoogleMapController? mapController;
   Set<Marker> markers = {};
   Map<PolylineId, Polyline> initialPolylines = {};
+  bool _webAdvancedMarkersConfigured = !kIsWeb;
 
   // Same as earlier
   String get googleMapsApiKey {
@@ -92,6 +95,53 @@ class _RouteViewLiveState extends State<RouteViewLive> {
   // TODO: Add updated _calculateDistance and _createPolylines method
   // TODO: Add a new method to initialize the polylines
 
+  Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
+    if (!kIsWeb || _webAdvancedMarkersConfigured) return;
+    try {
+      await gmfpi.GoogleMapsFlutterPlatform.instance.updateMapConfiguration(
+        const gmfpi.MapConfiguration(
+          markerType: gmfpi.MarkerType.advancedMarker,
+        ),
+        mapId: controller.mapId,
+      );
+    } catch (e) {
+      debugPrint('Failed to enable web advanced markers: $e');
+    }
+    if (!mounted) return;
+    setState(() {
+      _webAdvancedMarkersConfigured = true;
+    });
+  }
+
+  Marker _createMapMarker({
+    required MarkerId markerId,
+    required latlng.LatLng position,
+    required InfoWindow infoWindow,
+    required BitmapDescriptor icon,
+  }) {
+    if (kIsWeb) {
+      return gmfpi.AdvancedMarker(
+        markerId: markerId,
+        position: position,
+        infoWindow: infoWindow,
+        icon: icon,
+      );
+    }
+    return Marker(
+      markerId: markerId,
+      position: position,
+      infoWindow: infoWindow,
+      icon: icon,
+    );
+  }
+
+  Set<Marker> get _mapMarkers {
+    if (kIsWeb && !_webAdvancedMarkersConfigured) {
+      return <Marker>{};
+    }
+    return Set<Marker>.from(markers);
+  }
+
   // Same as earlier
   @override
   void initState() {
@@ -117,7 +167,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
             height: widget.height,
             width: widget.width,
             child: GoogleMap(
-              markers: Set<Marker>.from(markers),
+              markers: _mapMarkers,
               initialCameraPosition: _initialLocation,
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
@@ -125,8 +175,9 @@ class _RouteViewLiveState extends State<RouteViewLive> {
               zoomGesturesEnabled: true,
               zoomControlsEnabled: false,
               polylines: Set<Polyline>.of(initialPolylines.values),
-              onMapCreated: (GoogleMapController controller) {
+              onMapCreated: (GoogleMapController controller) async {
                 mapController = controller;
+                await _enableWebAdvancedMarkers(controller);
                 initPolylines();
               },
             ),
@@ -149,7 +200,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return GoogleMap(
-                    markers: Set<Marker>.from(markers),
+                    markers: _mapMarkers,
                     initialCameraPosition: CameraPosition(
                       target: latlng.LatLng(
                         rideRecord.destinationLocation!.latitude,
@@ -162,14 +213,15 @@ class _RouteViewLiveState extends State<RouteViewLive> {
                     zoomGesturesEnabled: true,
                     zoomControlsEnabled: false,
                     polylines: Set<Polyline>.of(initialPolylines.values),
-                    onMapCreated: (GoogleMapController controller) {
+                    onMapCreated: (GoogleMapController controller) async {
                       mapController = controller;
+                      await _enableWebAdvancedMarkers(controller);
                     },
                   );
                 }
 
                 return GoogleMap(
-                  markers: Set<Marker>.from(markers),
+                  markers: _mapMarkers,
                   initialCameraPosition: CameraPosition(
                     target: latlng.LatLng(
                       rideRecord.destinationLocation!.latitude,
@@ -182,8 +234,9 @@ class _RouteViewLiveState extends State<RouteViewLive> {
                   zoomGesturesEnabled: true,
                   zoomControlsEnabled: false,
                   polylines: Set<Polyline>.of(snapshot.data!.values),
-                  onMapCreated: (GoogleMapController controller) {
+                  onMapCreated: (GoogleMapController controller) async {
                     mapController = controller;
+                    await _enableWebAdvancedMarkers(controller);
                   },
                 );
               }),
@@ -244,7 +297,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
           '($destinationLatitude, $destinationLongitude)';
 
       // Start Location Marker
-      Marker startMarker = Marker(
+      Marker startMarker = _createMapMarker(
         markerId: MarkerId(startCoordinatesString),
         position: latlng.LatLng(startLatitude, startLongitude),
         infoWindow: InfoWindow(
@@ -255,7 +308,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
       );
 
       // Destination Location Marker
-      Marker destinationMarker = Marker(
+      Marker destinationMarker = _createMapMarker(
         markerId: MarkerId(destinationCoordinatesString),
         position: latlng.LatLng(destinationLatitude, destinationLongitude),
         infoWindow: InfoWindow(

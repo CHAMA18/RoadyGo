@@ -14,6 +14,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' hide LatLng;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as latlng;
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as gmfpi;
 
 import '../../backend/backend.dart';
 
@@ -53,6 +55,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
 
   String? _placeDistance;
   Set<Marker> markers = {};
+  bool _webAdvancedMarkersConfigured = !kIsWeb;
 
   PolylinePoints? polylinePoints;
   Map<PolylineId, Polyline> polylines = {};
@@ -79,7 +82,9 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
       height: widget.height,
       width: widget.width,
       child: GoogleMap(
-        markers: Set<Marker>.from(markers),
+        markers: (!kIsWeb || _webAdvancedMarkersConfigured)
+            ? Set<Marker>.from(markers)
+            : <Marker>{},
         initialCameraPosition: _initialLocation,
         myLocationEnabled: true,
         myLocationButtonEnabled: false,
@@ -87,11 +92,52 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
         zoomGesturesEnabled: true,
         zoomControlsEnabled: false,
         polylines: Set<Polyline>.of(polylines.values),
-        onMapCreated: (GoogleMapController controller) {
+        onMapCreated: (GoogleMapController controller) async {
           mapController = controller;
+          await _enableWebAdvancedMarkers(controller);
           _calculateDistance();
         },
       ),
+    );
+  }
+
+  Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
+    if (!kIsWeb || _webAdvancedMarkersConfigured) return;
+    try {
+      await gmfpi.GoogleMapsFlutterPlatform.instance.updateMapConfiguration(
+        const gmfpi.MapConfiguration(
+          markerType: gmfpi.MarkerType.advancedMarker,
+        ),
+        mapId: controller.mapId,
+      );
+    } catch (e) {
+      debugPrint('Failed to enable web advanced markers: $e');
+    }
+    if (!mounted) return;
+    setState(() {
+      _webAdvancedMarkersConfigured = true;
+    });
+  }
+
+  Marker _createMapMarker({
+    required MarkerId markerId,
+    required latlng.LatLng position,
+    required InfoWindow infoWindow,
+    required BitmapDescriptor icon,
+  }) {
+    if (kIsWeb) {
+      return gmfpi.AdvancedMarker(
+        markerId: markerId,
+        position: position,
+        infoWindow: infoWindow,
+        icon: icon,
+      );
+    }
+    return Marker(
+      markerId: markerId,
+      position: position,
+      infoWindow: infoWindow,
+      icon: icon,
     );
   }
 
@@ -179,7 +225,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
           '($destinationLatitude, $destinationLongitude)';
 
       // Start Location Marker
-      Marker startMarker = Marker(
+      Marker startMarker = _createMapMarker(
         markerId: MarkerId(startCoordinatesString),
         position: latlng.LatLng(startLatitude, startLongitude),
         infoWindow: InfoWindow(
@@ -190,7 +236,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
       );
 
       // Destination Location Marker
-      Marker destinationMarker = Marker(
+      Marker destinationMarker = _createMapMarker(
         markerId: MarkerId(destinationCoordinatesString),
         position: latlng.LatLng(destinationLatitude, destinationLongitude),
         infoWindow: InfoWindow(

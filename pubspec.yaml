@@ -70,8 +70,8 @@ dependencies:
   google_maps_flutter: 2.12.2
   google_maps_flutter_android: 2.16.1
   google_maps_flutter_ios: 2.15.2
-  google_maps_flutter_platform_interface: 2.12.1
-  google_maps_flutter_web: 0.5.12
+  google_maps_flutter_platform_interface: 2.14.0
+  google_maps_flutter_web: 0.6.1
   google_sign_in: 6.3.0
   google_sign_in_android: 6.2.1
   google_sign_in_ios: 5.9.0
@@ -124,6 +124,8 @@ dependencies:
 
 dependency_overrides:
   google_api_headers: 4.5.3
+  # Force web implementation that supports AdvancedMarkerElement.
+  google_maps_flutter_web: 0.6.1
   http: 1.4.0
   package_info_plus: 8.0.2
   package_info_plus_platform_interface: 3.0.1

@@ -692,63 +692,88 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                 const SizedBox(height: 24),
                                 InkWell(
                                   onTap: () async {
-                                    final updatedName = _model
-                                        .yourNameTextController?.text
-                                        .trim();
-                                    final updatedPhone = _model
-                                        .phoneNumberTextController?.text
-                                        .trim();
-                                    final updatedEmail =
-                                        _model.emailTextController?.text.trim();
-                                    final updatedLocation = _model
-                                        .locationTextController?.text
-                                        .trim();
+                                    try {
+                                      final updatedName = _model
+                                          .yourNameTextController?.text
+                                          .trim();
+                                      final updatedPhone = _model
+                                          .phoneNumberTextController?.text
+                                          .trim();
+                                      final updatedEmail = _model
+                                          .emailTextController?.text
+                                          .trim();
+                                      final updatedLocation = _model
+                                          .locationTextController?.text
+                                          .trim();
 
-                                    final data = createPassengerRecordData(
-                                      userId: currentUserReference,
-                                      name: updatedName?.isNotEmpty == true
-                                          ? updatedName
-                                          : nameValue,
-                                      mobileNumber:
-                                          updatedPhone?.isNotEmpty == true
-                                              ? updatedPhone
-                                              : phoneValue,
-                                      email: updatedEmail?.isNotEmpty == true
-                                          ? updatedEmail
-                                          : emailValue,
-                                      location:
-                                          updatedLocation?.isNotEmpty == true
-                                              ? updatedLocation
-                                              : locationValue,
-                                    );
-
-                                    if (editProfilePassengerRecord != null) {
-                                      await editProfilePassengerRecord.reference
-                                          .update(data);
-                                    } else {
-                                      await PassengerRecord.collection
-                                          .doc(currentUserUid)
-                                          .set(data, SetOptions(merge: true));
-                                    }
-
-                                    await currentUserReference!.update(
-                                      createUsersRecordData(
-                                        displayName:
-                                            updatedName?.isNotEmpty == true
-                                                ? updatedName
-                                                : nameValue,
-                                        email: updatedEmail?.isNotEmpty == true
-                                            ? updatedEmail
-                                            : emailValue,
-                                        phoneNumber:
+                                      final data = createPassengerRecordData(
+                                        userId: currentUserReference,
+                                        name: updatedName?.isNotEmpty == true
+                                            ? updatedName
+                                            : nameValue,
+                                        mobileNumber:
                                             updatedPhone?.isNotEmpty == true
                                                 ? updatedPhone
                                                 : phoneValue,
-                                      ),
-                                    );
+                                        email: updatedEmail?.isNotEmpty == true
+                                            ? updatedEmail
+                                            : emailValue,
+                                        location:
+                                            updatedLocation?.isNotEmpty == true
+                                                ? updatedLocation
+                                                : locationValue,
+                                      );
 
-                                    context.pushNamed(
-                                        PassengerDetailsWidget.routeName);
+                                      if (editProfilePassengerRecord != null) {
+                                        await editProfilePassengerRecord
+                                            .reference
+                                            .update(data);
+                                      } else {
+                                        await PassengerRecord.collection
+                                            .doc(currentUserUid)
+                                            .set(data, SetOptions(merge: true));
+                                      }
+
+                                      await currentUserReference!.update(
+                                        createUsersRecordData(
+                                          displayName:
+                                              updatedName?.isNotEmpty == true
+                                                  ? updatedName
+                                                  : nameValue,
+                                          email: updatedEmail?.isNotEmpty ==
+                                                  true
+                                              ? updatedEmail
+                                              : emailValue,
+                                          phoneNumber:
+                                              updatedPhone?.isNotEmpty == true
+                                                  ? updatedPhone
+                                                  : phoneValue,
+                                        ),
+                                      );
+
+                                      context.pushNamed(
+                                          PassengerDetailsWidget.routeName);
+                                    } on FirebaseException catch (e) {
+                                      if (!context.mounted) return;
+                                      final message =
+                                          e.code == 'permission-denied'
+                                              ? 'You do not have permission to update this profile.'
+                                              : 'Could not save profile changes. Please try again.';
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(content: Text(message)),
+                                      );
+                                    } catch (_) {
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Could not save profile changes. Please try again.',
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   },
                                   borderRadius: BorderRadius.circular(16),
                                   child: Container(

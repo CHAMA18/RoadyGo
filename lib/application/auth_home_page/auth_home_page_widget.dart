@@ -9,6 +9,7 @@ import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
 import 'package:collection/collection.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     as google_maps_flutter;
@@ -54,15 +55,51 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
   }
 
   Future<RideVariablesRecord?> _loadAdminRideVariables() async {
-    final pricingDocs = await queryRideVariablesRecordOnce(limit: 50);
-    if (pricingDocs.isEmpty) {
+    try {
+      final defaultDocRef = RideVariablesRecord.collection.doc('default');
+      final defaultDoc = await RideVariablesRecord.getDocumentOnce(defaultDocRef);
+      if (defaultDoc.reference.id == 'default') {
+        return defaultDoc;
+      }
+    } catch (_) {
+      // Fall through to broader query when the default doc is missing/inaccessible.
+    }
+
+    try {
+      final pricingDocs = await queryRideVariablesRecordOnce(limit: 50);
+      if (pricingDocs.isEmpty) {
+        return null;
+      }
+      return pricingDocs.firstWhereOrNull((d) => d.reference.id == 'default') ??
+          pricingDocs.firstWhereOrNull(
+            (d) => d.region.trim().toLowerCase() == 'default',
+          ) ??
+          pricingDocs.first;
+    } catch (e) {
+      debugPrint('Failed to load ride pricing: $e');
       return null;
     }
-    return pricingDocs.firstWhereOrNull((d) => d.reference.id == 'default') ??
-        pricingDocs.firstWhereOrNull(
-          (d) => d.region.trim().toLowerCase() == 'default',
-        ) ??
-        pricingDocs.first;
+  }
+
+  double _pricingBase(RideVariablesRecord? variables) {
+    if (FFAppState().rideTier == 'Corporate') {
+      return variables?.corporateCostOfRide ?? 0.0;
+    }
+    return variables?.costOfRide ?? 0.0;
+  }
+
+  double _pricingPerDistance(RideVariablesRecord? variables) {
+    if (FFAppState().rideTier == 'Corporate') {
+      return variables?.corporateCostPerDistance ?? 0.0;
+    }
+    return variables?.costPerDistance ?? 0.0;
+  }
+
+  double _pricingPerMinute(RideVariablesRecord? variables) {
+    if (FFAppState().rideTier == 'Corporate') {
+      return variables?.corporateCostPerMinute ?? 0.0;
+    }
+    return variables?.costPerMinute ?? 0.0;
   }
 
   Future<void> _recenterMap() async {
@@ -87,6 +124,15 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
       return;
     }
 
+    if (currentUserReference == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You need to be signed in to create an order.'),
+        ),
+      );
+      return;
+    }
+
     safeSetState(() => _isSubmittingRideOrder = true);
     try {
       _model.variables ??= await _loadAdminRideVariables();
@@ -97,23 +143,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
         ),
         singleRecord: true,
       ).then((s) => s.firstOrNull);
-
-      if (_model.variables == null) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('ride_pricing_unavailable'),
-              style: TextStyle(
-                color: FlutterFlowTheme.of(context).primaryText,
-              ),
-            ),
-            duration: const Duration(milliseconds: 3000),
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-          ),
-        );
-        return;
-      }
 
       final rideRecordReference = RideRecord.collection.doc();
       await rideRecordReference.set(
@@ -129,15 +158,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
               .calculatePrice(
                 _model.placePickerValue1.latLng,
                 _model.placePickerValue2.latLng,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costOfRide
-                    : _model.variables!.corporateCostOfRide,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costPerDistance
-                    : _model.variables!.corporateCostPerDistance,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costPerMinute
-                    : _model.variables!.corporateCostPerMinute,
+                _pricingBase(_model.variables),
+                _pricingPerDistance(_model.variables),
+                _pricingPerMinute(_model.variables),
               )
               .toDouble(),
           rideType: FFAppState().rideTier,
@@ -158,15 +181,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
               .calculatePrice(
                 _model.placePickerValue1.latLng,
                 _model.placePickerValue2.latLng,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costOfRide
-                    : _model.variables!.corporateCostOfRide,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costPerDistance
-                    : _model.variables!.corporateCostPerDistance,
-                FFAppState().rideTier == 'Basic'
-                    ? _model.variables!.costPerMinute
-                    : _model.variables!.corporateCostPerMinute,
+                _pricingBase(_model.variables),
+                _pricingPerDistance(_model.variables),
+                _pricingPerMinute(_model.variables),
               )
               .toDouble(),
           rideType: FFAppState().rideTier,
@@ -193,6 +210,25 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
             transitionType: PageTransitionType.fade,
           ),
         },
+      );
+    } on FirebaseException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      final message = e.code == 'permission-denied'
+          ? 'Permission denied while creating ride. Please sign in again and try.'
+          : 'Could not create ride. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not create ride. Please try again.'),
+        ),
       );
     } finally {
       if (mounted) {

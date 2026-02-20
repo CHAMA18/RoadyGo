@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/l10n/roadygo_i18n.dart';
@@ -20,27 +22,6 @@ class SavedPlacesWidget extends StatefulWidget {
 class _SavedPlacesWidgetState extends State<SavedPlacesWidget> {
   late SavedPlacesModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final _places = const <_SavedPlace>[
-    _SavedPlace(
-      title: 'Home',
-      subtitle: 'Lagos, Victoria Island, Admiralty Way 14',
-      icon: Icons.home_rounded,
-      accent: Color(0xFF3B82F6),
-    ),
-    _SavedPlace(
-      title: 'Work',
-      subtitle: 'Ikoyi, Corporate Towers, 8th Floor',
-      icon: Icons.work_rounded,
-      accent: Color(0xFF8B5CF6),
-    ),
-    _SavedPlace(
-      title: 'Garage',
-      subtitle: 'Apapa Yard, Dock Road Gate 3',
-      icon: Icons.local_parking_rounded,
-      accent: Color(0xFF10B981),
-    ),
-  ];
 
   @override
   void initState() {
@@ -104,66 +85,48 @@ class _SavedPlacesWidgetState extends State<SavedPlacesWidget> {
                         ),
                       ),
                     ),
-                    _HeaderButton(
-                      icon: Icons.add_location_alt_outlined,
-                      onTap: _onAddPlace,
-                      background: Colors.white.withValues(alpha: 0.2),
-                      iconColor: Colors.white,
-                    ),
                   ],
                 ),
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                  child: Column(
-                    children: [
-                      for (final place in _places) ...[
-                        _PlaceCard(place: place),
-                        const SizedBox(height: 14),
-                      ],
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: theme.secondaryBackground,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: theme.lineColor),
+                child: (!loggedIn || currentUserReference == null)
+                    ? _buildEmptyState(
+                        theme,
+                        'Sign in to view your saved places.',
+                      )
+                    : StreamBuilder<List<SavedPlaceRecord>>(
+                        stream: querySavedPlaceRecord(
+                          parent: currentUserReference,
+                          queryBuilder: (q) =>
+                              q.orderBy('created_time', descending: true),
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: theme.primary.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.tips_and_updates_outlined,
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: CircularProgressIndicator(
                                 color: theme.primary,
-                                size: 22,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Saved places accelerate booking and improve dispatch accuracy for repeat trips.',
-                                style: theme.bodyMedium.override(
-                                  fontFamily: theme.bodyMediumFamily,
-                                  color: theme.primaryText,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0,
-                                  useGoogleFonts: !theme.bodyMediumIsCustom,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                            );
+                          }
+
+                          final places = snapshot.data!;
+                          if (places.isEmpty) {
+                            return _buildEmptyState(
+                              theme,
+                              'No saved places yet.',
+                            );
+                          }
+
+                          return ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                            itemCount: places.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 14),
+                            itemBuilder: (context, index) =>
+                                _PlaceCard(place: places[index]),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -172,11 +135,27 @@ class _SavedPlacesWidgetState extends State<SavedPlacesWidget> {
     );
   }
 
-  void _onAddPlace() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Add saved place flow coming soon.'),
-        duration: Duration(milliseconds: 2000),
+  Widget _buildEmptyState(FlutterFlowTheme theme, String message) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.secondaryBackground,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: theme.lineColor),
+        ),
+        child: Text(
+          message,
+          style: theme.bodyMedium.override(
+            fontFamily: theme.bodyMediumFamily,
+            color: theme.primaryText,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
+            useGoogleFonts: !theme.bodyMediumIsCustom,
+          ),
+        ),
       ),
     );
   }
@@ -185,11 +164,15 @@ class _SavedPlacesWidgetState extends State<SavedPlacesWidget> {
 class _PlaceCard extends StatelessWidget {
   const _PlaceCard({required this.place});
 
-  final _SavedPlace place;
+  final SavedPlaceRecord place;
 
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final title = place.name.trim().isNotEmpty ? place.name.trim() : 'Saved Place';
+    final subtitle =
+        place.address.trim().isNotEmpty ? place.address.trim() : 'No address';
+    final visual = _visualForName(title);
 
     return Container(
       width: double.infinity,
@@ -212,10 +195,10 @@ class _PlaceCard extends StatelessWidget {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: place.accent.withValues(alpha: 0.12),
+              color: visual.color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(place.icon, color: place.accent, size: 24),
+            child: Icon(visual.icon, color: visual.color, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -223,7 +206,7 @@ class _PlaceCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  place.title,
+                  title,
                   style: theme.titleMedium.override(
                     fontFamily: theme.titleMediumFamily,
                     color: theme.primaryText,
@@ -234,7 +217,7 @@ class _PlaceCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  place.subtitle,
+                  subtitle,
                   style: theme.bodySmall.override(
                     fontFamily: theme.bodySmallFamily,
                     color: theme.secondaryText,
@@ -248,22 +231,43 @@ class _PlaceCard extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: theme.secondaryText),
-            onSelected: (value) {
-              final message = value == 'edit'
-                  ? 'Edit place flow coming soon.'
-                  : 'Place removed (demo).';
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(message)),
-              );
+            onSelected: (value) async {
+              if (value != 'delete') return;
+              try {
+                await place.reference.delete();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Saved place removed.'),
+                    duration: Duration(milliseconds: 1400),
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not remove saved place.'),
+                    duration: Duration(milliseconds: 1600),
+                  ),
+                );
+              }
             },
             itemBuilder: (context) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit')),
               PopupMenuItem(value: 'delete', child: Text('Delete')),
             ],
           ),
         ],
       ),
     );
+  }
+
+  _PlaceVisual _visualForName(String name) {
+    final normalized = name.toLowerCase();
+    if (normalized.contains('home')) {
+      return const _PlaceVisual(Icons.home_rounded, Color(0xFF3B82F6));
+    }
+    if (normalized.contains('work') || normalized.contains('office')) {
+      return const _PlaceVisual(Icons.work_rounded, Color(0xFF8B5CF6));
+    }
+    return const _PlaceVisual(Icons.bookmark_rounded, Color(0xFF10B981));
   }
 }
 
@@ -297,16 +301,9 @@ class _HeaderButton extends StatelessWidget {
   }
 }
 
-class _SavedPlace {
-  const _SavedPlace({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.accent,
-  });
+class _PlaceVisual {
+  const _PlaceVisual(this.icon, this.color);
 
-  final String title;
-  final String subtitle;
   final IconData icon;
-  final Color accent;
+  final Color color;
 }

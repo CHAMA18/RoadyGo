@@ -50,12 +50,16 @@ class RouteViewStatic extends StatefulWidget {
 }
 
 class _RouteViewStaticState extends State<RouteViewStatic> {
+  static const String _locationIconAssetPath =
+      'assets/images/icons8-location.gif';
+
   late final CameraPosition _initialLocation;
   GoogleMapController? mapController;
 
   String? _placeDistance;
   Set<Marker> markers = {};
   bool _webAdvancedMarkersConfigured = !kIsWeb;
+  BitmapDescriptor? _locationMarkerIcon;
 
   PolylinePoints? polylinePoints;
   Map<PolylineId, Polyline> polylines = {};
@@ -74,6 +78,20 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
     );
 
     super.initState();
+  }
+
+  Future<BitmapDescriptor> _getLocationMarkerIcon() async {
+    if (_locationMarkerIcon != null) return _locationMarkerIcon!;
+    try {
+      _locationMarkerIcon = await BitmapDescriptor.asset(
+        const ImageConfiguration(size: Size.square(48)),
+        _locationIconAssetPath,
+      );
+    } catch (e) {
+      debugPrint('Failed to load location icon asset: $e');
+      _locationMarkerIcon = BitmapDescriptor.defaultMarker;
+    }
+    return _locationMarkerIcon!;
   }
 
   @override
@@ -103,6 +121,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
 
   Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
     if (!kIsWeb || _webAdvancedMarkersConfigured) return;
+    var configured = false;
     try {
       await gmfpi.GoogleMapsFlutterPlatform.instance.updateMapConfiguration(
         const gmfpi.MapConfiguration(
@@ -110,12 +129,13 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
         ),
         mapId: controller.mapId,
       );
+      configured = true;
     } catch (e) {
       debugPrint('Failed to enable web advanced markers: $e');
     }
     if (!mounted) return;
     setState(() {
-      _webAdvancedMarkersConfigured = true;
+      _webAdvancedMarkersConfigured = configured;
     });
   }
 
@@ -223,6 +243,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
       String startCoordinatesString = '($startLatitude, $startLongitude)';
       String destinationCoordinatesString =
           '($destinationLatitude, $destinationLongitude)';
+      final markerIcon = await _getLocationMarkerIcon();
 
       // Start Location Marker
       Marker startMarker = _createMapMarker(
@@ -232,7 +253,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
           title: startCoordinatesString,
           snippet: widget.startAddress ?? '',
         ),
-        icon: BitmapDescriptor.defaultMarker,
+        icon: markerIcon,
       );
 
       // Destination Location Marker
@@ -243,7 +264,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
           title: destinationCoordinatesString,
           snippet: widget.destinationAddress ?? '',
         ),
-        icon: BitmapDescriptor.defaultMarker,
+        icon: markerIcon,
       );
 
       // Adding the markers to the list

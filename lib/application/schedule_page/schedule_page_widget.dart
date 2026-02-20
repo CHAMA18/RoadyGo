@@ -134,24 +134,44 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
   }
 
   Future<RideVariablesRecord?> _fetchRideVariables() async {
-    final docs = await queryRideVariablesRecordOnce(singleRecord: true);
-    return docs.firstOrNull;
+    try {
+      final defaultDocRef = RideVariablesRecord.collection.doc('default');
+      final defaultDoc = await RideVariablesRecord.getDocumentOnce(defaultDocRef);
+      if (defaultDoc.reference.id == 'default') {
+        return defaultDoc;
+      }
+    } catch (_) {
+      // Fall through to collection query.
+    }
+
+    try {
+      final docs = await queryRideVariablesRecordOnce(limit: 50);
+      if (docs.isEmpty) return null;
+      return docs.firstWhereOrNull((d) => d.reference.id == 'default') ??
+          docs.firstWhereOrNull(
+            (d) => d.region.trim().toLowerCase() == 'default',
+          ) ??
+          docs.first;
+    } catch (e) {
+      debugPrint('Failed to fetch ride variables: $e');
+      return null;
+    }
   }
 
-  double _calculateFare(RideVariablesRecord variables) {
+  double _calculateFare(RideVariablesRecord? variables) {
     return functions
         .calculatePrice(
           _model.placePickerValue1.latLng,
           _model.placePickerValue2.latLng,
           FFAppState().rideTier == 'Corporate'
-              ? variables.corporateCostOfRide
-              : variables.costOfRide,
+              ? variables?.corporateCostOfRide ?? 0.0
+              : variables?.costOfRide ?? 0.0,
           FFAppState().rideTier == 'Corporate'
-              ? variables.corporateCostPerDistance
-              : variables.costPerDistance,
+              ? variables?.corporateCostPerDistance ?? 0.0
+              : variables?.costPerDistance ?? 0.0,
           FFAppState().rideTier == 'Corporate'
-              ? variables.corporateCostPerMinute
-              : variables.costPerMinute,
+              ? variables?.corporateCostPerMinute ?? 0.0
+              : variables?.costPerMinute ?? 0.0,
         )
         .toDouble();
   }
@@ -177,12 +197,6 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
     safeSetState(() => _isSchedulingRide = true);
     try {
       final variables = await _fetchRideVariables();
-      if (variables == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pricing configuration unavailable.')),
-        );
-        return;
-      }
 
       final passenger = await queryPassengerRecordOnce(
         queryBuilder: (passengerRecord) =>

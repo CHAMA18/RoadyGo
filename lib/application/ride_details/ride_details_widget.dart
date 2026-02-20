@@ -42,6 +42,50 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
     super.dispose();
   }
 
+  Widget _buildRideMetaRow(
+    BuildContext context, {
+    required String label,
+    required String value,
+    int valueMaxLines = 1,
+  }) {
+    final theme = FlutterFlowTheme.of(context);
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0.0, 8.0, 0.0, 0.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140.0,
+            child: Text(
+              label,
+              style: theme.labelMedium.override(
+                fontFamily: theme.labelMediumFamily,
+                letterSpacing: 0.0,
+                fontWeight: FontWeight.normal,
+                useGoogleFonts: !theme.labelMediumIsCustom,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12.0),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: valueMaxLines,
+              overflow: TextOverflow.ellipsis,
+              style: theme.bodyMedium.override(
+                fontFamily: theme.bodyMediumFamily,
+                letterSpacing: 0.0,
+                useGoogleFonts: !theme.bodyMediumIsCustom,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<RideRecord>(
@@ -89,9 +133,7 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                   color: Colors.white,
                   size: 30.0,
                 ),
-                onPressed: () async {
-                  context.pop();
-                },
+                onPressed: () => context.safePop(),
               ),
               title: Text(
                 context.tr('ride_details'),
@@ -619,200 +661,33 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
                                                       .headlineMediumIsCustom,
                                             ),
                                       ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 8.0, 0.0, 0.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              context.tr('pickup_address'),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                            ),
-                                            Text(
-                                              rideDetailsRideRecord
-                                                  .pickupAddress,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                            ),
-                                          ],
+                                      _buildRideMetaRow(
+                                        context,
+                                        label: context.tr('pickup_address'),
+                                        value: rideDetailsRideRecord.pickupAddress,
+                                        valueMaxLines: 2,
+                                      ),
+                                      _buildRideMetaRow(
+                                        context,
+                                        label: context.tr('destination_address'),
+                                        value: rideDetailsRideRecord
+                                            .destinationAddress,
+                                        valueMaxLines: 2,
+                                      ),
+                                      _buildRideMetaRow(
+                                        context,
+                                        label: context.tr('amount'),
+                                        value: formatNumber(
+                                          rideDetailsRideRecord.rideFee,
+                                          formatType: FormatType.decimal,
+                                          decimalType: DecimalType.periodDecimal,
+                                          currency: getCurrentCurrencySymbol(),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 8.0, 0.0, 0.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              context.tr('destination_address'),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                            ),
-                                            Text(
-                                              rideDetailsRideRecord
-                                                  .destinationAddress,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 8.0, 0.0, 0.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              context.tr('amount'),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                            ),
-                                            Text(
-                                              formatNumber(
-                                                rideDetailsRideRecord.rideFee,
-                                                formatType: FormatType.decimal,
-                                                decimalType:
-                                                    DecimalType.periodDecimal,
-                                                currency:
-                                                    getCurrentCurrencySymbol(),
-                                              ),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 8.0, 0.0, 0.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              context.tr('status'),
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FontWeight.normal,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .labelMediumIsCustom,
-                                                      ),
-                                            ),
-                                            Text(
-                                              rideDetailsRideRecord.status,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .bodyMediumFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts:
-                                                            !FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMediumIsCustom,
-                                                      ),
-                                            ),
-                                          ],
-                                        ),
+                                      _buildRideMetaRow(
+                                        context,
+                                        label: context.tr('status'),
+                                        value: rideDetailsRideRecord.status,
                                       ),
                                       Padding(
                                         padding: EdgeInsetsDirectional.fromSTEB(

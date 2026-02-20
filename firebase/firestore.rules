@@ -1,18 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function currentUserDocRef() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
     match /ride/{document} {
-      allow create: if true;
+      allow create: if isSignedIn() &&
+        request.resource.data.PassengerId == currentUserDocRef();
       allow read: if true;
-      allow write: if false;
+      allow update: if isSignedIn() &&
+        resource.data.PassengerId == currentUserDocRef();
       allow delete: if false;
     }
 
-    match /users/{document} {
-      allow create: if request.auth.uid == document;
-      allow read: if request.auth.uid == document;
-      allow write: if request.auth.uid == document;
-      allow delete: if request.auth.uid == document;
+    match /users/{userId} {
+      allow create: if request.auth.uid == userId;
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId;
+      allow delete: if request.auth.uid == userId;
+
+      match /saved_places/{placeId} {
+        allow create, read, update, delete: if request.auth != null &&
+          request.auth.uid == userId;
+      }
     }
 
     match /RideVariables/{document} {

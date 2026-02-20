@@ -71,8 +71,12 @@ Future<List<PlaceSearchResult>> searchPlaces(
     // Create request object
     final request = js_util.newObject();
     js_util.setProperty(request, 'input', query);
-    js_util.setProperty(request, 'location', location);
-    js_util.setProperty(request, 'radius', 50000);
+    // `location` + `radius` were deprecated for Place Autocomplete requests.
+    // Use `locationBias` to preserve soft bias behavior.
+    final locationBias = js_util.newObject();
+    js_util.setProperty(locationBias, 'center', location);
+    js_util.setProperty(locationBias, 'radius', 50000);
+    js_util.setProperty(request, 'locationBias', locationBias);
     
     // Create callback
     void callback(dynamic predictions, dynamic status) {

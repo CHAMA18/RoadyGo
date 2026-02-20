@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -7,6 +8,8 @@ import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_theme.dart';
 import 'package:go_taxi_rider/flutter_flow/flutter_flow_util.dart';
+import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/l10n/roadygo_i18n.dart';
 
 // Web-specific imports
@@ -52,6 +55,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
   List<PlaceSearchResult> _searchResults = [];
   bool _isLoading = false;
   bool _showResults = false;
+  final List<SavedLocation> _customSavedLocations = <SavedLocation>[];
   GoogleMapsPlaces? _places;
   Timer? _debounceTimer;
   String get googleMapsApiKey {
@@ -107,37 +111,49 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         ),
       ];
 
-  List<SavedLocation> _savedLocations(BuildContext context) => [
-        SavedLocation(
-          name: context.tr('home'),
-          address: '123 Main Street, Downtown',
-          icon: Icons.home_rounded,
-          latLng: LatLng(-15.4167, 28.2833),
-        ),
-        SavedLocation(
-          name: context.tr('work'),
-          address: 'Business Park, Tower A',
-          icon: Icons.work_rounded,
-          latLng: LatLng(-15.3875, 28.3228),
-        ),
-        SavedLocation(
-          name: context.tr('gym'),
-          address: 'Fitness Center, East Mall',
-          icon: Icons.fitness_center_rounded,
-          latLng: LatLng(-15.4000, 28.3000),
-        ),
-      ];
+  List<SavedLocation> _savedLocations(BuildContext context) =>
+      List<SavedLocation>.from(_customSavedLocations);
 
   @override
   void initState() {
     super.initState();
     _initPlaces();
     _initAnimations();
+    _loadSavedLocations();
 
     // Auto focus the search field
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
     });
+  }
+
+  Future<void> _loadSavedLocations() async {
+    try {
+      if (currentUserReference == null) return;
+      final records = await querySavedPlaceRecordOnce(
+        parent: currentUserReference,
+        queryBuilder: (q) => q.orderBy('created_time', descending: true),
+      );
+      final parsed = records
+          .map(
+            (record) => SavedLocation(
+              name: record.name,
+              address: record.address,
+              icon: Icons.bookmark_rounded,
+              latLng: LatLng(record.latitude, record.longitude),
+            ),
+          )
+          .toList();
+
+      if (!mounted) return;
+      setState(() {
+        _customSavedLocations
+          ..clear()
+          ..addAll(parsed);
+      });
+    } catch (e) {
+      debugPrint('Error loading saved places: $e');
+    }
   }
 
   void _initPlaces() async {
@@ -341,67 +357,169 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
     setState(() => _isLoading = true);
 
     try {
-      // If we already have lat/lng from nearby search, use it
-      if (result.lat != null && result.lng != null) {
-        _selectPlace(FFPlace(
-          latLng: LatLng(result.lat!, result.lng!),
-          name: result.mainText,
-          address: result.secondaryText,
-        ));
-        return;
-      }
-
-      if (kIsWeb) {
-        final details = await places_web.getPlaceDetails(
-          result.placeId,
-          googleMapsApiKey,
-        );
-
-        if (details != null) {
-          _selectPlace(details);
-        }
-      } else {
-        final detail = await _places?.getDetailsByPlaceId(
-          result.placeId,
-          language: 'en',
-        );
-
-        if (detail?.result != null) {
-          final res = detail!.result;
-          _selectPlace(FFPlace(
-            latLng: LatLng(
-              res.geometry?.location.lat ?? 0,
-              res.geometry?.location.lng ?? 0,
-            ),
-            name: res.name,
-            address: res.formattedAddress ?? '',
-            city: res.addressComponents
-                    .firstWhereOrNull((e) => e.types.contains('locality'))
-                    ?.shortName ??
-                res.addressComponents
-                    .firstWhereOrNull((e) => e.types.contains('sublocality'))
-                    ?.shortName ??
-                '',
-            state: res.addressComponents
-                    .firstWhereOrNull(
-                        (e) => e.types.contains('administrative_area_level_1'))
-                    ?.shortName ??
-                '',
-            country: res.addressComponents
-                    .firstWhereOrNull((e) => e.types.contains('country'))
-                    ?.shortName ??
-                '',
-            zipCode: res.addressComponents
-                    .firstWhereOrNull((e) => e.types.contains('postal_code'))
-                    ?.shortName ??
-                '',
-          ));
-        }
+      final place = await _resolvePlaceFromResult(result);
+      if (!mounted) return;
+      if (place != null) {
+        _selectPlace(place);
       }
     } catch (e) {
       debugPrint('Error getting place details: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _saveSearchResultAsSavedPlace(PlaceSearchResult result) async {
+    if (result.placeId.isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      final place = await _resolvePlaceFromResult(result);
+      if (!mounted) return;
+      if (place == null) return;
+      await _savePlaceAsSavedLocation(place);
+    } catch (e) {
+      debugPrint('Error saving place: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<FFPlace?> _resolvePlaceFromResult(PlaceSearchResult result) async {
+    // Nearby/category results can already include coordinates.
+    if (result.lat != null && result.lng != null) {
+      return FFPlace(
+        latLng: LatLng(result.lat!, result.lng!),
+        name: result.mainText,
+        address: result.secondaryText,
+      );
+    }
+
+    if (kIsWeb) {
+      return places_web.getPlaceDetails(
+        result.placeId,
+        googleMapsApiKey,
+      );
+    }
+
+    final detail = await _places?.getDetailsByPlaceId(
+      result.placeId,
+      language: 'en',
+    );
+    if (detail?.result == null) return null;
+    final res = detail!.result;
+    return FFPlace(
+      latLng: LatLng(
+        res.geometry?.location.lat ?? 0,
+        res.geometry?.location.lng ?? 0,
+      ),
+      name: res.name,
+      address: res.formattedAddress ?? '',
+      city: res.addressComponents
+              .firstWhereOrNull((e) => e.types.contains('locality'))
+              ?.shortName ??
+          res.addressComponents
+              .firstWhereOrNull((e) => e.types.contains('sublocality'))
+              ?.shortName ??
+          '',
+      state: res.addressComponents
+              .firstWhereOrNull(
+                  (e) => e.types.contains('administrative_area_level_1'))
+              ?.shortName ??
+          '',
+      country: res.addressComponents
+              .firstWhereOrNull((e) => e.types.contains('country'))
+              ?.shortName ??
+          '',
+      zipCode: res.addressComponents
+              .firstWhereOrNull((e) => e.types.contains('postal_code'))
+              ?.shortName ??
+          '',
+    );
+  }
+
+  Future<void> _savePlaceAsSavedLocation(FFPlace place) async {
+    if (currentUserReference == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sign in to save places.'),
+          duration: Duration(milliseconds: 1600),
+        ),
+      );
+      return;
+    }
+
+    final normalizedAddress = place.address.trim();
+    final alreadySaved = _savedLocations(context).any((saved) {
+      final sameLat = (saved.latLng.latitude - place.latLng.latitude).abs() <
+          0.00001;
+      final sameLng = (saved.latLng.longitude - place.latLng.longitude).abs() <
+          0.00001;
+      final sameAddress = normalizedAddress.isNotEmpty &&
+          saved.address.toLowerCase() == normalizedAddress.toLowerCase();
+      return (sameLat && sameLng) || sameAddress;
+    });
+
+    if (alreadySaved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This place is already in Saved Places.'),
+          duration: Duration(milliseconds: 1600),
+        ),
+      );
+      return;
+    }
+
+    final label = place.name.trim().isNotEmpty ? place.name.trim() : 'Saved Place';
+    final address = normalizedAddress.isNotEmpty
+        ? normalizedAddress
+        : 'Lat ${place.latLng.latitude.toStringAsFixed(5)}, Lng ${place.latLng.longitude.toStringAsFixed(5)}';
+
+    final newSavedLocation = SavedLocation(
+      name: label,
+      address: address,
+      icon: Icons.bookmark_rounded,
+      latLng: place.latLng,
+    );
+
+    try {
+      await SavedPlaceRecord.createDoc(currentUserReference!).set(
+        createSavedPlaceRecordData(
+          name: newSavedLocation.name,
+          address: newSavedLocation.address,
+          latitude: newSavedLocation.latLng.latitude,
+          longitude: newSavedLocation.latLng.longitude,
+          createdTime: getCurrentTimestamp,
+        ),
+      );
+
+      setState(() {
+        _customSavedLocations.insert(
+          0,
+          newSavedLocation,
+        );
+        _searchController.clear();
+        _searchResults = [];
+        _showResults = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Saved as Saved Place.'),
+          duration: Duration(milliseconds: 1600),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error writing saved place to firestore: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not save place. Please try again.'),
+          duration: Duration(milliseconds: 1800),
+        ),
+      );
     }
   }
 
@@ -728,24 +846,48 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
             ),
           ),
           const SizedBox(height: 12),
-          ...savedLocations.asMap().entries.map((entry) {
-            final index = entry.key;
-            return TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: 300 + (index * 100)),
-              curve: Curves.easeOutCubic,
-              builder: (context, value, child) {
-                return Transform.translate(
-                  offset: Offset(0, 20 * (1 - value)),
-                  child: Opacity(
-                    opacity: value,
-                    child: child,
-                  ),
-                );
-              },
-              child: _buildSavedLocationTile(entry.value, theme),
-            );
-          }),
+          if (savedLocations.isEmpty)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.primaryBackground,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: theme.lineColor,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'No saved places yet. Use the bookmark icon in search results to add one.',
+                style: theme.bodySmall.override(
+                  fontFamily: theme.bodySmallFamily,
+                  color: theme.secondaryText,
+                  letterSpacing: 0,
+                  useGoogleFonts: !theme.bodySmallIsCustom,
+                ),
+              ),
+            )
+          else
+            ...savedLocations.asMap().entries.map((entry) {
+              final index = entry.key;
+              return TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: Duration(milliseconds: 300 + (index * 100)),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Opacity(
+                      opacity: value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: _buildSavedLocationTile(entry.value, theme),
+              );
+            }),
           const SizedBox(height: 24),
 
           const SizedBox(height: 24),
@@ -995,10 +1137,24 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
                 ],
               ),
             ),
-            Icon(
-              Icons.north_east_rounded,
-              color: theme.secondary,
-              size: 18,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  tooltip: 'Save as Saved Place',
+                  onPressed: () => _saveSearchResultAsSavedPlace(result),
+                  icon: Icon(
+                    Icons.bookmark_add_outlined,
+                    color: theme.secondaryText,
+                    size: 20,
+                  ),
+                ),
+                Icon(
+                  Icons.north_east_rounded,
+                  color: theme.secondary,
+                  size: 18,
+                ),
+              ],
             ),
           ],
         ),

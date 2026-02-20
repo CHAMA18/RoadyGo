@@ -41,23 +41,36 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
     return dateTimeFormat('MMM d, h:mm a', dt);
   }
 
+  bool _isCompletedOrCancelled(RideRecord ride) {
+    final status = ride.status.trim().toLowerCase();
+    return status == 'completed' ||
+        status == 'canceled' ||
+        status == 'cancelled';
+  }
+
+  DateTime _rideSortTime(RideRecord ride) {
+    return ride.startTime ??
+        ride.scheduledTime ??
+        DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
   Widget _buildEmptyState(FlutterFlowTheme theme) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 52, 24, 24),
+        padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 84,
-              height: 84,
+              width: 88,
+              height: 88,
               decoration: BoxDecoration(
                 color: theme.alternate.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(28),
               ),
               child: Icon(
                 Icons.history_rounded,
-                size: 40,
+                size: 42,
                 color: theme.secondaryText.withValues(alpha: 0.8),
               ),
             ),
@@ -65,10 +78,11 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
             Text(
               context.tr('no_rides_yet'),
               style: theme.headlineMedium.override(
-                fontFamily: theme.headlineMediumFamily,
+                fontFamily: 'Satoshi',
+                fontSize: 22.0,
                 fontWeight: FontWeight.w700,
-                letterSpacing: -0.2,
-                useGoogleFonts: !theme.headlineMediumIsCustom,
+                letterSpacing: 0.0,
+                useGoogleFonts: false,
               ),
               textAlign: TextAlign.center,
             ),
@@ -76,34 +90,39 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
             Text(
               context.tr('no_rides_desc'),
               style: theme.bodyMedium.override(
-                fontFamily: theme.bodyMediumFamily,
+                fontFamily: 'Satoshi',
+                fontSize: 14.0,
                 color: theme.secondaryText,
-                lineHeight: 1.4,
-                useGoogleFonts: !theme.bodyMediumIsCustom,
+                fontWeight: FontWeight.w500,
+                lineHeight: 1.45,
+                useGoogleFonts: false,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 18),
             SizedBox(
-              width: 180,
-              height: 46,
+              width: 190,
+              height: 50,
               child: ElevatedButton(
                 onPressed: () => context.goNamed(AuthHomePageWidget.routeName),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.primary,
                   foregroundColor: Colors.white,
+                  elevation: 2,
+                  shadowColor: Colors.black.withValues(alpha: 0.15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 ),
                 child: Text(
                   context.tr('book_a_ride'),
                   style: theme.titleSmall.override(
-                    fontFamily: theme.titleSmallFamily,
+                    fontFamily: 'Satoshi',
+                    fontSize: 15.0,
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0,
-                    useGoogleFonts: !theme.titleSmallIsCustom,
+                    useGoogleFonts: false,
                   ),
                 ),
               ),
@@ -347,8 +366,7 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final headerA = theme.primary;
-    final headerB = theme.secondary;
+    const headerColor = Color(0xFFEF4444);
 
     if (currentUserReference == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -372,76 +390,50 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                expandedHeight: 140,
-                backgroundColor: headerA,
+                expandedHeight: 78,
+                collapsedHeight: 78,
+                toolbarHeight: 78,
+                backgroundColor: headerColor,
                 elevation: 0,
+                centerTitle: false,
+                titleSpacing: 0,
                 leading: IconButton(
                   onPressed: () => context.safePop(),
-                  icon: const Icon(Icons.arrow_back_rounded),
+                  icon: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back_rounded),
+                  ),
                   color: Colors.white,
                 ),
-                flexibleSpace: FlexibleSpaceBar(
-                  titlePadding:
-                      const EdgeInsetsDirectional.only(start: 56, bottom: 14),
-                  title: Text(
-                    context.tr('my_recent_rides'),
-                    style: theme.headlineSmall.override(
-                      fontFamily: theme.headlineSmallFamily,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.2,
-                      useGoogleFonts: !theme.headlineSmallIsCustom,
-                    ),
-                  ),
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [headerA, headerB],
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: -40,
-                          right: -30,
-                          child: Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -60,
-                          left: -30,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.08),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                title: Text(
+                  context.tr('my_recent_rides'),
+                  style: theme.headlineSmall.override(
+                    fontFamily: 'Satoshi',
+                    fontSize: 22.0,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.0,
+                    useGoogleFonts: false,
                   ),
                 ),
               ),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(24, 18, 24, 10),
                   child: Text(
                     context.tr('trips_realtime_desc'),
                     style: theme.bodyMedium.override(
-                      fontFamily: theme.bodyMediumFamily,
+                      fontFamily: 'Satoshi',
+                      fontSize: 14.0,
                       color: theme.secondaryText,
                       fontWeight: FontWeight.w600,
-                      useGoogleFonts: !theme.bodyMediumIsCustom,
+                      lineHeight: 1.35,
+                      useGoogleFonts: false,
                     ),
                   ),
                 ),
@@ -455,10 +447,7 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                           .where(
                             'PassengerId',
                             isEqualTo: currentUserReference,
-                          )
-                          // Most stable query: one equality + one order.
-                          .orderBy('scheduled_time', descending: true),
-                      limit: 50,
+                          ),
                     ),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
@@ -478,7 +467,12 @@ class _RecentRidesWidgetState extends State<RecentRidesWidget> {
                         );
                       }
 
-                      final rides = snapshot.data!;
+                      final rides = snapshot.data!
+                          .where(_isCompletedOrCancelled)
+                          .toList()
+                        ..sort(
+                          (a, b) => _rideSortTime(b).compareTo(_rideSortTime(a)),
+                        );
                       if (!_currencyResolved && rides.isNotEmpty) {
                         _currencyResolved = true;
                         resolveUserCurrencySymbol(

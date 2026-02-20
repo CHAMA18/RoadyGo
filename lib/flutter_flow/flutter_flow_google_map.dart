@@ -123,6 +123,12 @@ class FlutterFlowGoogleMap extends StatefulWidget {
 }
 
 class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
+  static const MarkerImage _defaultLocationMarkerImage = MarkerImage(
+    imagePath: 'assets/images/icons8-location.gif',
+    isAssetImage: true,
+    size: 28.0,
+  );
+
   double get initialZoom => max(double.minPositive, widget.initialZoom);
   LatLng get initialPosition =>
       widget.initialLocation?.toGoogleMaps() ?? const LatLng(0.0, 0.0);
@@ -153,14 +159,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
   }
 
   void initializeMarkerBitmap() {
-    final markerImage = widget.markerImage;
-
-    if (markerImage == null) {
-      _markerDescriptor = BitmapDescriptor.defaultMarkerWithHue(
-        googleMarkerColorMap[widget.markerColor]!,
-      );
-      return;
-    }
+    final markerImage = widget.markerImage ?? _defaultLocationMarkerImage;
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       final markerImageSize = Size.square(markerImage.size);
@@ -199,6 +198,7 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
 
   Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
     if (!kIsWeb || _webAdvancedMarkersConfigured) return;
+    var configured = false;
     try {
       await gmfpi.GoogleMapsFlutterPlatform.instance.updateMapConfiguration(
         const gmfpi.MapConfiguration(
@@ -206,12 +206,13 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         ),
         mapId: controller.mapId,
       );
+      configured = true;
     } catch (e) {
       debugPrint('Failed to enable web advanced markers: $e');
     }
     if (!mounted) return;
     setState(() {
-      _webAdvancedMarkersConfigured = true;
+      _webAdvancedMarkersConfigured = configured;
     });
   }
 
@@ -307,7 +308,8 @@ class _FlutterFlowGoogleMapState extends State<FlutterFlowGoogleMap> {
         compassEnabled: widget.showCompass,
         mapToolbarEnabled: widget.showMapToolbar,
         trafficEnabled: widget.showTraffic,
-        markers: (!kIsWeb || _webAdvancedMarkersConfigured)
+        markers: (_markerDescriptor != null &&
+                (!kIsWeb || _webAdvancedMarkersConfigured))
             ? widget.markers.map(_buildMarker).toSet()
             : const <Marker>{},
         gestureRecognizers: {

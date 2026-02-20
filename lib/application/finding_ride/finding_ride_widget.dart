@@ -321,18 +321,34 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                   ) ??
                                                   false;
                                           if (confirmDialogResponse) {
-                                            await widget.rideDetails!.delete();
-                                            if (currentUserReference != null) {
-                                              context.pushNamed(
-                                                  AuthHomePageWidget.routeName);
-                                            } else {
-                                              context.pushNamed(
-                                                  HomePageWidget.routeName);
+                                            try {
+                                              await findingRideRideRecord.reference
+                                                  .update(
+                                                createRideRecordData(
+                                                  status: 'Canceled',
+                                                ),
+                                              );
+                                              FFAppState().starteRide = null;
+                                              safeSetState(() {});
+                                              if (currentUserReference != null) {
+                                                context.pushNamed(
+                                                    AuthHomePageWidget.routeName);
+                                              } else {
+                                                context.pushNamed(
+                                                    HomePageWidget.routeName);
+                                              }
+                                            } catch (_) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Could not cancel ride. Please try again.',
+                                                  ),
+                                                ),
+                                              );
                                             }
-
                                             return;
                                           } else {
-                                            Navigator.pop(context);
                                             return;
                                           }
                                         },

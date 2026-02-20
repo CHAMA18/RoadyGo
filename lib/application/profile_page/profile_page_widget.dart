@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
@@ -24,11 +27,128 @@ class ProfilePageWidget extends StatefulWidget {
 class _ProfilePageWidgetState extends State<ProfilePageWidget> {
   late ProfilePageModel _model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _attemptedLocationResolve = false;
+  bool _resolvingLocation = false;
+  String? _resolvedLocationLabel;
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => ProfilePageModel());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resolveCurrentLocationLabel();
+    });
+  }
+
+  String _mapsKey() {
+    if (isWeb) return kGoogleMapsApiKeyWeb;
+    if (isAndroid) return kGoogleMapsApiKeyAndroid;
+    if (isiOS) return kGoogleMapsApiKeyIOS;
+    return kGoogleMapsApiKeyWeb;
+  }
+
+  Future<String?> _reverseGeocode(LatLng latLng) async {
+    final key = _mapsKey();
+    if (key.isEmpty) return null;
+
+    final uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/geocode/json',
+      {
+        'latlng': '${latLng.latitude},${latLng.longitude}',
+        'key': key,
+        'language': FFAppState().languageCode,
+      },
+    );
+
+    final res = await http.get(uri);
+    if (res.statusCode != 200) return null;
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (body['status'] != 'OK') return null;
+
+    final results = (body['results'] as List?) ?? const [];
+    if (results.isEmpty) return null;
+    final first = results.first as Map<String, dynamic>;
+
+    final comps = (first['address_components'] as List?) ?? const [];
+    String? city;
+    String? region;
+    String? country;
+    for (final c in comps) {
+      final m = c as Map<String, dynamic>;
+      final types = (m['types'] as List?)?.cast<String>() ?? const [];
+      final longName = m['long_name'] as String?;
+      if (longName == null || longName.isEmpty) continue;
+      if (city == null &&
+          (types.contains('locality') ||
+              types.contains('postal_town') ||
+              types.contains('sublocality'))) {
+        city = longName;
+      }
+      if (region == null && types.contains('administrative_area_level_1')) {
+        region = longName;
+      }
+      if (country == null && types.contains('country')) {
+        country = longName;
+      }
+    }
+
+    final parts = <String>[
+      if (city != null) city,
+      if (region != null && region != city) region,
+      if (country != null) country,
+    ];
+    if (parts.isNotEmpty) return parts.join(', ');
+
+    final formatted = first['formatted_address'] as String?;
+    return (formatted != null && formatted.isNotEmpty) ? formatted : null;
+  }
+
+  Future<void> _resolveCurrentLocationLabel() async {
+    if (_attemptedLocationResolve) return;
+    _attemptedLocationResolve = true;
+
+    if (mounted) {
+      setState(() => _resolvingLocation = true);
+    }
+    try {
+      final loc = await getCurrentUserLocation(
+        defaultLocation: const LatLng(0.0, 0.0),
+        cached: false,
+      );
+      if (!mounted) return;
+
+      if (loc.latitude == 0.0 && loc.longitude == 0.0) {
+        setState(() => _resolvedLocationLabel = null);
+        return;
+      }
+
+      final label = await _reverseGeocode(loc);
+      if (!mounted) return;
+
+      final fallback =
+          'Lat ${loc.latitude.toStringAsFixed(5)}, Lng ${loc.longitude.toStringAsFixed(5)}';
+      setState(() => _resolvedLocationLabel = (label?.isNotEmpty ?? false)
+          ? label
+          : fallback);
+    } catch (e) {
+      if (!mounted) return;
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('permissions') || msg.contains('denied')) {
+        setState(
+          () => _resolvedLocationLabel = context.tr('location_permission_denied'),
+        );
+      } else if (msg.contains('services are disabled')) {
+        setState(
+          () => _resolvedLocationLabel = context.tr('location_services_disabled'),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _resolvingLocation = false);
+      }
+    }
   }
 
   @override
@@ -125,12 +245,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                     useGoogleFonts: !theme.titleMediumIsCustom,
                                   ),
                                 ),
-                                // Settings Button
-                                _GlassButton(
-                                  icon: Icons.settings,
-                                  onTap: () => context.pushNamed(
-                                      PassengerDetailsWidget.routeName),
-                                ),
+                                const SizedBox(width: 40, height: 40),
                               ],
                             ),
                           ),
@@ -149,6 +264,10 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               ),
                               builder: (context, snapshot) {
                                 if (!snapshot.hasData) {
+                                  final loadingLocation = _resolvingLocation
+                                      ? context.tr('fetching_location')
+                                      : (_resolvedLocationLabel ??
+                                          context.tr('location_not_set'));
                                   return _buildProfileHeader(
                                     context,
                                     theme,
@@ -158,6 +277,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                             ? currentUserEmail
                                             : context.tr('loading')),
                                     currentUserPhoto,
+                                    loadingLocation,
                                   );
                                 }
                                 final passenger =
@@ -175,11 +295,24 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 if (displayName.isEmpty) {
                                   displayName = context.tr('user');
                                 }
+                                final persistedLocation = passenger
+                                                ?.location
+                                                .trim()
+                                                .isNotEmpty ==
+                                            true
+                                    ? passenger!.location.trim()
+                                    : null;
+                                final userLocation = _resolvingLocation
+                                    ? context.tr('fetching_location')
+                                    : (_resolvedLocationLabel ??
+                                        persistedLocation ??
+                                        context.tr('location_not_set'));
                                 return _buildProfileHeader(
                                   context,
                                   theme,
                                   displayName,
                                   currentUserPhoto,
+                                  userLocation,
                                 );
                               },
                             ),
@@ -239,90 +372,111 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                           children: [
                             // Stats Grid
                             _buildStatsGrid(context, theme),
-                            const SizedBox(height: 32),
-                            // Menu Items
-                            _buildMenuItem(
+                            const SizedBox(height: 24),
+                            // Section moved from Passenger Details into Profile.
+                            _buildActionCard(
                               context,
                               theme,
-                              icon: Icons.credit_card,
-                              iconBgColor: const Color(0xFFF0F4FF),
-                              iconColor: const Color(0xFF3B82F6),
-                              title: context.tr('payment_methods'),
-                              onTap: () => context
-                                  .pushNamed(PaymentMethodsWidget.routeName),
+                              icon: Icons.edit,
+                              title: context.tr('edit_profile'),
+                              subtitle: context.tr('edit_profile_sub'),
+                              onTap: () =>
+                                  context.pushNamed(EditProfileWidget.routeName),
                             ),
                             const SizedBox(height: 12),
-                            _buildMenuItem(
+                            _buildActionCard(
+                              context,
+                              theme,
+                              icon: Icons.language_rounded,
+                              title: context.tr('languages'),
+                              subtitle: context.tr('languages_sub'),
+                              onTap: _showLanguagePicker,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildActionCard(
+                              context,
+                              theme,
+                              icon: Icons.add_location_alt,
+                              title: context.tr('add_scheduled_ride'),
+                              subtitle: context.tr('add_scheduled_ride_sub'),
+                              onTap: () =>
+                                  context.pushNamed(SchedulePageWidget.routeName),
+                            ),
+                            const SizedBox(height: 12),
+                            FutureBuilder<int>(
+                              future: queryRideRecordCount(
+                                queryBuilder: (rideRecord) => rideRecord
+                                    .where(
+                                      'PassengerId',
+                                      isEqualTo: currentUserReference,
+                                    )
+                                    .where(
+                                      'ride_type',
+                                      isEqualTo: 'Scheduled',
+                                    ),
+                              ),
+                              builder: (context, snapshot) {
+                                final count = snapshot.data ?? 0;
+                                return _buildActionCard(
+                                  context,
+                                  theme,
+                                  icon: Icons.schedule,
+                                  title: context.tr('scheduled_rides'),
+                                  subtitle: context.tr('scheduled_rides_sub'),
+                                  badgeText: count > 0
+                                      ? formatNumber(
+                                          count,
+                                          formatType: FormatType.compact,
+                                        )
+                                      : null,
+                                  onTap: () => context
+                                      .pushNamed(ScheduledRidesWidget.routeName),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            _buildActionCard(
                               context,
                               theme,
                               icon: Icons.history,
-                              iconBgColor: const Color(0xFFFFF4E6),
-                              iconColor: const Color(0xFFF97316),
-                              title: context.tr('ride_history'),
-                              onTap: () => context
-                                  .pushNamed(RecentRidesWidget.routeName),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildMenuItem(
-                              context,
-                              theme,
-                              icon: Icons.local_shipping,
-                              iconBgColor: const Color(0xFFE8F5E9),
-                              iconColor: const Color(0xFF22C55E),
-                              title: context.tr('my_vehicles'),
+                              title: context.tr('recent_rides'),
+                              subtitle: context.tr('recent_rides_sub'),
                               onTap: () =>
-                                  context.pushNamed(MyVehiclesWidget.routeName),
+                                  context.pushNamed(RecentRidesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
-                            _buildMenuItem(
+                            _buildActionCard(
                               context,
                               theme,
                               icon: Icons.bookmark,
-                              iconBgColor: const Color(0xFFFCE7F3),
-                              iconColor: const Color(0xFFEC4899),
                               title: context.tr('saved_places'),
-                              onTap: () => context
-                                  .pushNamed(SavedPlacesWidget.routeName),
+                              subtitle: context.tr('saved_places'),
+                              onTap: () =>
+                                  context.pushNamed(SavedPlacesWidget.routeName),
                             ),
-                            const SizedBox(height: 32),
-                            // Edit Profile Button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () => context
-                                    .pushNamed(EditProfileWidget.routeName),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1F2937),
-                                  foregroundColor: Colors.white,
-                                  elevation: 8,
-                                  shadowColor:
-                                      Colors.black.withValues(alpha: 0.3),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.edit_square, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      context.tr('edit_profile'),
-                                      style: theme.titleSmall.override(
-                                        fontFamily: theme.titleSmallFamily,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0,
-                                        useGoogleFonts:
-                                            !theme.titleSmallIsCustom,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            const SizedBox(height: 12),
+                            _buildActionCard(
+                              context,
+                              theme,
+                              icon: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Icons.light_mode
+                                  : Icons.dark_mode,
+                              title: context.tr('dark_light_mode'),
+                              subtitle:
+                                  Theme.of(context).brightness == Brightness.dark
+                                      ? context.tr('switch_to_light')
+                                      : context.tr('switch_to_dark'),
+                              onTap: () {
+                                final isDark = Theme.of(context).brightness ==
+                                    Brightness.dark;
+                                setDarkModeSetting(
+                                  context,
+                                  isDark ? ThemeMode.light : ThemeMode.dark,
+                                );
+                              },
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 18),
                             // Log Out Button
                             SizedBox(
                               width: double.infinity,
@@ -389,6 +543,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     FlutterFlowTheme theme,
     String name,
     String? photoUrl,
+    String location,
   ) {
     return Column(
       children: [
@@ -466,7 +621,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
           ),
         ),
         const SizedBox(height: 8),
-        // Premium Badge
+        // Location Badge
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
@@ -481,19 +636,24 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.verified,
+                Icons.place_rounded,
                 color: Color(0xFFFDE047),
                 size: 18,
               ),
               const SizedBox(width: 6),
-              Text(
-                context.tr('premium_member'),
-                style: theme.labelSmall.override(
-                  fontFamily: theme.labelSmallFamily,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                  useGoogleFonts: !theme.labelSmallIsCustom,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 220),
+                child: Text(
+                  location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.labelSmall.override(
+                    fontFamily: theme.labelSmallFamily,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                    useGoogleFonts: !theme.labelSmallIsCustom,
+                  ),
                 ),
               ),
             ],
@@ -600,69 +760,213 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     );
   }
 
-  Widget _buildMenuItem(
+  Future<void> _showLanguagePicker() async {
+    final appState = FFAppState();
+    final searchController = TextEditingController();
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final theme = FlutterFlowTheme.of(dialogContext);
+        return StatefulBuilder(
+          builder: (dialogContext, setModalState) {
+            final q = searchController.text.trim().toLowerCase();
+            final items = RoadyGoI18n.europeanLanguages
+                .where((e) =>
+                    q.isEmpty ||
+                    e.name.toLowerCase().contains(q) ||
+                    e.code.toLowerCase().contains(q))
+                .toList();
+
+            return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
+              title: Text(
+                context.tr('select_language'),
+                style: theme.titleMedium.override(
+                  fontFamily: theme.titleMediumFamily,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.0,
+                  useGoogleFonts: !theme.titleMediumIsCustom,
+                ),
+              ),
+              content: SizedBox(
+                width: MediaQuery.sizeOf(dialogContext)
+                    .width
+                    .clamp(0.0, 360.0)
+                    .toDouble(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(dialogContext).height * 0.6,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: searchController,
+                        onChanged: (_) => setModalState(() {}),
+                        decoration: InputDecoration(
+                          hintText: context.tr('search_language'),
+                          prefixIcon: const Icon(Icons.search_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 12.0),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (itemContext, i) {
+                            final item = items[i];
+                            final isTranslated = RoadyGoI18n
+                                .isLanguageFullyTranslated(item.code);
+                            final selected = appState.languageCode == item.code;
+
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Text(
+                                item.flag,
+                                style: const TextStyle(fontSize: 22.0),
+                              ),
+                              title: Text(item.name),
+                              subtitle: Text(item.code.toUpperCase()),
+                              trailing: selected
+                                  ? const Icon(Icons.check, color: Colors.green)
+                                  : !isTranslated
+                                      ? const Icon(Icons.lock_outline_rounded)
+                                      : null,
+                              onTap: () {
+                                if (!isTranslated) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text(context.tr('language_coming_soon')),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                Navigator.of(itemContext).pop();
+                                Future.microtask(
+                                  () => appState.setLanguageCode(item.code),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    searchController.dispose();
+  }
+
+  Widget _buildActionCard(
     BuildContext context,
     FlutterFlowTheme theme, {
     required IconData icon,
-    required Color iconBgColor,
-    required Color iconColor,
     required String title,
+    required String subtitle,
     required VoidCallback onTap,
+    String? badgeText,
   }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: theme.secondaryBackground.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: const Color(0xFFF3F4F6),
+              color: theme.lineColor.withValues(alpha: 0.6),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
           child: Row(
             children: [
-              // Icon Container
               Container(
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
+                  color: theme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
+                child: Icon(
+                  icon,
+                  color: theme.primary,
+                  size: 22,
+                ),
               ),
-              const SizedBox(width: 16),
-              // Title
+              const SizedBox(width: 14),
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.bodyMedium.override(
-                    fontFamily: theme.bodyMediumFamily,
-                    color: const Color(0xFF1F2937),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    letterSpacing: 0,
-                    useGoogleFonts: !theme.bodyMediumIsCustom,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.bodyLarge.override(
+                        fontFamily: theme.bodyLargeFamily,
+                        color: theme.primaryText,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !theme.bodyLargeIsCustom,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: theme.labelSmall.override(
+                        fontFamily: theme.labelSmallFamily,
+                        color: theme.secondaryText,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !theme.labelSmallIsCustom,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (badgeText != null) ...[
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    badgeText,
+                    style: theme.labelSmall.override(
+                      fontFamily: theme.labelSmallFamily,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.0,
+                      useGoogleFonts: !theme.labelSmallIsCustom,
+                    ),
                   ),
                 ),
-              ),
-              // Arrow
+                const SizedBox(width: 8),
+              ],
               Icon(
                 Icons.chevron_right,
-                color: Colors.grey[300],
-                size: 24,
+                color: theme.secondaryText.withValues(alpha: 0.5),
+                size: 22,
               ),
             ],
           ),

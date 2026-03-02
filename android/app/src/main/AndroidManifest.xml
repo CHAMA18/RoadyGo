@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mycompany.atoz"
+    package="com.roadygo.rider"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -9,7 +9,14 @@
         android:label="RoadyGo"
         tools:replace="android:label"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        tools:node="merge">
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.roadygo.rider.androidx-startup"
+            android:exported="false"
+            tools:node="remove" />
 
         <activity
             android:name=".MainActivity"

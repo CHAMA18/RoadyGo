@@ -96,8 +96,49 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     return 12742 * asin(sqrt(a));
   }
 
-  // TODO: Add updated _calculateDistance and _createPolylines method
-  // TODO: Add a new method to initialize the polylines
+  bool _isRideInTransit(RideRecord rideRecord) {
+    final status = rideRecord.status.trim().toLowerCase();
+    return rideRecord.startTime != null ||
+        status.contains('progress') ||
+        status.contains('started') ||
+        status.contains('picked') ||
+        status.contains('trip') ||
+        status.contains('destination');
+  }
+
+  latlng.LatLng _toMapLatLng(LatLng coordinate) {
+    return latlng.LatLng(coordinate.latitude, coordinate.longitude);
+  }
+
+  ({latlng.LatLng start, latlng.LatLng destination}) _activeRouteForRide(
+    RideRecord rideRecord,
+  ) {
+    final pickup = rideRecord.pickupLocation ?? widget.startCoordinate;
+    final destination = rideRecord.destinationLocation ?? widget.endCoordinate;
+    final driverLocation = rideRecord.driverLocation;
+
+    if (driverLocation == null) {
+      return (
+        start: _toMapLatLng(pickup),
+        destination: _toMapLatLng(destination),
+      );
+    }
+
+    final driverToPickupKm = _coordinateDistance(
+      driverLocation.latitude,
+      driverLocation.longitude,
+      pickup.latitude,
+      pickup.longitude,
+    );
+    final shouldRouteToDestination =
+        _isRideInTransit(rideRecord) || driverToPickupKm <= 0.15;
+
+    return (
+      start: _toMapLatLng(driverLocation),
+      destination:
+          _toMapLatLng(shouldRouteToDestination ? destination : pickup),
+    );
+  }
 
   Future<void> _enableWebAdvancedMarkers(GoogleMapController controller) async {
     if (!kIsWeb || _webAdvancedMarkersConfigured) return;
@@ -204,7 +245,8 @@ class _RouteViewLiveState extends State<RouteViewLive> {
           );
         }
 
-        final rideRecord = snapshot.data;
+        final rideRecord = snapshot.data!;
+        final activeRoute = _activeRouteForRide(rideRecord);
         debugPrint('MAP::UPDATED');
 
         return Container(
@@ -212,20 +254,17 @@ class _RouteViewLiveState extends State<RouteViewLive> {
           width: widget.width,
           child: FutureBuilder<Map<PolylineId, Polyline>?>(
               future: _calculateDistance(
-                startLatitude: rideRecord!.driverLocation!.latitude,
-                startLongitude: rideRecord.driverLocation!.longitude,
-                destinationLatitude: rideRecord.pickupLocation!.latitude,
-                destinationLongitude: rideRecord.pickupLocation!.longitude,
+                startLatitude: activeRoute.start.latitude,
+                startLongitude: activeRoute.start.longitude,
+                destinationLatitude: activeRoute.destination.latitude,
+                destinationLongitude: activeRoute.destination.longitude,
               ),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return GoogleMap(
                     markers: _mapMarkers,
                     initialCameraPosition: CameraPosition(
-                      target: latlng.LatLng(
-                        rideRecord.destinationLocation!.latitude,
-                        rideRecord.destinationLocation!.longitude,
-                      ),
+                      target: activeRoute.start,
                     ),
                     myLocationEnabled: true,
                     myLocationButtonEnabled: false,
@@ -243,10 +282,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
                 return GoogleMap(
                   markers: _mapMarkers,
                   initialCameraPosition: CameraPosition(
-                    target: latlng.LatLng(
-                      rideRecord.destinationLocation!.latitude,
-                      rideRecord.destinationLocation!.longitude,
-                    ),
+                    target: activeRoute.start,
                   ),
                   myLocationEnabled: true,
                   myLocationButtonEnabled: false,

@@ -1,5 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -8,11 +9,16 @@ import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/firebase/firebase_config.dart';
 import 'flutter_flow/flutter_flow_util.dart';
+import 'l10n/roadygo_i18n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
   await initFirebase();
 
@@ -143,83 +149,86 @@ class _MyAppState extends State<MyApp> {
             .isSupported(Locale(selectedLanguageCode))
         ? Locale(selectedLanguageCode)
         : const Locale('en');
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'RoadyGo',
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', ''),
-        Locale('sq', ''),
-        Locale('mk', ''),
-        Locale('tr', ''),
-        Locale('sr', ''),
-        Locale('hr', ''),
-        Locale('fr', ''),
-        Locale('de', ''),
-        Locale('es', ''),
-        Locale('it', ''),
-        Locale('pt', ''),
-        Locale('nl', ''),
-        Locale('sv', ''),
-        Locale('nb', ''),
-        Locale('nn', ''),
-        Locale('da', ''),
-        Locale('fi', ''),
-        Locale('pl', ''),
-        Locale('cs', ''),
-        Locale('sk', ''),
-        Locale('hu', ''),
-        Locale('ro', ''),
-        Locale('bg', ''),
-        Locale('el', ''),
-        Locale('sl', ''),
-        Locale('lt', ''),
-        Locale('lv', ''),
-        Locale('et', ''),
-        Locale('is', ''),
-        Locale('ga', ''),
-        Locale('mt', ''),
-        Locale('bs', ''),
-        Locale('uk', ''),
-        Locale('ru', ''),
-        Locale('be', ''),
-        Locale('ca', ''),
-        Locale('eu', ''),
-        Locale('gl', ''),
-        Locale('lb', ''),
-        Locale('cy', ''),
-      ],
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: false,
-        fontFamily: 'Satoshi',
-        fontFamilyFallback: const [
-          'Noto Sans',
-          'Roboto',
-          'Arial',
-          'sans-serif',
+    return RoadyGoLanguageScope(
+      languageCode: selectedLanguageCode,
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'RoadyGo',
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
         ],
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: false,
-        fontFamily: 'Satoshi',
-        fontFamilyFallback: const [
-          'Noto Sans',
-          'Roboto',
-          'Arial',
-          'sans-serif',
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('sq', ''),
+          Locale('mk', ''),
+          Locale('tr', ''),
+          Locale('sr', ''),
+          Locale('hr', ''),
+          Locale('fr', ''),
+          Locale('de', ''),
+          Locale('es', ''),
+          Locale('it', ''),
+          Locale('pt', ''),
+          Locale('nl', ''),
+          Locale('sv', ''),
+          Locale('nb', ''),
+          Locale('nn', ''),
+          Locale('da', ''),
+          Locale('fi', ''),
+          Locale('pl', ''),
+          Locale('cs', ''),
+          Locale('sk', ''),
+          Locale('hu', ''),
+          Locale('ro', ''),
+          Locale('bg', ''),
+          Locale('el', ''),
+          Locale('sl', ''),
+          Locale('lt', ''),
+          Locale('lv', ''),
+          Locale('et', ''),
+          Locale('is', ''),
+          Locale('ga', ''),
+          Locale('mt', ''),
+          Locale('bs', ''),
+          Locale('uk', ''),
+          Locale('ru', ''),
+          Locale('be', ''),
+          Locale('ca', ''),
+          Locale('eu', ''),
+          Locale('gl', ''),
+          Locale('lb', ''),
+          Locale('cy', ''),
         ],
+        theme: ThemeData(
+          brightness: Brightness.light,
+          useMaterial3: false,
+          fontFamily: 'Satoshi',
+          fontFamilyFallback: const [
+            'Noto Sans',
+            'Roboto',
+            'Arial',
+            'sans-serif',
+          ],
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: false,
+          fontFamily: 'Satoshi',
+          fontFamilyFallback: const [
+            'Noto Sans',
+            'Roboto',
+            'Arial',
+            'sans-serif',
+          ],
+        ),
+        themeMode: computedThemeMode,
+        // Always keep Material widgets on a locale supported by
+        // GlobalMaterialLocalizations to avoid TextField/DatePicker crashes.
+        locale: materialLocale,
+        routerConfig: _router,
       ),
-      themeMode: computedThemeMode,
-      // Always keep Material widgets on a locale supported by
-      // GlobalMaterialLocalizations to avoid TextField/DatePicker crashes.
-      locale: materialLocale,
-      routerConfig: _router,
     );
   }
 }

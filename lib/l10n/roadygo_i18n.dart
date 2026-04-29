@@ -243,7 +243,8 @@ class RoadyGoI18n {
       'location_services_disabled': 'Location services are disabled',
       'finding_a_ride': 'Finding a ride',
       'loading_map': 'Loading map...',
-      'ride_pricing_unavailable': 'Ride pricing is unavailable. Please try again.',
+      'ride_pricing_unavailable':
+          'Ride pricing is unavailable. Please try again.',
       'language_coming_soon': 'This language is coming soon.',
       'no_places_found_nearby': 'No places found nearby',
       'app_version': 'App Version',
@@ -724,7 +725,8 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Son girisinizin uzerinden uzun sure gecti. Hesabi silmeden once tekrar giris yapin.',
       'reset_link_issue': 'Sifre sifirlama baglantisi sorunu',
-      'invalid_or_incomplete_reset_link': 'Gecersiz veya eksik sifirlama baglantisi.',
+      'invalid_or_incomplete_reset_link':
+          'Gecersiz veya eksik sifirlama baglantisi.',
       'reset_link_invalid_or_expired':
           'Bu sifirlama baglantisi gecersiz veya suresi dolmus.',
       'unable_to_validate_reset_link':
@@ -917,8 +919,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od poslednje prijave. Prijavite se ponovo pre brisanja naloga.',
       'reset_link_issue': 'Problem sa linkom za reset',
-      'invalid_or_incomplete_reset_link': 'Neispravan ili nepotpun link za reset.',
-      'reset_link_invalid_or_expired': 'Ovaj link za reset je neispravan ili istekao.',
+      'invalid_or_incomplete_reset_link':
+          'Neispravan ili nepotpun link za reset.',
+      'reset_link_invalid_or_expired':
+          'Ovaj link za reset je neispravan ili istekao.',
       'unable_to_validate_reset_link': 'Nije moguce proveriti link za reset.',
       'back_to_login': 'Nazad na prijavu',
       'set_new_password': 'Postavi novu lozinku',
@@ -1316,18 +1320,15 @@ class RoadyGoI18n {
       'account': 'Compte',
       'new_password': 'Nouveau mot de passe',
       'confirm_new_password': 'Confirmer le mot de passe',
-      'password_updated_successfully':
-          'Mot de passe mis a jour avec succes',
-      'unable_to_reset_password':
-          'Impossible de reinitialiser le mot de passe',
+      'password_updated_successfully': 'Mot de passe mis a jour avec succes',
+      'unable_to_reset_password': 'Impossible de reinitialiser le mot de passe',
       'onb1_title': 'Fiabilite a',
       'onb1_highlight': 'Chaque Kilometre',
       'onb1_desc':
           'Decouvrez la nouvelle generation de logistique avec suivi en temps reel et chauffeurs professionnels.',
       'onb2_title': 'L aide est',
       'onb2_highlight': 'en Route',
-      'onb2_desc':
-          'Demandez un depannage professionnel en quelques clics.',
+      'onb2_desc': 'Demandez un depannage professionnel en quelques clics.',
       'onb3_title': 'Securise et',
       'onb3_highlight': 'Fiable',
       'onb3_desc':
@@ -1435,8 +1436,7 @@ class RoadyGoI18n {
       'location': 'Localisation',
       'location_not_set': 'Localisation non definie',
       'fetching_location': 'Recuperation de la position actuelle...',
-      'location_permission_denied':
-          'Autorisation de localisation refusee',
+      'location_permission_denied': 'Autorisation de localisation refusee',
       'location_services_disabled':
           'Les services de localisation sont desactives',
       'finding_a_ride': 'Recherche d une course',
@@ -1468,8 +1468,7 @@ class RoadyGoI18n {
       'create_account': 'Konto erstellen',
       'log_in': 'Anmelden',
       'welcome_back': 'Willkommen zurueck',
-      'sign_in_to_continue':
-          'Melden Sie sich an, um Ihre Fahrt fortzusetzen',
+      'sign_in_to_continue': 'Melden Sie sich an, um Ihre Fahrt fortzusetzen',
       'full_name': 'Vollstaendiger Name',
       'enter_full_name': 'Geben Sie Ihren vollstaendigen Namen ein',
       'email_address': 'E-Mail-Adresse',
@@ -1488,12 +1487,9 @@ class RoadyGoI18n {
       'quick_ride': 'Schnelle Fahrt',
       'enter_email_password': 'Bitte E-Mail und Passwort eingeben',
       'passwords_do_not_match': 'Passwoerter stimmen nicht ueberein',
-      'password_min_6':
-          'Das Passwort muss mindestens 6 Zeichen haben',
-      'enter_email_to_reset':
-          'Geben Sie Ihre E-Mail zum Zuruecksetzen ein',
-      'enter_valid_email':
-          'Bitte geben Sie eine gueltige E-Mail-Adresse ein',
+      'password_min_6': 'Das Passwort muss mindestens 6 Zeichen haben',
+      'enter_email_to_reset': 'Geben Sie Ihre E-Mail zum Zuruecksetzen ein',
+      'enter_valid_email': 'Bitte geben Sie eine gueltige E-Mail-Adresse ein',
       'agree_terms_privacy':
           'Bitte akzeptieren Sie die Nutzungsbedingungen und Datenschutzrichtlinie',
       'terms_of_service': 'Nutzungsbedingungen',
@@ -1521,8 +1517,7 @@ class RoadyGoI18n {
       'confirm_new_password': 'Passwort bestaetigen',
       'password_updated_successfully':
           'Passwort wurde erfolgreich aktualisiert',
-      'unable_to_reset_password':
-          'Passwort konnte nicht zurueckgesetzt werden',
+      'unable_to_reset_password': 'Passwort konnte nicht zurueckgesetzt werden',
       'onb1_title': 'Zuverlaessigkeit auf',
       'onb1_highlight': 'Jeder Strecke',
       'onb1_desc':
@@ -1639,17 +1634,14 @@ class RoadyGoI18n {
       'location': 'Standort',
       'location_not_set': 'Standort nicht festgelegt',
       'fetching_location': 'Aktueller Standort wird ermittelt...',
-      'location_permission_denied':
-          'Standortberechtigung verweigert',
-      'location_services_disabled':
-          'Standortdienste sind deaktiviert',
+      'location_permission_denied': 'Standortberechtigung verweigert',
+      'location_services_disabled': 'Standortdienste sind deaktiviert',
       'finding_a_ride': 'Fahrt wird gesucht',
       'loading_map': 'Karte wird geladen...',
       'ride_pricing_unavailable':
           'Fahrpreise sind nicht verfuegbar. Bitte versuchen Sie es erneut.',
       'language_coming_soon': 'Diese Sprache kommt bald.',
-      'no_places_found_nearby':
-          'Keine Orte in der Naehe gefunden',
+      'no_places_found_nearby': 'Keine Orte in der Naehe gefunden',
       'app_version': 'App-Version',
       'sample_driver_name': 'Haily Brown',
       'sample_driver_handle': '@brownisthenewblack',
@@ -1693,8 +1685,7 @@ class RoadyGoI18n {
       'enter_email_password':
           'Por favor, introduce correo electronico y contrasena',
       'passwords_do_not_match': 'Las contrasenas no coinciden',
-      'password_min_6':
-          'La contrasena debe tener al menos 6 caracteres',
+      'password_min_6': 'La contrasena debe tener al menos 6 caracteres',
       'enter_email_to_reset':
           'Introduce tu correo para restablecer la contrasena',
       'enter_valid_email':
@@ -1724,10 +1715,8 @@ class RoadyGoI18n {
       'account': 'Cuenta',
       'new_password': 'Nueva contrasena',
       'confirm_new_password': 'Confirmar contrasena',
-      'password_updated_successfully':
-          'Contrasena actualizada correctamente',
-      'unable_to_reset_password':
-          'No se puede restablecer la contrasena',
+      'password_updated_successfully': 'Contrasena actualizada correctamente',
+      'unable_to_reset_password': 'No se puede restablecer la contrasena',
       'onb1_title': 'Fiabilidad en',
       'onb1_highlight': 'Cada Kilometro',
       'onb1_desc':
@@ -1843,8 +1832,7 @@ class RoadyGoI18n {
       'location': 'Ubicacion',
       'location_not_set': 'Ubicacion no establecida',
       'fetching_location': 'Obteniendo ubicacion actual...',
-      'location_permission_denied':
-          'Permiso de ubicacion denegado',
+      'location_permission_denied': 'Permiso de ubicacion denegado',
       'location_services_disabled':
           'Los servicios de ubicacion estan desactivados',
       'finding_a_ride': 'Buscando un viaje',
@@ -1904,8 +1892,7 @@ class RoadyGoI18n {
       'privacy_policy': 'Politica sulla privacy',
       'i_agree_to_the': 'Accetto i ',
       'and_word': ' e ',
-      'password_reset_email_sent':
-          'Email di reimpostazione password inviata',
+      'password_reset_email_sent': 'Email di reimpostazione password inviata',
       'requires_recent_login_update_email':
           'E passato troppo tempo dall ultimo accesso. Accedi di nuovo prima di aggiornare la tua email.',
       'requires_recent_login_delete_account':
@@ -1923,10 +1910,8 @@ class RoadyGoI18n {
       'account': 'Account',
       'new_password': 'Nuova password',
       'confirm_new_password': 'Conferma password',
-      'password_updated_successfully':
-          'Password aggiornata con successo',
-      'unable_to_reset_password':
-          'Impossibile reimpostare la password',
+      'password_updated_successfully': 'Password aggiornata con successo',
+      'unable_to_reset_password': 'Impossibile reimpostare la password',
       'onb1_title': 'Affidabilita in',
       'onb1_highlight': 'Ogni Chilometro',
       'onb1_desc':
@@ -2047,8 +2032,7 @@ class RoadyGoI18n {
           'I servizi di localizzazione sono disattivati',
       'finding_a_ride': 'Ricerca corsa in corso',
       'loading_map': 'Caricamento mappa...',
-      'ride_pricing_unavailable':
-          'Prezzi corsa non disponibili. Riprova.',
+      'ride_pricing_unavailable': 'Prezzi corsa non disponibili. Riprova.',
       'language_coming_soon': 'Questa lingua sara disponibile a breve.',
       'no_places_found_nearby': 'Nessun luogo trovato nelle vicinanze',
       'app_version': 'Versione app',
@@ -2244,8 +2228,7 @@ class RoadyGoI18n {
       'ride_pricing_unavailable':
           'Os precos da corrida nao estao disponiveis. Tente novamente.',
       'language_coming_soon': 'Este idioma estara disponivel em breve.',
-      'no_places_found_nearby':
-          'Nenhum lugar encontrado nas proximidades',
+      'no_places_found_nearby': 'Nenhum lugar encontrado nas proximidades',
       'app_version': 'Versao do app',
       'sample_driver_name': 'Haily Brown',
       'sample_driver_handle': '@brownisthenewblack',
@@ -2289,8 +2272,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -2304,12 +2286,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -2484,8 +2464,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -2499,12 +2478,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -2679,8 +2656,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -2694,12 +2670,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -2874,8 +2848,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -2889,12 +2862,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -3069,8 +3040,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -3084,12 +3054,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -3264,8 +3232,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -3279,12 +3246,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -3459,8 +3424,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -3474,12 +3438,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -3654,8 +3616,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -3669,12 +3630,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -3849,8 +3808,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -3864,12 +3822,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -4044,8 +4000,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -4059,12 +4014,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -4239,8 +4192,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -4254,12 +4206,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -4434,8 +4384,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -4449,12 +4398,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -4629,8 +4576,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -4644,12 +4590,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -4824,8 +4768,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -4839,12 +4782,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5019,8 +4960,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -5034,12 +4974,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5214,8 +5152,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -5229,12 +5166,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5409,8 +5344,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -5424,12 +5358,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5604,8 +5536,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -5619,12 +5550,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5799,8 +5728,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -5814,12 +5742,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -5994,8 +5920,7 @@ class RoadyGoI18n {
       'enter_email_password': 'Voer e-mail en wachtwoord in',
       'passwords_do_not_match': 'Wachtwoorden komen niet overeen',
       'password_min_6': 'Wachtwoord moet minimaal 6 tekens zijn',
-      'enter_email_to_reset':
-          'Voer je e-mail in om je wachtwoord te resetten',
+      'enter_email_to_reset': 'Voer je e-mail in om je wachtwoord te resetten',
       'enter_valid_email': 'Voer een geldig e-mailadres in',
       'agree_terms_privacy':
           'Accepteer de Servicevoorwaarden en het Privacybeleid',
@@ -6009,12 +5934,10 @@ class RoadyGoI18n {
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
       'reset_link_issue': 'Probleem met resetlink',
-      'invalid_or_incomplete_reset_link':
-          'Ongeldige of onvolledige resetlink.',
+      'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
           'Deze resetlink is ongeldig of verlopen.',
-      'unable_to_validate_reset_link':
-          'Kan resetlink niet valideren.',
+      'unable_to_validate_reset_link': 'Kan resetlink niet valideren.',
       'back_to_login': 'Terug naar inloggen',
       'set_new_password': 'Nieuw wachtwoord instellen',
       'reset_your_password': 'Reset je wachtwoord',
@@ -6155,7 +6078,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Door op Voltooien te tikken, ga je akkoord met onze Voorwaarden en Privacybeleid.',
     },
-
     'bs': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -6350,8 +6272,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
     'uk': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -6546,9 +6466,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
     'ru': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -6743,10 +6660,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
     'be': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -6941,11 +6854,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
-
     'ca': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -7140,12 +7048,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
-
-
     'eu': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -7340,13 +7242,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
-
-
-
     'gl': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -7541,14 +7436,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
-
-
-
-
     'lb': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -7743,15 +7630,6 @@ class RoadyGoI18n {
       'finish_legal':
           'Dodirom na Dovrsi prihvacate Uvjete i Pravila privatnosti.',
     },
-
-
-
-
-
-
-
-
-
     'cy': {
       'back': 'Natrag',
       'skip': 'Preskoci',
@@ -7996,12 +7874,9 @@ class RoadyGoI18n {
 
   static String t(BuildContext context, String key) {
     _runTranslationPackValidationOnce();
-    // Prefer the persisted app setting to avoid relying on inherited widgets in
-    // contexts where Localizations might not be available.
+    final scoped = RoadyGoLanguageScope.maybeOf(context);
     final persisted = FFAppState().languageCode;
-    final code = persisted.isNotEmpty
-        ? persisted
-        : Localizations.localeOf(context).languageCode;
+    final code = scoped ?? (persisted.isNotEmpty ? persisted : kFallbackLang);
     final lang = _strings.containsKey(code) ? code : kFallbackLang;
     return _strings[lang]?[key] ?? _strings[kFallbackLang]![key] ?? key;
   }
@@ -8030,6 +7905,24 @@ class RoadyGoI18n {
     }());
     _validated = true;
   }
+}
+
+class RoadyGoLanguageScope extends InheritedWidget {
+  const RoadyGoLanguageScope({
+    super.key,
+    required this.languageCode,
+    required super.child,
+  });
+
+  final String languageCode;
+
+  static String? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<RoadyGoLanguageScope>()
+      ?.languageCode;
+
+  @override
+  bool updateShouldNotify(RoadyGoLanguageScope oldWidget) =>
+      oldWidget.languageCode != languageCode;
 }
 
 extension RoadyGoI18nExt on BuildContext {

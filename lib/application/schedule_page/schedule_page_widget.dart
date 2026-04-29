@@ -36,10 +36,12 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
   bool _isSchedulingRide = false;
 
   bool get _hasPickup => _model.placePickerValue1.address.trim().isNotEmpty;
-  bool get _hasDestination => _model.placePickerValue2.address.trim().isNotEmpty;
+  bool get _hasDestination =>
+      _model.placePickerValue2.address.trim().isNotEmpty;
   bool get _hasScheduleTime => _model.datePicked != null;
   bool get _isFutureTime =>
-      _model.datePicked?.isAfter(DateTime.now().add(const Duration(minutes: 1))) ??
+      _model.datePicked
+          ?.isAfter(DateTime.now().add(const Duration(minutes: 1))) ??
       false;
   bool get _canSchedule =>
       _hasPickup && _hasDestination && _hasScheduleTime && _isFutureTime;
@@ -81,7 +83,8 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
 
   Future<void> _pickScheduleDateTime() async {
     final now = DateTime.now();
-    final initialDate = _model.datePicked ?? now.add(const Duration(minutes: 30));
+    final initialDate =
+        _model.datePicked ?? now.add(const Duration(minutes: 30));
 
     final pickedDate = await showDatePicker(
       context: context,
@@ -133,10 +136,29 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
     );
   }
 
+  void _goToRide() {
+    final activeRide = FFAppState().starteRide;
+    if (activeRide != null) {
+      context.pushNamed(
+        FindingRideWidget.routeName,
+        queryParameters: {
+          'rideDetails': serializeParam(
+            activeRide,
+            ParamType.DocumentReference,
+          ),
+        }.withoutNulls,
+      );
+      return;
+    }
+
+    context.pushNamed(AuthHomePageWidget.routeName);
+  }
+
   Future<RideVariablesRecord?> _fetchRideVariables() async {
     try {
       final defaultDocRef = RideVariablesRecord.collection.doc('default');
-      final defaultDoc = await RideVariablesRecord.getDocumentOnce(defaultDocRef);
+      final defaultDoc =
+          await RideVariablesRecord.getDocumentOnce(defaultDocRef);
       if (defaultDoc.reference.id == 'default') {
         return defaultDoc;
       }
@@ -284,11 +306,9 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                   child: SizedBox(
                     height: 54,
                     child: FFButtonWidget(
-                      onPressed:
-                          !_isSchedulingRide ? _scheduleRide : null,
-                      text: _isSchedulingRide
-                          ? 'Scheduling...'
-                          : 'Schedule Ride',
+                      onPressed: !_isSchedulingRide ? _scheduleRide : null,
+                      text:
+                          _isSchedulingRide ? 'Scheduling...' : 'Schedule Ride',
                       icon: const Icon(
                         Icons.directions_car_filled_rounded,
                         size: 18,
@@ -388,11 +408,26 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                   ),
                   Positioned(
                     right: 18,
-                    bottom: 14,
+                    bottom: 88,
                     child: _buildCircleIconButton(
                       context,
                       icon: Icons.near_me_rounded,
                       onTap: () => _recenterMap(),
+                    ),
+                  ),
+                  Positioned(
+                    left: 20,
+                    right: 20,
+                    bottom: 18,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minWidth: 190,
+                          maxWidth: 260,
+                        ),
+                        child: _buildGoToRideButton(theme),
+                      ),
                     ),
                   ),
                 ],
@@ -435,8 +470,8 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
             markers: [
               FlutterFlowMarker('current_user_marker', effectiveLocation),
               ...FFAppState().testMarkers.map(
-                (marker) => FlutterFlowMarker(marker.serialize(), marker),
-              ),
+                    (marker) => FlutterFlowMarker(marker.serialize(), marker),
+                  ),
             ],
             markerImage: const MarkerImage(
               imagePath: 'assets/images/Car-tow.png',
@@ -518,229 +553,242 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-              Center(
-                child: Container(
-                  width: 46,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: theme.alternate,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                'Plan your future ride',
-                style: theme.titleLarge.override(
-                  fontFamily: theme.titleLargeFamily,
-                  color: theme.primaryText,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
-                  useGoogleFonts: !theme.titleLargeIsCustom,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Choose pickup, destination, and exact departure time.',
-                style: theme.bodySmall.override(
-                  fontFamily: theme.bodySmallFamily,
-                  color: theme.secondaryText,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0,
-                  useGoogleFonts: !theme.bodySmallIsCustom,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildLabel('Ride Type'),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _RideTierChip(
-                      title: 'Car Tow',
-                      selected: FFAppState().rideTier != 'Corporate',
-                      onTap: () {
-                        FFAppState().rideTier = 'Basic';
-                        FFAppState().update(() {});
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _RideTierChip(
-                      title: 'Truck Tow',
-                      selected: FFAppState().rideTier == 'Corporate',
-                      onTap: () {
-                        FFAppState().rideTier = 'Corporate';
-                        FFAppState().update(() {});
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              _buildLabel('Pickup Point'),
-              const SizedBox(height: 6),
-              _buildInputShell(
-                theme: theme,
-                child: FlutterFlowPlacePicker(
-                  iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                  androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
-                  webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
-                  onSelect: (place) {
-                    safeSetState(() => _model.placePickerValue1 = place);
-                  },
-                  defaultText: context.tr('select_pickup_point'),
-                  icon: Icon(
-                    Icons.my_location_rounded,
-                    color: theme.secondaryText,
-                    size: 20,
-                  ),
-                  buttonOptions: FFButtonOptions(
-                    height: 56,
-                    color: Colors.transparent,
-                    textStyle: theme.bodyMedium.override(
-                      fontFamily: theme.bodyMediumFamily,
-                      color: theme.primaryText,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0,
-                      useGoogleFonts: !theme.bodyMediumIsCustom,
-                    ),
-                    elevation: 0,
-                    borderSide: const BorderSide(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              _buildLabel('Destination'),
-              const SizedBox(height: 6),
-              _buildInputShell(
-                theme: theme,
-                child: FlutterFlowPlacePicker(
-                  iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                  androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
-                  webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
-                  onSelect: (place) {
-                    safeSetState(() => _model.placePickerValue2 = place);
-                  },
-                  defaultText: context.tr('select_destination'),
-                  icon: Icon(
-                    Icons.flag_rounded,
-                    color: theme.secondaryText,
-                    size: 20,
-                  ),
-                  buttonOptions: FFButtonOptions(
-                    height: 56,
-                    color: Colors.transparent,
-                    textStyle: theme.bodyMedium.override(
-                      fontFamily: theme.bodyMediumFamily,
-                      color: theme.primaryText,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0,
-                      useGoogleFonts: !theme.bodyMediumIsCustom,
-                    ),
-                    elevation: 0,
-                    borderSide: const BorderSide(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              _buildLabel('Pickup Time'),
-              const SizedBox(height: 6),
-              _buildInputShell(
-                theme: theme,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FFButtonWidget(
-                    onPressed: _pickScheduleDateTime,
-                    text: _formatScheduleTime(_model.datePicked),
-                    icon: const Icon(Icons.schedule_rounded, size: 18),
-                    options: FFButtonOptions(
-                      height: 56,
-                      color: Colors.transparent,
-                      textStyle: theme.bodyMedium.override(
-                        fontFamily: theme.bodyMediumFamily,
-                        color: theme.primaryText,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0,
-                        useGoogleFonts: !theme.bodyMediumIsCustom,
+                  Center(
+                    child: Container(
+                      width: 46,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: theme.alternate,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      elevation: 0,
-                      borderSide: const BorderSide(color: Colors.transparent),
-                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _QuickTimeChip(
-                    label: 'In 30 mins',
-                    onTap: () =>
-                        _setQuickTime(DateTime.now().add(const Duration(minutes: 30))),
-                    selected: _model.datePicked != null &&
-                        _model.datePicked!.difference(DateTime.now()).inMinutes
-                            .abs() <=
-                        32,
+                  const SizedBox(height: 14),
+                  Text(
+                    'Plan your future ride',
+                    style: theme.titleLarge.override(
+                      fontFamily: theme.titleLargeFamily,
+                      color: theme.primaryText,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0,
+                      useGoogleFonts: !theme.titleLargeIsCustom,
+                    ),
                   ),
-                  _QuickTimeChip(
-                    label: 'Tonight 8:00 PM',
-                    onTap: () {
-                      final now = DateTime.now();
-                      _setQuickTime(DateTime(now.year, now.month, now.day, 20, 0)
-                          .isAfter(now)
-                          ? DateTime(now.year, now.month, now.day, 20, 0)
-                          : DateTime(now.year, now.month, now.day + 1, 20, 0));
-                    },
-                    selected: false,
-                  ),
-                  _QuickTimeChip(
-                    label: 'Tomorrow 8:00 AM',
-                    onTap: () {
-                      final now = DateTime.now();
-                      _setQuickTime(
-                        DateTime(now.year, now.month, now.day + 1, 8, 0),
-                      );
-                    },
-                    selected: false,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildFareCard(theme),
-              const SizedBox(height: 12),
-              Text(
-                _canSchedule
-                    ? 'All details captured. Use the button below to schedule your ride.'
-                    : 'Complete pickup, destination, and pickup time to enable scheduling.',
-                style: theme.labelSmall.override(
-                  fontFamily: theme.labelSmallFamily,
-                  color: theme.secondaryText,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0,
-                  useGoogleFonts: !theme.labelSmallIsCustom,
-                  ),
-                ),
-              const SizedBox(height: 8),
-              if (_hasScheduleTime && !_isFutureTime)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Selected time must be in the future.',
+                  const SizedBox(height: 4),
+                  Text(
+                    'Choose pickup, destination, and exact departure time.',
                     style: theme.bodySmall.override(
                       fontFamily: theme.bodySmallFamily,
-                      color: theme.error,
-                      letterSpacing: 0,
+                      color: theme.secondaryText,
                       fontWeight: FontWeight.w600,
+                      letterSpacing: 0,
                       useGoogleFonts: !theme.bodySmallIsCustom,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  _buildLabel('Ride Type'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _RideTierChip(
+                          title: context.tr('car_tow'),
+                          imagePath:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? 'assets/images/car_tow_flatbed_dark.png'
+                                  : 'assets/images/car_tow_flatbed_photo.png',
+                          selected: FFAppState().rideTier != 'Corporate',
+                          onTap: () {
+                            FFAppState().rideTier = 'Basic';
+                            FFAppState().update(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _RideTierChip(
+                          title: context.tr('truck_tow'),
+                          imagePath:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? 'assets/images/truck_tow_flatbed_dark.png'
+                                  : 'assets/images/truck_tow_flatbed_photo.png',
+                          selected: FFAppState().rideTier == 'Corporate',
+                          onTap: () {
+                            FFAppState().rideTier = 'Corporate';
+                            FFAppState().update(() {});
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _buildLabel('Pickup Point'),
+                  const SizedBox(height: 6),
+                  _buildInputShell(
+                    theme: theme,
+                    child: FlutterFlowPlacePicker(
+                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
+                      onSelect: (place) {
+                        safeSetState(() => _model.placePickerValue1 = place);
+                      },
+                      defaultText: context.tr('select_pickup_point'),
+                      icon: Icon(
+                        Icons.my_location_rounded,
+                        color: theme.secondaryText,
+                        size: 20,
+                      ),
+                      buttonOptions: FFButtonOptions(
+                        height: 56,
+                        color: Colors.transparent,
+                        textStyle: theme.bodyMedium.override(
+                          fontFamily: theme.bodyMediumFamily,
+                          color: theme.primaryText,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0,
+                          useGoogleFonts: !theme.bodyMediumIsCustom,
+                        ),
+                        elevation: 0,
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _buildLabel('Destination'),
+                  const SizedBox(height: 6),
+                  _buildInputShell(
+                    theme: theme,
+                    child: FlutterFlowPlacePicker(
+                      iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
+                      androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                      webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
+                      onSelect: (place) {
+                        safeSetState(() => _model.placePickerValue2 = place);
+                      },
+                      defaultText: context.tr('select_destination'),
+                      icon: Icon(
+                        Icons.flag_rounded,
+                        color: theme.secondaryText,
+                        size: 20,
+                      ),
+                      buttonOptions: FFButtonOptions(
+                        height: 56,
+                        color: Colors.transparent,
+                        textStyle: theme.bodyMedium.override(
+                          fontFamily: theme.bodyMediumFamily,
+                          color: theme.primaryText,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0,
+                          useGoogleFonts: !theme.bodyMediumIsCustom,
+                        ),
+                        elevation: 0,
+                        borderSide: const BorderSide(color: Colors.transparent),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _buildLabel('Pickup Time'),
+                  const SizedBox(height: 6),
+                  _buildInputShell(
+                    theme: theme,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FFButtonWidget(
+                        onPressed: _pickScheduleDateTime,
+                        text: _formatScheduleTime(_model.datePicked),
+                        icon: const Icon(Icons.schedule_rounded, size: 18),
+                        options: FFButtonOptions(
+                          height: 56,
+                          color: Colors.transparent,
+                          textStyle: theme.bodyMedium.override(
+                            fontFamily: theme.bodyMediumFamily,
+                            color: theme.primaryText,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0,
+                            useGoogleFonts: !theme.bodyMediumIsCustom,
+                          ),
+                          elevation: 0,
+                          borderSide:
+                              const BorderSide(color: Colors.transparent),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _QuickTimeChip(
+                        label: 'In 30 mins',
+                        onTap: () => _setQuickTime(
+                            DateTime.now().add(const Duration(minutes: 30))),
+                        selected: _model.datePicked != null &&
+                            _model.datePicked!
+                                    .difference(DateTime.now())
+                                    .inMinutes
+                                    .abs() <=
+                                32,
+                      ),
+                      _QuickTimeChip(
+                        label: 'Tonight 8:00 PM',
+                        onTap: () {
+                          final now = DateTime.now();
+                          _setQuickTime(DateTime(
+                                      now.year, now.month, now.day, 20, 0)
+                                  .isAfter(now)
+                              ? DateTime(now.year, now.month, now.day, 20, 0)
+                              : DateTime(
+                                  now.year, now.month, now.day + 1, 20, 0));
+                        },
+                        selected: false,
+                      ),
+                      _QuickTimeChip(
+                        label: 'Tomorrow 8:00 AM',
+                        onTap: () {
+                          final now = DateTime.now();
+                          _setQuickTime(
+                            DateTime(now.year, now.month, now.day + 1, 8, 0),
+                          );
+                        },
+                        selected: false,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildFareCard(theme),
+                  const SizedBox(height: 12),
+                  Text(
+                    _canSchedule
+                        ? 'All details captured. Use the button below to schedule your ride.'
+                        : 'Complete pickup, destination, and pickup time to enable scheduling.',
+                    style: theme.labelSmall.override(
+                      fontFamily: theme.labelSmallFamily,
+                      color: theme.secondaryText,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0,
+                      useGoogleFonts: !theme.labelSmallIsCustom,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (_hasScheduleTime && !_isFutureTime)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        'Selected time must be in the future.',
+                        style: theme.bodySmall.override(
+                          fontFamily: theme.bodySmallFamily,
+                          color: theme.error,
+                          letterSpacing: 0,
+                          fontWeight: FontWeight.w600,
+                          useGoogleFonts: !theme.bodySmallIsCustom,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -916,6 +964,39 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
       ),
     );
   }
+
+  Widget _buildGoToRideButton(FlutterFlowTheme theme) {
+    return SizedBox(
+      height: 58,
+      child: FFButtonWidget(
+        onPressed: _goToRide,
+        text: context.tr('go_to_ride'),
+        icon: const Icon(
+          Icons.directions_car_rounded,
+          size: 20,
+        ),
+        options: FFButtonOptions(
+          height: 58,
+          padding: const EdgeInsetsDirectional.fromSTEB(22, 0, 24, 0),
+          iconPadding: const EdgeInsetsDirectional.fromSTEB(0, 0, 2, 0),
+          color: theme.primary,
+          textStyle: theme.titleSmall.override(
+            fontFamily: theme.titleSmallFamily,
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0,
+            useGoogleFonts: !theme.titleSmallIsCustom,
+          ),
+          elevation: 8,
+          borderSide: const BorderSide(
+            color: Colors.transparent,
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(100),
+        ),
+      ),
+    );
+  }
 }
 
 class _QuickTimeChip extends StatelessWidget {
@@ -964,23 +1045,26 @@ class _QuickTimeChip extends StatelessWidget {
 class _RideTierChip extends StatelessWidget {
   const _RideTierChip({
     required this.title,
+    required this.imagePath,
     required this.selected,
     required this.onTap,
   });
 
   final String title;
+  final String imagePath;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: selected ? theme.primary : theme.primaryBackground,
           borderRadius: BorderRadius.circular(12),
@@ -988,17 +1072,52 @@ class _RideTierChip extends StatelessWidget {
             color: selected ? Colors.transparent : theme.lineColor,
           ),
         ),
-        child: Center(
-          child: Text(
-            title,
-            style: theme.bodyMedium.override(
-              fontFamily: theme.bodyMediumFamily,
-              color: selected ? Colors.white : theme.primaryText,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0,
-              useGoogleFonts: !theme.bodyMediumIsCustom,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: 2.35,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isDarkMode ? Colors.transparent : Colors.white,
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: selected
+                        ? Colors.white.withValues(alpha: 0.7)
+                        : theme.lineColor.withValues(
+                            alpha: isDarkMode ? 0.28 : 0.65,
+                          ),
+                  ),
+                ),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.center,
+                  semanticLabel: title,
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.local_shipping_outlined,
+                    color: selected ? theme.primary : theme.secondaryText,
+                    size: 28,
+                  ),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.bodyMedium.override(
+                fontFamily: theme.bodyMediumFamily,
+                color: selected ? Colors.white : theme.primaryText,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0,
+                useGoogleFonts: !theme.bodyMediumIsCustom,
+              ),
+            ),
+          ],
         ),
       ),
     );

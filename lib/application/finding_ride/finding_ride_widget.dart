@@ -100,7 +100,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
         }
 
         final findingRideRideRecord = snapshot.data!;
-        resolveUserCurrencySymbol(location: findingRideRideRecord.pickupLocation);
+        resolveUserCurrencySymbol(
+            location: findingRideRideRecord.pickupLocation);
         // Handle completion using the existing stream instead of a tight polling loop.
         if (!_handledCompletion &&
             findingRideRideRecord.status.trim().toLowerCase() == 'completed') {
@@ -169,7 +170,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                     destinationAddress: findingRideRideRecord
                                         .destinationAddress,
                                     iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                                    androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                    androidGoogleMapsApiKey:
+                                        kGoogleMapsApiKeyAndroid,
                                     webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     endCoordinate: findingRideRideRecord
                                         .destinationLocation!,
@@ -194,7 +196,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                     destinationAddress: findingRideRideRecord
                                         .destinationAddress,
                                     iOSGoogleMapsApiKey: kGoogleMapsApiKeyIOS,
-                                    androidGoogleMapsApiKey: kGoogleMapsApiKeyAndroid,
+                                    androidGoogleMapsApiKey:
+                                        kGoogleMapsApiKeyAndroid,
                                     webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     startCoordinate:
                                         findingRideRideRecord.pickupLocation!,
@@ -296,24 +299,26 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                     builder:
                                                         (alertDialogContext) {
                                                       return AlertDialog(
-                                                        title:
-                                                            Text(context.tr('cancel_ride')),
-                                                        content: Text(
-                                                            context.tr('cancel_ride_q')),
+                                                        title: Text(context
+                                                            .tr('cancel_ride')),
+                                                        content: Text(context.tr(
+                                                            'cancel_ride_q')),
                                                         actions: [
                                                           TextButton(
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     alertDialogContext,
                                                                     false),
-                                                            child: Text(context.tr('cancel')),
+                                                            child: Text(context
+                                                                .tr('cancel')),
                                                           ),
                                                           TextButton(
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     alertDialogContext,
                                                                     true),
-                                                            child: Text(context.tr('confirm')),
+                                                            child: Text(context
+                                                                .tr('confirm')),
                                                           ),
                                                         ],
                                                       );
@@ -322,7 +327,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                   false;
                                           if (confirmDialogResponse) {
                                             try {
-                                              await findingRideRideRecord.reference
+                                              await findingRideRideRecord
+                                                  .reference
                                                   .update(
                                                 createRideRecordData(
                                                   status: 'Canceled',
@@ -330,9 +336,11 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                               );
                                               FFAppState().starteRide = null;
                                               safeSetState(() {});
-                                              if (currentUserReference != null) {
+                                              if (currentUserReference !=
+                                                  null) {
                                                 context.pushNamed(
-                                                    AuthHomePageWidget.routeName);
+                                                    AuthHomePageWidget
+                                                        .routeName);
                                               } else {
                                                 context.pushNamed(
                                                     HomePageWidget.routeName);
@@ -530,7 +538,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                     imageDriverRecordList =
                                                                     snapshot
                                                                         .data!;
-                                                                final imageUrl = imageDriverRecordList.isNotEmpty &&
+                                                                final imageUrl = imageDriverRecordList
+                                                                            .isNotEmpty &&
                                                                         imageDriverRecordList
                                                                             .first
                                                                             .imageUrl
@@ -817,7 +826,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         size: 24.0,
                                                       ),
                                                       Text(
-                                                        context.tr('pickup_point'),
+                                                        context
+                                                            .tr('pickup_point'),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -903,7 +913,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         size: 24.0,
                                                       ),
                                                       Text(
-                                                        context.tr('destination'),
+                                                        context
+                                                            .tr('destination'),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
@@ -1076,9 +1087,11 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                     (alertDialogContext) {
                                                                   return AlertDialog(
                                                                     title: Text(
-                                                                        context.tr('cancel_ride')),
+                                                                        context.tr(
+                                                                            'cancel_ride')),
                                                                     content: Text(
-                                                                        context.tr('cancel_ride_q')),
+                                                                        context.tr(
+                                                                            'cancel_ride_q')),
                                                                     actions: [
                                                                       TextButton(
                                                                         onPressed: () => Navigator.pop(
@@ -1233,7 +1246,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                         return;
                                                       }
                                                     },
-                                                    text: 'Cancel ride',
+                                                    text: context
+                                                        .tr('cancel_ride'),
                                                     options: FFButtonOptions(
                                                       height: 40.0,
                                                       padding:

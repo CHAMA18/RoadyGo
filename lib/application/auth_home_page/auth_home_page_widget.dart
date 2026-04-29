@@ -9,7 +9,6 @@ import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
 import 'package:collection/collection.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     as google_maps_flutter;
@@ -57,7 +56,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
   Future<RideVariablesRecord?> _loadAdminRideVariables() async {
     try {
       final defaultDocRef = RideVariablesRecord.collection.doc('default');
-      final defaultDoc = await RideVariablesRecord.getDocumentOnce(defaultDocRef);
+      final defaultDoc =
+          await RideVariablesRecord.getDocumentOnce(defaultDocRef);
       if (defaultDoc.reference.id == 'default') {
         return defaultDoc;
       }
@@ -250,8 +250,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
         .then((loc) {
       safeSetState(() => currentUserLocationValue = loc);
       resolveUserCurrencySymbol(location: loc);
-    })
-        .catchError((error) {
+    }).catchError((error) {
       debugPrint('Error getting user location: $error');
       // Fallback to a default location (coordinates for Lusaka, Zambia)
       const fallback = LatLng(-15.4167, 28.2833);
@@ -340,7 +339,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                               ),
                               ...FFAppState()
                                   .testMarkers
-                                  .where((e) => FFAppState().testMarkers.contains(e))
+                                  .where((e) =>
+                                      FFAppState().testMarkers.contains(e))
                                   .toList()
                                   .map(
                                     (marker) => FlutterFlowMarker(
@@ -389,7 +389,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                     onPressed: () async {
                       context.pushNamed(SchedulePageWidget.routeName);
                     },
-                    text: 'Schedule Ride',
+                    text: context.tr('add_scheduled_ride'),
                     icon: Icon(
                       Icons.schedule_rounded,
                       size: 18.0,
@@ -402,7 +402,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                       iconPadding:
                           EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
                       color: FlutterFlowTheme.of(context).secondaryBackground,
-                      textStyle: FlutterFlowTheme.of(context).titleSmall.override(
+                      textStyle: FlutterFlowTheme.of(context)
+                          .titleSmall
+                          .override(
                             fontFamily:
                                 FlutterFlowTheme.of(context).titleSmallFamily,
                             color: FlutterFlowTheme.of(context).primaryText,
@@ -453,8 +455,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withValues(alpha: 0.12),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.12),
                                             blurRadius: 10.0,
                                             offset: const Offset(0.0, 3.0),
                                           ),
@@ -463,10 +465,12 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                       child: AnimatedBuilder(
                                         animation: _carAnimationController,
                                         builder: (context, _) {
-                                          final pulse = Curves.easeInOut.transform(
+                                          final pulse =
+                                              Curves.easeInOut.transform(
                                             _carAnimationController.value,
                                           );
-                                          final iconScale = 0.92 + (pulse * 0.18);
+                                          final iconScale =
+                                              0.92 + (pulse * 0.18);
 
                                           return Stack(
                                             alignment: Alignment.center,
@@ -476,7 +480,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                 height: 28 + (pulse * 8),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: FlutterFlowTheme.of(context)
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
                                                       .primary
                                                       .withValues(alpha: 0.14),
                                                 ),
@@ -516,7 +521,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                       24.0, 0.0, 24.0, 0.0),
                                   iconPadding: EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 0.0, 0.0),
-                                  color: FlutterFlowTheme.of(context).secondary,
+                                  color: FlutterFlowTheme.of(context).primary,
                                   textStyle: FlutterFlowTheme.of(context)
                                       .titleSmall
                                       .override(
@@ -536,51 +541,61 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                   borderRadius: BorderRadius.circular(100.0),
                                 ),
                               ),
-                              if (FFAppState().starteRide != null)
-                                FFButtonWidget(
-                                  onPressed: () async {
-                                    context.pushNamed(
-                                      FindingRideWidget.routeName,
-                                      queryParameters: {
-                                        'rideDetails': serializeParam(
-                                          FFAppState().starteRide,
-                                          ParamType.DocumentReference,
+                              FFButtonWidget(
+                                onPressed: () async {
+                                  final activeRide = FFAppState().starteRide;
+                                  if (activeRide == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          context.tr('book_a_ride'),
                                         ),
-                                      }.withoutNulls,
+                                      ),
                                     );
-                                  },
-                                  text: context.tr('go_to_ride'),
-                                  icon: Icon(
-                                    Icons.directions_car_rounded,
-                                    size: 15.0,
-                                  ),
-                                  options: FFButtonOptions(
-                                    height: 50.0,
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        24.0, 0.0, 24.0, 0.0),
-                                    iconPadding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 0.0, 0.0, 0.0),
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    textStyle: FlutterFlowTheme.of(context)
-                                        .titleSmall
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleSmallFamily,
-                                          color: Colors.white,
-                                          letterSpacing: 0.0,
-                                          useGoogleFonts:
-                                              !FlutterFlowTheme.of(context)
-                                                  .titleSmallIsCustom,
-                                        ),
-                                    elevation: 0.0,
-                                    borderSide: BorderSide(
-                                      color: Colors.transparent,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(100.0),
-                                  ),
+                                    return;
+                                  }
+
+                                  context.pushNamed(
+                                    FindingRideWidget.routeName,
+                                    queryParameters: {
+                                      'rideDetails': serializeParam(
+                                        activeRide,
+                                        ParamType.DocumentReference,
+                                      ),
+                                    }.withoutNulls,
+                                  );
+                                },
+                                text: context.tr('go_to_ride'),
+                                icon: Icon(
+                                  Icons.directions_car_rounded,
+                                  size: 15.0,
                                 ),
+                                options: FFButtonOptions(
+                                  height: 50.0,
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      24.0, 0.0, 24.0, 0.0),
+                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 0.0, 0.0),
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .override(
+                                        fontFamily: FlutterFlowTheme.of(context)
+                                            .titleSmallFamily,
+                                        color: Colors.white,
+                                        letterSpacing: 0.0,
+                                        useGoogleFonts:
+                                            !FlutterFlowTheme.of(context)
+                                                .titleSmallIsCustom,
+                                      ),
+                                  elevation: 0.0,
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(100.0),
+                                ),
+                              ),
                             ].divide(SizedBox(width: 15.0)),
                           ),
                         ),
@@ -942,7 +957,12 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                'assets/images/car_tow.png',
+                                                                Theme.of(context)
+                                                                            .brightness ==
+                                                                        Brightness
+                                                                            .dark
+                                                                    ? 'assets/images/car_tow_flatbed_dark.png'
+                                                                    : 'assets/images/car_tow_flatbed_photo.png',
                                                                 height: 120.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit
@@ -1094,7 +1114,12 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                'assets/images/Truck-tow.png',
+                                                                Theme.of(context)
+                                                                            .brightness ==
+                                                                        Brightness
+                                                                            .dark
+                                                                    ? 'assets/images/truck_tow_flatbed_dark.png'
+                                                                    : 'assets/images/truck_tow_flatbed_photo.png',
                                                                 height: 100.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit
@@ -1172,8 +1197,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                       if (_estimatedDistanceKm() != null)
                                         Container(
                                           width: double.infinity,
-                                          padding: EdgeInsetsDirectional
-                                              .fromSTEB(14.0, 10.0, 14.0, 10.0),
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  14.0, 10.0, 14.0, 10.0),
                                           decoration: BoxDecoration(
                                             color: FlutterFlowTheme.of(context)
                                                 .alternate,
@@ -1201,28 +1227,29 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                   _estimatedDistanceKm(),
                                                   formatType:
                                                       FormatType.decimal,
-                                                  decimalType: DecimalType
-                                                      .periodDecimal,
+                                                  decimalType:
+                                                      DecimalType.periodDecimal,
                                                 )} km',
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodyMedium
+                                                    .override(
+                                                      fontFamily:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumFamily,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .primaryText,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          useGoogleFonts:
-                                                              !FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumIsCustom,
-                                                        ),
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      useGoogleFonts:
+                                                          !FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMediumIsCustom,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -1774,7 +1801,8 @@ class _SlideToConfirmActionState extends State<_SlideToConfirmAction> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: clampedProgress > 0.55 ? Colors.white : widget.textColor,
+                  color:
+                      clampedProgress > 0.55 ? Colors.white : widget.textColor,
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                 ),
@@ -1816,7 +1844,9 @@ class _SlideToConfirmActionState extends State<_SlideToConfirmAction> {
                     ],
                   ),
                   child: Icon(
-                    isBusy ? Icons.hourglass_top_rounded : Icons.chevron_right_rounded,
+                    isBusy
+                        ? Icons.hourglass_top_rounded
+                        : Icons.chevron_right_rounded,
                     color: widget.fillColor,
                     size: 24,
                   ),

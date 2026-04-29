@@ -32,6 +32,18 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
   bool _resolvingLocation = false;
   String? _resolvedLocationLabel;
 
+  bool _isActiveUpcomingScheduledRide(RideRecord ride) {
+    final scheduledTime = ride.scheduledTime;
+    if (scheduledTime == null || scheduledTime.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    final status = ride.status.trim().toLowerCase();
+    return status != 'completed' &&
+        status != 'canceled' &&
+        status != 'cancelled';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -643,8 +655,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                     code)) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content:
-                                          Text(context.tr('language_coming_soon')),
+                                      content: Text(
+                                          context.tr('language_coming_soon')),
                                     ),
                                   );
                                   return;
@@ -986,8 +998,8 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                             },
                           ),
                           const SizedBox(height: 12),
-                          FutureBuilder<int>(
-                            future: queryRideRecordCount(
+                          StreamBuilder<List<RideRecord>>(
+                            stream: queryRideRecord(
                               queryBuilder: (rideRecord) => rideRecord
                                   .where(
                                     'PassengerId',
@@ -999,7 +1011,11 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                   ),
                             ),
                             builder: (context, snapshot) {
-                              final count = snapshot.data ?? 0;
+                              final scheduledRides =
+                                  snapshot.data ?? const <RideRecord>[];
+                              final count = scheduledRides
+                                  .where(_isActiveUpcomingScheduledRide)
+                                  .length;
                               return _ActionCard(
                                 icon: Icons.schedule,
                                 title: context.tr('scheduled_rides'),

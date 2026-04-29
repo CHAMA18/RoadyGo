@@ -58,12 +58,13 @@ class _MyVehiclesWidgetState extends State<MyVehiclesWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: theme.primaryBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -126,9 +127,20 @@ class _MyVehiclesWidgetState extends State<MyVehiclesWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.secondaryBackground,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(
+                            color: theme.lineColor.withValues(alpha: 0.75),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDarkMode ? 0.24 : 0.04,
+                              ),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -143,7 +155,7 @@ class _MyVehiclesWidgetState extends State<MyVehiclesWidget> {
                                 'Primary vehicle is used for your preferred towing profile and dispatch details.',
                                 style: theme.bodyMedium.override(
                                   fontFamily: theme.bodyMediumFamily,
-                                  color: const Color(0xFF334155),
+                                  color: theme.secondaryText,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0,
                                   useGoogleFonts: !theme.bodyMediumIsCustom,
@@ -188,20 +200,23 @@ class _VehicleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.secondaryBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPrimary ? vehicle.accent : const Color(0xFFE2E8F0),
+          color: isPrimary
+              ? vehicle.accent
+              : theme.lineColor.withValues(alpha: 0.75),
           width: isPrimary ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDarkMode ? 0.24 : 0.05),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -230,7 +245,7 @@ class _VehicleCard extends StatelessWidget {
                       vehicle.name,
                       style: theme.titleMedium.override(
                         fontFamily: theme.titleMediumFamily,
-                        color: const Color(0xFF111827),
+                        color: theme.primaryText,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0,
                         useGoogleFonts: !theme.titleMediumIsCustom,
@@ -241,7 +256,7 @@ class _VehicleCard extends StatelessWidget {
                       vehicle.plate,
                       style: theme.bodySmall.override(
                         fontFamily: theme.bodySmallFamily,
-                        color: const Color(0xFF6B7280),
+                        color: theme.secondaryText,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.4,
                         useGoogleFonts: !theme.bodySmallIsCustom,
@@ -275,7 +290,7 @@ class _VehicleCard extends StatelessWidget {
                 'Color: ${vehicle.color}',
                 style: theme.bodyMedium.override(
                   fontFamily: theme.bodyMediumFamily,
-                  color: const Color(0xFF4B5563),
+                  color: theme.secondaryText,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0,
                   useGoogleFonts: !theme.bodyMediumIsCustom,

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -128,19 +127,20 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
 
       final fallback =
           'Lat ${loc.latitude.toStringAsFixed(5)}, Lng ${loc.longitude.toStringAsFixed(5)}';
-      setState(() => _resolvedLocationLabel = (label?.isNotEmpty ?? false)
-          ? label
-          : fallback);
+      setState(() => _resolvedLocationLabel =
+          (label?.isNotEmpty ?? false) ? label : fallback);
     } catch (e) {
       if (!mounted) return;
       final msg = e.toString().toLowerCase();
       if (msg.contains('permissions') || msg.contains('denied')) {
         setState(
-          () => _resolvedLocationLabel = context.tr('location_permission_denied'),
+          () =>
+              _resolvedLocationLabel = context.tr('location_permission_denied'),
         );
       } else if (msg.contains('services are disabled')) {
         setState(
-          () => _resolvedLocationLabel = context.tr('location_services_disabled'),
+          () =>
+              _resolvedLocationLabel = context.tr('location_services_disabled'),
         );
       }
     } finally {
@@ -156,16 +156,29 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     super.dispose();
   }
 
+  bool _isActiveUpcomingScheduledRide(RideRecord ride) {
+    final scheduledTime = ride.scheduledTime;
+    if (scheduledTime == null || scheduledTime.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    final status = ride.status.trim().toLowerCase();
+    return status != 'completed' &&
+        status != 'canceled' &&
+        status != 'cancelled';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     const primaryColor = Color(0xFFFF6B6B);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF3F4F6),
+        backgroundColor: theme.primaryBackground,
         body: Stack(
           children: [
             // Gradient Header (45% height)
@@ -294,13 +307,11 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 if (displayName.isEmpty) {
                                   displayName = context.tr('user');
                                 }
-                                final persistedLocation = passenger
-                                                ?.location
-                                                .trim()
-                                                .isNotEmpty ==
+                                final persistedLocation =
+                                    passenger?.location.trim().isNotEmpty ==
                                             true
-                                    ? passenger!.location.trim()
-                                    : null;
+                                        ? passenger!.location.trim()
+                                        : null;
                                 final userLocation = _resolvingLocation
                                     ? context.tr('fetching_location')
                                     : (_resolvedLocationLabel ??
@@ -332,20 +343,26 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
               height: MediaQuery.of(context).size.height * 0.62,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: isDarkMode
+                      ? theme.primaryBackground.withValues(alpha: 0.98)
+                      : theme.secondaryBackground.withValues(alpha: 0.94),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(40),
                     topRight: Radius.circular(40),
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.4),
+                      color: isDarkMode
+                          ? theme.lineColor.withValues(alpha: 0.7)
+                          : Colors.white.withValues(alpha: 0.4),
                       width: 1,
                     ),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: Colors.black.withValues(
+                        alpha: isDarkMode ? 0.35 : 0.15,
+                      ),
                       blurRadius: 40,
                       offset: const Offset(0, -10),
                     ),
@@ -359,7 +376,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                       width: 48,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: theme.lineColor.withValues(alpha: 0.85),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -379,8 +396,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.edit,
                               title: context.tr('edit_profile'),
                               subtitle: context.tr('edit_profile_sub'),
-                              onTap: () =>
-                                  context.pushNamed(EditProfileWidget.routeName),
+                              onTap: () => context
+                                  .pushNamed(EditProfileWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildActionCard(
@@ -398,12 +415,12 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.add_location_alt,
                               title: context.tr('add_scheduled_ride'),
                               subtitle: context.tr('add_scheduled_ride_sub'),
-                              onTap: () =>
-                                  context.pushNamed(SchedulePageWidget.routeName),
+                              onTap: () => context
+                                  .pushNamed(SchedulePageWidget.routeName),
                             ),
                             const SizedBox(height: 12),
-                            FutureBuilder<int>(
-                              future: queryRideRecordCount(
+                            StreamBuilder<List<RideRecord>>(
+                              stream: queryRideRecord(
                                 queryBuilder: (rideRecord) => rideRecord
                                     .where(
                                       'PassengerId',
@@ -415,7 +432,11 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                     ),
                               ),
                               builder: (context, snapshot) {
-                                final count = snapshot.data ?? 0;
+                                final scheduledRides =
+                                    snapshot.data ?? const <RideRecord>[];
+                                final count = scheduledRides
+                                    .where(_isActiveUpcomingScheduledRide)
+                                    .length;
                                 return _buildActionCard(
                                   context,
                                   theme,
@@ -428,8 +449,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                           formatType: FormatType.compact,
                                         )
                                       : null,
-                                  onTap: () => context
-                                      .pushNamed(ScheduledRidesWidget.routeName),
+                                  onTap: () => context.pushNamed(
+                                      ScheduledRidesWidget.routeName),
                                 );
                               },
                             ),
@@ -440,8 +461,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.history,
                               title: context.tr('recent_rides'),
                               subtitle: context.tr('recent_rides_sub'),
-                              onTap: () =>
-                                  context.pushNamed(RecentRidesWidget.routeName),
+                              onTap: () => context
+                                  .pushNamed(RecentRidesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildActionCard(
@@ -450,8 +471,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                               icon: Icons.bookmark,
                               title: context.tr('saved_places'),
                               subtitle: context.tr('saved_places'),
-                              onTap: () =>
-                                  context.pushNamed(SavedPlacesWidget.routeName),
+                              onTap: () => context
+                                  .pushNamed(SavedPlacesWidget.routeName),
                             ),
                             const SizedBox(height: 12),
                             _buildActionCard(
@@ -462,10 +483,10 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                   ? Icons.light_mode
                                   : Icons.dark_mode,
                               title: context.tr('dark_light_mode'),
-                              subtitle:
-                                  Theme.of(context).brightness == Brightness.dark
-                                      ? context.tr('switch_to_light')
-                                      : context.tr('switch_to_dark'),
+                              subtitle: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? context.tr('switch_to_light')
+                                  : context.tr('switch_to_dark'),
                               onTap: () {
                                 final isDark = Theme.of(context).brightness ==
                                     Brightness.dark;
@@ -491,7 +512,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: theme.secondaryBackground,
                                   foregroundColor: primaryColor,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -818,8 +839,9 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                           itemCount: items.length,
                           itemBuilder: (itemContext, i) {
                             final item = items[i];
-                            final isTranslated = RoadyGoI18n
-                                .isLanguageFullyTranslated(item.code);
+                            final isTranslated =
+                                RoadyGoI18n.isLanguageFullyTranslated(
+                                    item.code);
                             final selected = appState.languageCode == item.code;
 
                             return ListTile(
@@ -839,8 +861,8 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                 if (!isTranslated) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content:
-                                          Text(context.tr('language_coming_soon')),
+                                      content: Text(
+                                          context.tr('language_coming_soon')),
                                     ),
                                   );
                                   return;
@@ -892,7 +914,11 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.dark
+                      ? 0.24
+                      : 0.05,
+                ),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
@@ -1025,15 +1051,18 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.secondaryBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFF9FAFB),
+          color: theme.lineColor.withValues(alpha: 0.75),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withValues(
+              alpha:
+                  Theme.of(context).brightness == Brightness.dark ? 0.28 : 0.1,
+            ),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -1057,7 +1086,7 @@ class _StatCard extends StatelessWidget {
             value,
             style: theme.titleLarge.override(
               fontFamily: theme.titleLargeFamily,
-              color: const Color(0xFF1F2937),
+              color: theme.primaryText,
               fontWeight: FontWeight.bold,
               fontSize: 18,
               letterSpacing: 0,
@@ -1070,7 +1099,7 @@ class _StatCard extends StatelessWidget {
             label.toUpperCase(),
             style: theme.labelSmall.override(
               fontFamily: theme.labelSmallFamily,
-              color: const Color(0xFF9CA3AF),
+              color: theme.secondaryText,
               fontWeight: FontWeight.bold,
               fontSize: 10,
               letterSpacing: 0.5,

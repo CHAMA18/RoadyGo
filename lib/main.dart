@@ -8,6 +8,7 @@ import 'auth/firebase_auth/firebase_user_provider.dart';
 import 'auth/firebase_auth/auth_util.dart';
 
 import 'backend/firebase/firebase_config.dart';
+import 'flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'l10n/roadygo_i18n.dart';
 
@@ -149,6 +150,8 @@ class _MyAppState extends State<MyApp> {
             .isSupported(Locale(selectedLanguageCode))
         ? Locale(selectedLanguageCode)
         : const Locale('en');
+    final lightTheme = LightModeTheme();
+    final darkTheme = DarkModeTheme();
     return RoadyGoLanguageScope(
       languageCode: selectedLanguageCode,
       child: MaterialApp.router(
@@ -211,6 +214,58 @@ class _MyAppState extends State<MyApp> {
             'Arial',
             'sans-serif',
           ],
+          primaryColor: lightTheme.primary,
+          scaffoldBackgroundColor: lightTheme.primaryBackground,
+          cardColor: lightTheme.secondaryBackground,
+          dividerColor: lightTheme.lineColor,
+          colorScheme: ColorScheme.light(
+            primary: lightTheme.primary,
+            secondary: lightTheme.secondary,
+            surface: lightTheme.secondaryBackground,
+            error: lightTheme.error,
+            onPrimary: lightTheme.primaryBtnText,
+            onSecondary: lightTheme.primaryBtnText,
+            onSurface: lightTheme.primaryText,
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: lightTheme.primaryBackground,
+            foregroundColor: lightTheme.primaryText,
+            elevation: 0,
+          ),
+          dialogTheme: DialogThemeData(
+            backgroundColor: lightTheme.secondaryBackground,
+            titleTextStyle: TextStyle(
+              color: lightTheme.primaryText,
+              fontFamily: 'Satoshi',
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+            contentTextStyle: TextStyle(
+              color: lightTheme.secondaryText,
+              fontFamily: 'Satoshi',
+              fontSize: 14,
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: lightTheme.primaryBackground,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: lightTheme.lineColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: lightTheme.lineColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: lightTheme.primary, width: 1.5),
+            ),
+          ),
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: lightTheme.primaryText,
+            contentTextStyle: TextStyle(color: lightTheme.secondaryBackground),
+          ),
         ),
         darkTheme: ThemeData(
           brightness: Brightness.dark,
@@ -222,6 +277,58 @@ class _MyAppState extends State<MyApp> {
             'Arial',
             'sans-serif',
           ],
+          primaryColor: darkTheme.primary,
+          scaffoldBackgroundColor: darkTheme.primaryBackground,
+          cardColor: darkTheme.secondaryBackground,
+          dividerColor: darkTheme.lineColor,
+          colorScheme: ColorScheme.dark(
+            primary: darkTheme.primary,
+            secondary: darkTheme.secondary,
+            surface: darkTheme.secondaryBackground,
+            error: darkTheme.error,
+            onPrimary: darkTheme.primaryBtnText,
+            onSecondary: darkTheme.primaryBtnText,
+            onSurface: darkTheme.primaryText,
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: darkTheme.primaryBackground,
+            foregroundColor: darkTheme.primaryText,
+            elevation: 0,
+          ),
+          dialogTheme: DialogThemeData(
+            backgroundColor: darkTheme.secondaryBackground,
+            titleTextStyle: TextStyle(
+              color: darkTheme.primaryText,
+              fontFamily: 'Satoshi',
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+            contentTextStyle: TextStyle(
+              color: darkTheme.secondaryText,
+              fontFamily: 'Satoshi',
+              fontSize: 14,
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: darkTheme.primaryBackground,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: darkTheme.lineColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: darkTheme.lineColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: darkTheme.primary, width: 1.5),
+            ),
+          ),
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: darkTheme.secondaryBackground,
+            contentTextStyle: TextStyle(color: darkTheme.primaryText),
+          ),
         ),
         themeMode: computedThemeMode,
         // Always keep Material widgets on a locale supported by

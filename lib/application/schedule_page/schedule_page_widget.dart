@@ -46,6 +46,42 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
   bool get _canSchedule =>
       _hasPickup && _hasDestination && _hasScheduleTime && _isFutureTime;
 
+  DateTime _quickTimeIn30Minutes(DateTime now) =>
+      now.add(const Duration(minutes: 30));
+
+  DateTime _quickTimeTonightAt8(DateTime now) {
+    final tonight = DateTime(now.year, now.month, now.day, 20);
+    if (tonight.isAfter(now.add(const Duration(minutes: 1)))) {
+      return tonight;
+    }
+    return DateTime(now.year, now.month, now.day)
+        .add(const Duration(days: 1, hours: 20));
+  }
+
+  DateTime _quickTimeTomorrowAt8(DateTime now) =>
+      DateTime(now.year, now.month, now.day)
+          .add(const Duration(days: 1, hours: 8));
+
+  bool _isSameScheduledMinute(DateTime? value, DateTime target) {
+    if (value == null) {
+      return false;
+    }
+    return value.year == target.year &&
+        value.month == target.month &&
+        value.day == target.day &&
+        value.hour == target.hour &&
+        value.minute == target.minute;
+  }
+
+  bool _isIn30MinutesSelected(DateTime now) {
+    final value = _model.datePicked;
+    if (value == null) {
+      return false;
+    }
+    final difference = value.difference(now).inMinutes;
+    return difference >= 28 && difference <= 32;
+  }
+
   String _formatScheduleTime(DateTime? dt) {
     if (dt == null) {
       return context.tr('pick_time_of_ride');
@@ -116,7 +152,14 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
   }
 
   void _setQuickTime(DateTime dateTime) {
-    safeSetState(() => _model.datePicked = dateTime);
+    final roundedTime = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      dateTime.hour,
+      dateTime.minute,
+    );
+    safeSetState(() => _model.datePicked = roundedTime);
   }
 
   Future<void> _recenterMap() async {
@@ -224,30 +267,32 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
         queryBuilder: (passengerRecord) =>
             passengerRecord.where('UserId', isEqualTo: currentUserReference),
         singleRecord: true,
-      ).then((s) => s.firstOrNull);
+      ).then((s) => s.firstOrNull).timeout(const Duration(seconds: 15));
 
       final rideFee = _calculateFare(variables);
 
       final rideReference = RideRecord.collection.doc();
-      await rideReference.set(
-        createRideRecordData(
-          destinationLocation: _model.placePickerValue2.latLng,
-          destinationAddress: _model.placePickerValue2.name.isNotEmpty
-              ? _model.placePickerValue2.name
-              : _model.placePickerValue2.address,
-          isDriverAssigned: false,
-          pickupLocation: _model.placePickerValue1.latLng,
-          pickupAddress: _model.placePickerValue1.name.isNotEmpty
-              ? _model.placePickerValue1.name
-              : _model.placePickerValue1.address,
-          userNumber: passenger?.mobileNumber,
-          status: 'Active',
-          rideFee: rideFee,
-          rideType: 'Scheduled',
-          scheduledTime: _model.datePicked,
-          passengerId: currentUserReference,
-        ),
-      );
+      await rideReference
+          .set(
+            createRideRecordData(
+              destinationLocation: _model.placePickerValue2.latLng,
+              destinationAddress: _model.placePickerValue2.name.isNotEmpty
+                  ? _model.placePickerValue2.name
+                  : _model.placePickerValue2.address,
+              isDriverAssigned: false,
+              pickupLocation: _model.placePickerValue1.latLng,
+              pickupAddress: _model.placePickerValue1.name.isNotEmpty
+                  ? _model.placePickerValue1.name
+                  : _model.placePickerValue1.address,
+              userNumber: passenger?.mobileNumber,
+              status: 'Active',
+              rideFee: rideFee,
+              rideType: 'Scheduled',
+              scheduledTime: _model.datePicked,
+              passengerId: currentUserReference,
+            ),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (!mounted) {
         return;
@@ -269,6 +314,16 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
             transitionType: PageTransitionType.fade,
           ),
         },
+      );
+    } catch (e) {
+      debugPrint('Failed to schedule ride: $e');
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not schedule ride. Please try again.'),
+        ),
       );
     } finally {
       if (mounted) {
@@ -726,36 +781,31 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                       _QuickTimeChip(
                         label: 'In 30 mins',
                         onTap: () => _setQuickTime(
-                            DateTime.now().add(const Duration(minutes: 30))),
-                        selected: _model.datePicked != null &&
-                            _model.datePicked!
-                                    .difference(DateTime.now())
-                                    .inMinutes
-                                    .abs() <=
-                                32,
+                          _quickTimeIn30Minutes(DateTime.now()),
+                        ),
+                        selected: _isIn30MinutesSelected(DateTime.now()),
                       ),
                       _QuickTimeChip(
                         label: 'Tonight 8:00 PM',
                         onTap: () {
-                          final now = DateTime.now();
-                          _setQuickTime(DateTime(
-                                      now.year, now.month, now.day, 20, 0)
-                                  .isAfter(now)
-                              ? DateTime(now.year, now.month, now.day, 20, 0)
-                              : DateTime(
-                                  now.year, now.month, now.day + 1, 20, 0));
+                          _setQuickTime(_quickTimeTonightAt8(DateTime.now()));
                         },
-                        selected: false,
+                        selected: _isSameScheduledMinute(
+                          _model.datePicked,
+                          _quickTimeTonightAt8(DateTime.now()),
+                        ),
                       ),
                       _QuickTimeChip(
                         label: 'Tomorrow 8:00 AM',
                         onTap: () {
-                          final now = DateTime.now();
                           _setQuickTime(
-                            DateTime(now.year, now.month, now.day + 1, 8, 0),
+                            _quickTimeTomorrowAt8(DateTime.now()),
                           );
                         },
-                        selected: false,
+                        selected: _isSameScheduledMinute(
+                          _model.datePicked,
+                          _quickTimeTomorrowAt8(DateTime.now()),
+                        ),
                       ),
                     ],
                   ),
@@ -1014,27 +1064,32 @@ class _QuickTimeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected
-              ? theme.primary.withValues(alpha: 0.14)
-              : theme.primaryBackground,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected ? theme.primary : theme.lineColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected
+                ? theme.primary.withValues(alpha: 0.14)
+                : theme.primaryBackground,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected ? theme.primary : theme.lineColor,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: theme.bodySmall.override(
-            fontFamily: theme.bodySmallFamily,
-            color: selected ? theme.primary : theme.primaryText,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0,
-            useGoogleFonts: !theme.bodySmallIsCustom,
+          child: Text(
+            label,
+            style: theme.bodySmall.override(
+              fontFamily: theme.bodySmallFamily,
+              color: selected ? theme.primary : theme.primaryText,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0,
+              useGoogleFonts: !theme.bodySmallIsCustom,
+            ),
           ),
         ),
       ),

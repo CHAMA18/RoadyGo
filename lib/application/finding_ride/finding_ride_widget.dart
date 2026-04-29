@@ -10,6 +10,7 @@ import '/custom_code/widgets/index.dart' as custom_widgets;
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
+import '/utils/driver_connection_alert.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,12 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
 
   final animationsMap = <String, AnimationInfo>{};
   bool _handledCompletion = false;
+  bool _syncingLiveRideState = false;
+  bool? _lastObservedDriverAssigned;
+  String? _driverConnectionAlertRidePath;
+  DateTime? _lastLiveRideStateSync;
+
+  static const _liveRideSyncInterval = Duration(seconds: 15);
 
   @override
   void initState() {
@@ -72,6 +79,229 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
     _model.dispose();
 
     super.dispose();
+  }
+
+  bool _isTerminalRideStatus(String status) {
+    final normalized = status.trim().toLowerCase();
+    return normalized == 'completed' ||
+        normalized == 'canceled' ||
+        normalized == 'cancelled';
+  }
+
+  bool _isRideInProgress(RideRecord ride) {
+    final status = ride.status.trim().toLowerCase();
+    return ride.startTime != null ||
+        status.contains('progress') ||
+        status.contains('started') ||
+        status.contains('picked') ||
+        status.contains('trip') ||
+        status.contains('destination');
+  }
+
+  void _maybePlayDriverConnectionAlert(RideRecord ride) {
+    final isAssigned = ride.isDriverAssigned;
+    final shouldAlert = isAssigned &&
+        !_isTerminalRideStatus(ride.status) &&
+        _driverConnectionAlertRidePath != ride.reference.path &&
+        _lastObservedDriverAssigned != true;
+
+    _lastObservedDriverAssigned = isAssigned;
+    if (!shouldAlert) {
+      return;
+    }
+
+    _driverConnectionAlertRidePath = ride.reference.path;
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await playDriverConnectionAlert();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('ride_found')),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
+  }
+
+  bool _driverIsNearPickup(RideRecord ride) {
+    final driverLocation = ride.driverLocation;
+    final pickupLocation = ride.pickupLocation;
+    if (driverLocation == null || pickupLocation == null) return false;
+    final distanceKm = functions.calculateDistance(
+      driverLocation,
+      pickupLocation,
+    );
+    return distanceKm != null && distanceKm <= 0.15;
+  }
+
+  bool _driverIsNearDestination(RideRecord ride) {
+    final driverLocation = ride.driverLocation;
+    final destinationLocation = ride.destinationLocation;
+    if (driverLocation == null || destinationLocation == null) return false;
+    final distanceKm = functions.calculateDistance(
+      driverLocation,
+      destinationLocation,
+    );
+    return distanceKm != null && distanceKm <= 0.15;
+  }
+
+  double _liveFareForRide(
+    RideRecord ride,
+    RideVariablesRecord rideVariables,
+    DateTime now,
+  ) {
+    final pickupLocation = ride.pickupLocation;
+    final destinationLocation = ride.destinationLocation;
+    if (pickupLocation == null || destinationLocation == null) {
+      return ride.rideFee;
+    }
+
+    final isBasicRide = ride.rideType.trim().toLowerCase() == 'basic';
+    final baseFare = isBasicRide
+        ? rideVariables.costOfRide
+        : rideVariables.corporateCostOfRide;
+    final perKm = isBasicRide
+        ? rideVariables.costPerDistance
+        : rideVariables.corporateCostPerDistance;
+    final perMinute = isBasicRide
+        ? rideVariables.costPerMinute
+        : rideVariables.corporateCostPerMinute;
+
+    if (baseFare == 0.0 && perKm == 0.0 && perMinute == 0.0) {
+      return ride.rideFee;
+    }
+
+    final totalDistanceKm =
+        functions.calculateDistance(pickupLocation, destinationLocation) ?? 0.0;
+    var travelledKm = 0.0;
+    if (_driverIsNearDestination(ride) ||
+        ride.status.trim().toLowerCase() == 'completed') {
+      travelledKm = totalDistanceKm;
+    } else if (ride.driverLocation != null && _isRideInProgress(ride)) {
+      travelledKm =
+          functions.calculateDistance(pickupLocation, ride.driverLocation!) ??
+              0.0;
+      if (totalDistanceKm > 0.0) {
+        travelledKm = travelledKm.clamp(0.0, totalDistanceKm).toDouble();
+      }
+    }
+
+    final startedAt = ride.startTime ?? now;
+    final elapsedMinutes =
+        now.difference(startedAt).inSeconds.clamp(0, 1 << 31) / 60.0;
+    final fare =
+        baseFare + (perKm * travelledKm) + (perMinute * elapsedMinutes);
+    return double.parse(fare.toStringAsFixed(2));
+  }
+
+  Future<RideVariablesRecord?> _fetchRideVariables() async {
+    return queryRideVariablesRecordOnce(
+      singleRecord: true,
+    ).then((s) => s.firstOrNull);
+  }
+
+  void _syncLiveRideState(RideRecord ride) {
+    if (_syncingLiveRideState ||
+        !ride.isDriverAssigned ||
+        _isTerminalRideStatus(ride.status)) {
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_lastLiveRideStateSync != null &&
+        now.difference(_lastLiveRideStateSync!) < _liveRideSyncInterval) {
+      return;
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || _syncingLiveRideState) return;
+      _syncingLiveRideState = true;
+      try {
+        final variables = await _fetchRideVariables();
+        if (variables == null) return;
+
+        final rideHasStarted = _isRideInProgress(ride);
+        final shouldStartRide =
+            ride.startTime == null && _driverIsNearPickup(ride);
+        final shouldCalculateLiveFare = rideHasStarted || shouldStartRide;
+        final liveFare = shouldCalculateLiveFare
+            ? _liveFareForRide(ride, variables, now)
+            : ride.rideFee;
+        final updateData = <String, dynamic>{};
+
+        if (shouldStartRide) {
+          updateData.addAll(createRideRecordData(
+            status: 'In Progress',
+            startTime: now,
+          ));
+        } else if (rideHasStarted &&
+            !ride.status.trim().toLowerCase().contains('progress')) {
+          updateData.addAll(createRideRecordData(status: 'In Progress'));
+        }
+
+        if (shouldCalculateLiveFare &&
+            (liveFare - ride.rideFee).abs() >= 0.01) {
+          updateData.addAll(createRideRecordData(rideFee: liveFare));
+        }
+
+        if (updateData.isNotEmpty) {
+          await ride.reference.update(updateData);
+          _lastLiveRideStateSync = now;
+        }
+      } catch (e) {
+        debugPrint('Failed to sync live ride state: $e');
+      } finally {
+        _syncingLiveRideState = false;
+      }
+    });
+  }
+
+  Future<void> _completeRide(RideRecord ride) async {
+    final confirmDialogResponse = await showDialog<bool>(
+          context: context,
+          builder: (alertDialogContext) {
+            return AlertDialog(
+              title: Text(context.tr('ride_complete')),
+              content: Text(context.tr('ride_complete_desc')),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(alertDialogContext, false),
+                  child: Text(context.tr('cancel')),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(alertDialogContext, true),
+                  child: Text(context.tr('confirm')),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+    if (!confirmDialogResponse) return;
+
+    try {
+      final now = DateTime.now();
+      final variables = await _fetchRideVariables();
+      final shouldCalculateLiveFare =
+          _isRideInProgress(ride) || _driverIsNearPickup(ride);
+      final finalFare = variables == null || !shouldCalculateLiveFare
+          ? ride.rideFee
+          : _liveFareForRide(ride, variables, now);
+      await ride.reference.update(createRideRecordData(
+        status: 'Completed',
+        rideFee: finalFare,
+        startTime: ride.startTime ?? now,
+      ));
+    } catch (e) {
+      debugPrint('Failed to complete ride: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not stop ride. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -102,6 +332,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
         final findingRideRideRecord = snapshot.data!;
         resolveUserCurrencySymbol(
             location: findingRideRideRecord.pickupLocation);
+        _maybePlayDriverConnectionAlert(findingRideRideRecord);
+        _syncLiveRideState(findingRideRideRecord);
         // Handle completion using the existing stream instead of a tight polling loop.
         if (!_handledCompletion &&
             findingRideRideRecord.status.trim().toLowerCase() == 'completed') {
@@ -1069,232 +1301,301 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                     ].divide(
                                                         SizedBox(width: 10.0)),
                                                   ),
-                                                  FFButtonWidget(
-                                                    onPressed: () async {
-                                                      currentUserLocationValue =
-                                                          await getCurrentUserLocation(
-                                                              defaultLocation:
-                                                                  LatLng(0.0,
-                                                                      0.0));
-                                                      var _shouldSetState =
-                                                          false;
-                                                      var confirmDialogResponse =
-                                                          await showDialog<
-                                                                  bool>(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (alertDialogContext) {
-                                                                  return AlertDialog(
-                                                                    title: Text(
-                                                                        context.tr(
-                                                                            'cancel_ride')),
-                                                                    content: Text(
-                                                                        context.tr(
-                                                                            'cancel_ride_q')),
-                                                                    actions: [
-                                                                      TextButton(
-                                                                        onPressed: () => Navigator.pop(
-                                                                            alertDialogContext,
-                                                                            false),
-                                                                        child: Text(
-                                                                            context.tr('cancel')),
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed: () => Navigator.pop(
-                                                                            alertDialogContext,
-                                                                            true),
-                                                                        child: Text(
-                                                                            context.tr('confirm')),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                              ) ??
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      FFButtonWidget(
+                                                        onPressed: () async {
+                                                          currentUserLocationValue =
+                                                              await getCurrentUserLocation(
+                                                                  defaultLocation:
+                                                                      LatLng(
+                                                                          0.0,
+                                                                          0.0));
+                                                          var _shouldSetState =
                                                               false;
-                                                      if (confirmDialogResponse) {
-                                                        await widget
-                                                            .rideDetails!
-                                                            .update(
-                                                                createRideRecordData(
-                                                          status: 'Canceled',
-                                                        ));
-                                                        _model.ridedetailsold =
-                                                            await RideRecord
-                                                                .getDocumentOnce(
-                                                                    widget
-                                                                        .rideDetails!);
-                                                        _shouldSetState = true;
-                                                        _model.float =
-                                                            await queryRideVariablesRecordOnce(
-                                                          singleRecord: true,
-                                                        ).then((s) =>
-                                                                s.firstOrNull);
-                                                        _shouldSetState = true;
-                                                        _model.dri =
-                                                            await queryDriverRecordOnce(
-                                                          queryBuilder:
-                                                              (driverRecord) =>
-                                                                  driverRecord
-                                                                      .where(
-                                                            'car_plate',
-                                                            isEqualTo:
-                                                                findingRideRideRecord
-                                                                    .carPlate,
-                                                          ),
-                                                          singleRecord: true,
-                                                        ).then((s) =>
-                                                                s.firstOrNull);
-                                                        _shouldSetState = true;
-
-                                                        await _model
-                                                            .dri!.reference
-                                                            .update({
-                                                          ...mapToFirestore(
-                                                            {
-                                                              'Float': FieldValue.increment(-(functions.percent(
-                                                                  findingRideRideRecord
-                                                                              .rideType ==
-                                                                          'Basic'
-                                                                      ? _model
-                                                                          .float!
-                                                                          .floatBasic
-                                                                      : _model
-                                                                          .float!
-                                                                          .floatCooprate,
-                                                                  findingRideRideRecord
-                                                                      .rideFee))),
-                                                            },
-                                                          ),
-                                                        });
-                                                        await RideStatisticsCall
-                                                            .call(
-                                                          entry2015812078:
-                                                              findingRideRideRecord
-                                                                  .destinationLocation
-                                                                  ?.toString(),
-                                                          entry950079055:
-                                                              findingRideRideRecord
-                                                                  .destinationAddress,
-                                                          entry1394646206:
-                                                              findingRideRideRecord
-                                                                  .rideFee
-                                                                  .toString(),
-                                                          entry2001325259:
-                                                              findingRideRideRecord
-                                                                  .pickupLocation
-                                                                  ?.toString(),
-                                                          entry936029703:
-                                                              findingRideRideRecord
-                                                                  .pickupAddress,
-                                                          entry792818010:
-                                                              findingRideRideRecord
-                                                                  .userNumber,
-                                                          entry470321756:
-                                                              'Canceled',
-                                                          entry1486521713:
-                                                              findingRideRideRecord
-                                                                  .driverName,
-                                                          entry1966883731:
-                                                              findingRideRideRecord
-                                                                  .carPlate,
-                                                          entry1208328789:
-                                                              findingRideRideRecord
-                                                                  .carModel,
-                                                          entry465293445:
-                                                              findingRideRideRecord
-                                                                  .driverPhone,
-                                                          entry800518538: functions
-                                                              .calculateDistance(
-                                                                  findingRideRideRecord
-                                                                      .pickupLocation!,
-                                                                  currentUserLocationValue!)
-                                                              .toString(),
-                                                          entry1655301668:
-                                                              'null',
-                                                          entry1758107006:
-                                                              findingRideRideRecord
-                                                                  .rideFee
-                                                                  .toString(),
-                                                          entry659596845:
-                                                              findingRideRideRecord
-                                                                  .rideFee
-                                                                  .toString(),
-                                                          entry1621449952:
-                                                              findingRideRideRecord
-                                                                  .rideType,
-                                                        );
-
-                                                        FFAppState()
-                                                            .starteRide = null;
-                                                        safeSetState(() {});
-                                                        if (currentUserReference !=
-                                                            null) {
-                                                          context.pushNamed(
-                                                              AuthHomePageWidget
-                                                                  .routeName);
-                                                        } else {
-                                                          context.pushNamed(
-                                                              HomePageWidget
-                                                                  .routeName);
-                                                        }
-
-                                                        if (_shouldSetState)
-                                                          safeSetState(() {});
-                                                        return;
-                                                      } else {
-                                                        return;
-                                                      }
-                                                    },
-                                                    text: context
-                                                        .tr('cancel_ride'),
-                                                    options: FFButtonOptions(
-                                                      height: 40.0,
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  24.0,
-                                                                  0.0,
-                                                                  24.0,
-                                                                  0.0),
-                                                      iconPadding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0,
-                                                                  0.0),
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                      textStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleSmall
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .titleSmallFamily,
-                                                                color: Colors
-                                                                    .white,
-                                                                letterSpacing:
-                                                                    0.0,
-                                                                useGoogleFonts:
-                                                                    !FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleSmallIsCustom,
+                                                          var confirmDialogResponse =
+                                                              await showDialog<
+                                                                      bool>(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (alertDialogContext) {
+                                                                      return AlertDialog(
+                                                                        title: Text(
+                                                                            context.tr('cancel_ride')),
+                                                                        content:
+                                                                            Text(context.tr('cancel_ride_q')),
+                                                                        actions: [
+                                                                          TextButton(
+                                                                            onPressed: () =>
+                                                                                Navigator.pop(alertDialogContext, false),
+                                                                            child:
+                                                                                Text(context.tr('cancel')),
+                                                                          ),
+                                                                          TextButton(
+                                                                            onPressed: () =>
+                                                                                Navigator.pop(alertDialogContext, true),
+                                                                            child:
+                                                                                Text(context.tr('confirm')),
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    },
+                                                                  ) ??
+                                                                  false;
+                                                          if (confirmDialogResponse) {
+                                                            await widget
+                                                                .rideDetails!
+                                                                .update(
+                                                                    createRideRecordData(
+                                                              status:
+                                                                  'Canceled',
+                                                            ));
+                                                            _model.ridedetailsold =
+                                                                await RideRecord
+                                                                    .getDocumentOnce(
+                                                                        widget
+                                                                            .rideDetails!);
+                                                            _shouldSetState =
+                                                                true;
+                                                            _model.float =
+                                                                await queryRideVariablesRecordOnce(
+                                                              singleRecord:
+                                                                  true,
+                                                            ).then((s) => s
+                                                                    .firstOrNull);
+                                                            _shouldSetState =
+                                                                true;
+                                                            _model.dri =
+                                                                await queryDriverRecordOnce(
+                                                              queryBuilder:
+                                                                  (driverRecord) =>
+                                                                      driverRecord
+                                                                          .where(
+                                                                'car_plate',
+                                                                isEqualTo:
+                                                                    findingRideRideRecord
+                                                                        .carPlate,
                                                               ),
-                                                      elevation: 0.0,
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            Colors.transparent,
-                                                        width: 1.0,
+                                                              singleRecord:
+                                                                  true,
+                                                            ).then((s) => s
+                                                                    .firstOrNull);
+                                                            _shouldSetState =
+                                                                true;
+
+                                                            await _model
+                                                                .dri!.reference
+                                                                .update({
+                                                              ...mapToFirestore(
+                                                                {
+                                                                  'Float': FieldValue.increment(-(functions.percent(
+                                                                      findingRideRideRecord.rideType ==
+                                                                              'Basic'
+                                                                          ? _model
+                                                                              .float!
+                                                                              .floatBasic
+                                                                          : _model
+                                                                              .float!
+                                                                              .floatCooprate,
+                                                                      findingRideRideRecord
+                                                                          .rideFee))),
+                                                                },
+                                                              ),
+                                                            });
+                                                            await RideStatisticsCall
+                                                                .call(
+                                                              entry2015812078:
+                                                                  findingRideRideRecord
+                                                                      .destinationLocation
+                                                                      ?.toString(),
+                                                              entry950079055:
+                                                                  findingRideRideRecord
+                                                                      .destinationAddress,
+                                                              entry1394646206:
+                                                                  findingRideRideRecord
+                                                                      .rideFee
+                                                                      .toString(),
+                                                              entry2001325259:
+                                                                  findingRideRideRecord
+                                                                      .pickupLocation
+                                                                      ?.toString(),
+                                                              entry936029703:
+                                                                  findingRideRideRecord
+                                                                      .pickupAddress,
+                                                              entry792818010:
+                                                                  findingRideRideRecord
+                                                                      .userNumber,
+                                                              entry470321756:
+                                                                  'Canceled',
+                                                              entry1486521713:
+                                                                  findingRideRideRecord
+                                                                      .driverName,
+                                                              entry1966883731:
+                                                                  findingRideRideRecord
+                                                                      .carPlate,
+                                                              entry1208328789:
+                                                                  findingRideRideRecord
+                                                                      .carModel,
+                                                              entry465293445:
+                                                                  findingRideRideRecord
+                                                                      .driverPhone,
+                                                              entry800518538: functions
+                                                                  .calculateDistance(
+                                                                      findingRideRideRecord
+                                                                          .pickupLocation!,
+                                                                      currentUserLocationValue!)
+                                                                  .toString(),
+                                                              entry1655301668:
+                                                                  'null',
+                                                              entry1758107006:
+                                                                  findingRideRideRecord
+                                                                      .rideFee
+                                                                      .toString(),
+                                                              entry659596845:
+                                                                  findingRideRideRecord
+                                                                      .rideFee
+                                                                      .toString(),
+                                                              entry1621449952:
+                                                                  findingRideRideRecord
+                                                                      .rideType,
+                                                            );
+
+                                                            FFAppState()
+                                                                    .starteRide =
+                                                                null;
+                                                            safeSetState(() {});
+                                                            if (currentUserReference !=
+                                                                null) {
+                                                              context.pushNamed(
+                                                                  AuthHomePageWidget
+                                                                      .routeName);
+                                                            } else {
+                                                              context.pushNamed(
+                                                                  HomePageWidget
+                                                                      .routeName);
+                                                            }
+
+                                                            if (_shouldSetState)
+                                                              safeSetState(
+                                                                  () {});
+                                                            return;
+                                                          } else {
+                                                            return;
+                                                          }
+                                                        },
+                                                        text: context
+                                                            .tr('cancel_ride'),
+                                                        options:
+                                                            FFButtonOptions(
+                                                          height: 40.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      24.0,
+                                                                      0.0,
+                                                                      24.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primary,
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .titleSmallFamily,
+                                                                    color: Colors
+                                                                        .white,
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .titleSmallIsCustom,
+                                                                  ),
+                                                          elevation: 0.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      100.0),
+                                                        ),
                                                       ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              100.0),
-                                                    ),
+                                                      FFButtonWidget(
+                                                        onPressed: () async {
+                                                          await _completeRide(
+                                                              findingRideRideRecord);
+                                                        },
+                                                        text: context.tr(
+                                                            'ride_complete'),
+                                                        options:
+                                                            FFButtonOptions(
+                                                          height: 40.0,
+                                                          padding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      18.0,
+                                                                      0.0,
+                                                                      18.0,
+                                                                      0.0),
+                                                          iconPadding:
+                                                              EdgeInsetsDirectional
+                                                                  .fromSTEB(
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0,
+                                                                      0.0),
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .secondary,
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .titleSmall
+                                                                  .override(
+                                                                    fontFamily:
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .titleSmallFamily,
+                                                                    color: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primaryText,
+                                                                    letterSpacing:
+                                                                        0.0,
+                                                                    useGoogleFonts:
+                                                                        !FlutterFlowTheme.of(context)
+                                                                            .titleSmallIsCustom,
+                                                                  ),
+                                                          elevation: 0.0,
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1.0,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      100.0),
+                                                        ),
+                                                      ),
+                                                    ].divide(
+                                                        SizedBox(width: 8.0)),
                                                   ),
                                                 ].divide(SizedBox(width: 10.0)),
                                               ),

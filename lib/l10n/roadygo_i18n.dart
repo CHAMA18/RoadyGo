@@ -61,6 +61,10 @@ class RoadyGoI18n {
       'search': 'Search',
       'select': 'Select',
       'loading': 'Loading...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
 
       // Auth
       'create_account': 'Create Account',
@@ -268,6 +272,10 @@ class RoadyGoI18n {
       'search': 'Kërko',
       'select': 'Zgjidh',
       'loading': 'Duke ngarkuar...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
 
       // Auth
       'create_account': 'Krijo llogari',
@@ -479,6 +487,10 @@ class RoadyGoI18n {
       'search': 'Пребарај',
       'select': 'Избери',
       'loading': 'Се вчитува...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
 
       // Auth
       'create_account': 'Креирај сметка',
@@ -688,6 +700,10 @@ class RoadyGoI18n {
       'search': 'Ara',
       'select': 'Sec',
       'loading': 'Yukleniyor...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Hesap olustur',
       'log_in': 'Giris yap',
       'welcome_back': 'Tekrar hos geldiniz',
@@ -882,6 +898,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Izaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj nalog',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli nazad',
@@ -1075,6 +1095,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -1269,6 +1293,10 @@ class RoadyGoI18n {
       'search': 'Rechercher',
       'select': 'Selectionner',
       'loading': 'Chargement...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Creer un compte',
       'log_in': 'Connexion',
       'welcome_back': 'Bon retour',
@@ -1465,6 +1493,10 @@ class RoadyGoI18n {
       'search': 'Suchen',
       'select': 'Auswaehlen',
       'loading': 'Wird geladen...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Konto erstellen',
       'log_in': 'Anmelden',
       'welcome_back': 'Willkommen zurueck',
@@ -1662,6 +1694,10 @@ class RoadyGoI18n {
       'search': 'Buscar',
       'select': 'Seleccionar',
       'loading': 'Cargando...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Crear cuenta',
       'log_in': 'Iniciar sesion',
       'welcome_back': 'Bienvenido de nuevo',
@@ -1861,6 +1897,10 @@ class RoadyGoI18n {
       'search': 'Cerca',
       'select': 'Seleziona',
       'loading': 'Caricamento...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Crea account',
       'log_in': 'Accedi',
       'welcome_back': 'Bentornato',
@@ -2055,6 +2095,10 @@ class RoadyGoI18n {
       'search': 'Pesquisar',
       'select': 'Selecionar',
       'loading': 'Carregando...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Criar conta',
       'log_in': 'Entrar',
       'welcome_back': 'Bem-vindo de volta',
@@ -2249,6 +2293,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -2441,6 +2489,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -2633,6 +2685,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -2825,6 +2881,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3017,6 +3077,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3209,6 +3273,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3401,6 +3469,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3593,6 +3665,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3785,6 +3861,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -3977,6 +4057,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -4169,6 +4253,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -4361,6 +4449,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -4553,6 +4645,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -4745,6 +4841,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -4937,6 +5037,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -5129,6 +5233,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -5321,6 +5429,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -5513,6 +5625,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -5705,6 +5821,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -5897,6 +6017,10 @@ class RoadyGoI18n {
       'search': 'Zoeken',
       'select': 'Selecteren',
       'loading': 'Laden...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Account aanmaken',
       'log_in': 'Inloggen',
       'welcome_back': 'Welkom terug',
@@ -6089,6 +6213,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -6283,6 +6411,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -6477,6 +6609,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -6671,6 +6807,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -6865,6 +7005,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -7059,6 +7203,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -7253,6 +7401,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -7447,6 +7599,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',
@@ -7641,6 +7797,10 @@ class RoadyGoI18n {
       'search': 'Pretrazi',
       'select': 'Odaberi',
       'loading': 'Ucitavanje...',
+      'no_active_ride_to_open':
+          'No active ride is available. Book a ride first to open live tracking.',
+      'could_not_open_active_ride':
+          'Could not open your active ride. Please try again.',
       'create_account': 'Kreiraj racun',
       'log_in': 'Prijava',
       'welcome_back': 'Dobrodosli natrag',

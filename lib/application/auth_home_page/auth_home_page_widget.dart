@@ -34,6 +34,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
   LatLng? currentUserLocationValue;
   bool _isMapReady = false;
   bool _isSubmittingRideOrder = false;
+  bool _isOpeningActiveRide = false;
   late AnimationController _carAnimationController;
 
   double? _estimatedDistanceKm() {
@@ -100,6 +101,132 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
       return variables?.corporateCostPerMinute ?? 0.0;
     }
     return variables?.costPerMinute ?? 0.0;
+  }
+
+  bool _isTerminalRideStatus(String status) {
+    final normalizedStatus = status.trim().toLowerCase();
+    return normalizedStatus == 'completed' ||
+        normalizedStatus == 'complete' ||
+        normalizedStatus == 'canceled' ||
+        normalizedStatus == 'cancelled' ||
+        normalizedStatus == 'finished' ||
+        normalizedStatus == 'ended' ||
+        normalizedStatus == 'stopped' ||
+        normalizedStatus == 'declined' ||
+        normalizedStatus == 'rejected';
+  }
+
+  bool _isRideAvailableForLiveRoute(RideRecord ride) {
+    if (_isTerminalRideStatus(ride.status)) {
+      return false;
+    }
+
+    final scheduledTime = ride.scheduledTime;
+    if (scheduledTime != null && scheduledTime.isAfter(DateTime.now())) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<DocumentReference?> _resolveActiveRideReference() async {
+    final inMemoryRideRef = FFAppState().starteRide;
+    if (inMemoryRideRef != null) {
+      try {
+        final inMemoryRide = await RideRecord.getDocumentOnce(inMemoryRideRef);
+        if (_isRideAvailableForLiveRoute(inMemoryRide)) {
+          return inMemoryRide.reference;
+        }
+      } catch (e) {
+        debugPrint('Stored ride reference could not be loaded: $e');
+      }
+    }
+
+    if (currentUserReference == null) {
+      return null;
+    }
+
+    final passengerRides = await queryRideRecordOnce(
+      queryBuilder: (rideRecord) => rideRecord.where(
+        'PassengerId',
+        isEqualTo: currentUserReference,
+      ),
+      limit: 50,
+    );
+
+    final liveRides =
+        passengerRides.where(_isRideAvailableForLiveRoute).toList();
+    if (liveRides.isEmpty) {
+      return null;
+    }
+
+    liveRides.sort((a, b) {
+      final aTime = a.startTime ??
+          a.scheduledTime ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      final bTime = b.startTime ??
+          b.scheduledTime ??
+          DateTime.fromMillisecondsSinceEpoch(0);
+      return bTime.compareTo(aTime);
+    });
+
+    return liveRides.first.reference;
+  }
+
+  Future<void> _handleGoToRide() async {
+    if (_isOpeningActiveRide) {
+      return;
+    }
+
+    safeSetState(() => _isOpeningActiveRide = true);
+    try {
+      final activeRideRef = await _resolveActiveRideReference();
+      if (!mounted) {
+        return;
+      }
+
+      if (activeRideRef == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr('no_active_ride_to_open')),
+          ),
+        );
+        return;
+      }
+
+      FFAppState().starteRide = activeRideRef;
+      safeSetState(() {});
+
+      context.pushNamed(
+        FindingRideWidget.routeName,
+        queryParameters: {
+          'rideDetails': serializeParam(
+            activeRideRef,
+            ParamType.DocumentReference,
+          ),
+        }.withoutNulls,
+        extra: <String, dynamic>{
+          kTransitionInfoKey: const TransitionInfo(
+            hasTransition: true,
+            transitionType: PageTransitionType.fade,
+          ),
+        },
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      debugPrint('Could not open active ride: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('could_not_open_active_ride')),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        safeSetState(() => _isOpeningActiveRide = false);
+      }
+    }
   }
 
   Future<void> _recenterMap() async {
@@ -542,30 +669,14 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                 ),
                               ),
                               FFButtonWidget(
-                                onPressed: () async {
-                                  final activeRide = FFAppState().starteRide;
-                                  if (activeRide == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          context.tr('book_a_ride'),
-                                        ),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  context.pushNamed(
-                                    FindingRideWidget.routeName,
-                                    queryParameters: {
-                                      'rideDetails': serializeParam(
-                                        activeRide,
-                                        ParamType.DocumentReference,
-                                      ),
-                                    }.withoutNulls,
-                                  );
-                                },
-                                text: context.tr('go_to_ride'),
+                                onPressed: _isOpeningActiveRide
+                                    ? null
+                                    : () async {
+                                        await _handleGoToRide();
+                                      },
+                                text: _isOpeningActiveRide
+                                    ? context.tr('loading')
+                                    : context.tr('go_to_ride'),
                                 icon: Icon(
                                   Icons.directions_car_rounded,
                                   size: 15.0,

@@ -61,12 +61,13 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: const Color(0xFFF3F4F6),
+        backgroundColor: theme.primaryBackground,
         body: SafeArea(
           child: Column(
             children: [
@@ -129,9 +130,20 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.secondaryBackground,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                          border: Border.all(
+                            color: theme.lineColor.withValues(alpha: 0.75),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDarkMode ? 0.24 : 0.04,
+                              ),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -154,7 +166,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
                                 'All payments are tokenized and secured with bank-grade encryption.',
                                 style: theme.bodyMedium.override(
                                   fontFamily: theme.bodyMediumFamily,
-                                  color: const Color(0xFF4B5563),
+                                  color: theme.secondaryText,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0,
                                   useGoogleFonts: !theme.bodyMediumIsCustom,
@@ -199,6 +211,7 @@ class _MethodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
@@ -215,7 +228,7 @@ class _MethodCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: method.accent.withValues(alpha: 0.3),
+            color: method.accent.withValues(alpha: isDarkMode ? 0.18 : 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),

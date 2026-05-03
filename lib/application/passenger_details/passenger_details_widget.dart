@@ -661,12 +661,11 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                   );
                                   return;
                                 }
-                                FFAppState().setLanguageCode(code);
-                                // Small UX win: close sheet after applying.
-                                Navigator.pop(context);
+                                Navigator.pop(context, code);
                               }
 
-                              await showModalBottomSheet(
+                              final selectedCode =
+                                  await showModalBottomSheet<String>(
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
@@ -792,6 +791,16 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                                           hintText: context.tr(
                                                               'search_language'),
                                                           border:
+                                                              InputBorder.none,
+                                                          enabledBorder:
+                                                              InputBorder.none,
+                                                          focusedBorder:
+                                                              InputBorder.none,
+                                                          disabledBorder:
+                                                              InputBorder.none,
+                                                          errorBorder:
+                                                              InputBorder.none,
+                                                          focusedErrorBorder:
                                                               InputBorder.none,
                                                         ),
                                                       ),
@@ -986,6 +995,14 @@ class _PassengerDetailsWidgetState extends State<PassengerDetailsWidget>
                                   );
                                 },
                               );
+                              controller.dispose();
+                              if (selectedCode == null) {
+                                return;
+                              }
+
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                FFAppState().setLanguageCode(selectedCode);
+                              });
                             },
                           ),
                           const SizedBox(height: 12),

@@ -1,9 +1,6 @@
 // Automatic FlutterFlow imports
 import '/backend/backend.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import 'index.dart'; // Imports other custom widgets
-import '/flutter_flow/custom_functions.dart'; // Imports custom functions
 import 'package:flutter/material.dart';
 // Begin custom widget code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
@@ -13,6 +10,7 @@ import 'package:flutter/foundation.dart';
 // Set your widget name, define your parameter, and then add the
 // boilerplate code using the button on the right!
 
+import 'dart:convert';
 import 'dart:math' show cos, sqrt, asin;
 import 'package:http/http.dart' as http;
 import 'package:tuple/tuple.dart';
@@ -66,6 +64,8 @@ class _RouteViewLiveState extends State<RouteViewLive> {
   Map<PolylineId, Polyline> initialPolylines = {};
   bool _webAdvancedMarkersConfigured = !kIsWeb;
   BitmapDescriptor? _locationMarkerIcon;
+  bool _isLoading = false;
+  String? _errorMessage;
 
   // Same as earlier
   String get googleMapsApiKey {
@@ -97,7 +97,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
   }
 
   bool _isRideInTransit(RideRecord rideRecord) {
-    final status = rideRecord.status.trim().toLowerCase();
+    final status = rideRecord.status?.trim().toLowerCase() ?? '';
     return rideRecord.startTime != null ||
         status.contains('progress') ||
         status.contains('started') ||
@@ -203,7 +203,6 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     return _locationMarkerIcon!;
   }
 
-  // Same as earlier
   @override
   void initState() {
     final startCoordinate = latlng.LatLng(
@@ -216,6 +215,12 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     );
 
     super.initState();
+
+    // Initialize polylines after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      initPolylines();
+    });
   }
 
   @override
@@ -224,7 +229,11 @@ class _RouteViewLiveState extends State<RouteViewLive> {
       stream: RideRecord.getDocument(widget.rideDetails),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Container(
+          if (_isLoading) {
+            return _buildLoadingWidget();
+          }
+
+          return SizedBox(
             height: widget.height,
             width: widget.width,
             child: GoogleMap(
@@ -249,7 +258,7 @@ class _RouteViewLiveState extends State<RouteViewLive> {
         final activeRoute = _activeRouteForRide(rideRecord);
         debugPrint('MAP::UPDATED');
 
-        return Container(
+        return SizedBox(
           height: widget.height,
           width: widget.width,
           child: FutureBuilder<Map<PolylineId, Polyline>?>(
@@ -260,23 +269,13 @@ class _RouteViewLiveState extends State<RouteViewLive> {
                 destinationLongitude: activeRoute.destination.longitude,
               ),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return GoogleMap(
-                    markers: _mapMarkers,
-                    initialCameraPosition: CameraPosition(
-                      target: activeRoute.start,
-                    ),
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    mapType: MapType.normal,
-                    zoomGesturesEnabled: true,
-                    zoomControlsEnabled: false,
-                    polylines: Set<Polyline>.of(initialPolylines.values),
-                    onMapCreated: (GoogleMapController controller) async {
-                      mapController = controller;
-                      await _enableWebAdvancedMarkers(controller);
-                    },
+                if (snapshot.hasError) {
+                  return _buildErrorWidget(
+                    'Error loading route: ${snapshot.error}',
                   );
+                }
+                if (!snapshot.hasData) {
+                  return _buildLoadingWidget();
                 }
 
                 return GoogleMap(
@@ -308,19 +307,23 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     double destinationLatitude,
     double destinationLongitude,
   ) async {
-    PolylinePoints polylinePoints = PolylinePoints();
+    PolylinePoints polylinePoints = PolylinePoints(apiKey: googleMapsApiKey);
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      googleMapsApiKey, // Google Maps API Key
-      PointLatLng(startLatitude, startLongitude),
-      PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.driving,
+      request: PolylineRequest(
+        origin: PointLatLng(startLatitude, startLongitude),
+        destination: PointLatLng(destinationLatitude, destinationLongitude),
+        mode: TravelMode.driving,
+      ),
     );
 
     List<latlng.LatLng> polylineCoordinates = [];
 
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(latlng.LatLng(point.latitude, point.longitude));
+        if (point.latitude != null && point.longitude != null) {
+          polylineCoordinates
+              .add(latlng.LatLng(point.latitude, point.longitude));
+        }
       });
     }
 
@@ -331,7 +334,6 @@ class _RouteViewLiveState extends State<RouteViewLive> {
       points: polylineCoordinates,
       width: 3,
     );
-    // polylines[id] = polyline;
 
     return Tuple2({id: polyline}, polylineCoordinates);
   }
@@ -345,6 +347,14 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     if (markers.isNotEmpty) markers.clear();
 
     try {
+      // Validate coordinates
+      if (startLatitude == 0.0 &&
+          startLongitude == 0.0 &&
+          destinationLatitude == 0.0 &&
+          destinationLongitude == 0.0) {
+        debugPrint('ERROR: Invalid coordinates provided');
+        return null;
+      }
       // Use the retrieved coordinates of the current position,
       // instead of the address if the start position is user's
       // current position, as it results in better accuracy.
@@ -413,15 +423,17 @@ class _RouteViewLiveState extends State<RouteViewLive> {
 
       // Accommodate the two locations within the
       // camera view of the map
-      mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(
-          LatLngBounds(
-            northeast: latlng.LatLng(northEastLatitude, northEastLongitude),
-            southwest: latlng.LatLng(southWestLatitude, southWestLongitude),
+      if (mounted) {
+        mapController?.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              northeast: latlng.LatLng(northEastLatitude, northEastLongitude),
+              southwest: latlng.LatLng(southWestLatitude, southWestLongitude),
+            ),
+            60.0,
           ),
-          60.0,
-        ),
-      );
+        );
+      }
 
       final result = await _createPolylines(
         startLatitude,
@@ -473,21 +485,100 @@ class _RouteViewLiveState extends State<RouteViewLive> {
     return null;
   }
 
-  initPolylines() async {
-    double startLatitude = widget.startCoordinate.latitude;
-    double startLongitude = widget.startCoordinate.longitude;
-
-    double destinationLatitude = widget.endCoordinate.latitude;
-    double destinationLongitude = widget.endCoordinate.longitude;
-    final initPolylines = await _calculateDistance(
-      startLatitude: startLatitude,
-      startLongitude: startLongitude,
-      destinationLatitude: destinationLatitude,
-      destinationLongitude: destinationLongitude,
+  Widget _buildLoadingWidget() {
+    return SizedBox(
+      height: widget.height,
+      width: widget.width,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading route...'),
+          ],
+        ),
+      ),
     );
-    if (initPolylines != null) {
-      WidgetsBinding.instance.addPostFrameCallback(
-          (_) => setState(() => initialPolylines = initPolylines));
+  }
+
+  Widget _buildErrorWidget(String message) {
+    return SizedBox(
+      height: widget.height,
+      width: widget.width,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 48),
+            SizedBox(height: 16),
+            Text(
+              message,
+              style: TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _errorMessage = null;
+                });
+                initPolylines();
+              },
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    mapController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> initPolylines() async {
+    if (!mounted) return;
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      double startLatitude = widget.startCoordinate.latitude;
+      double startLongitude = widget.startCoordinate.longitude;
+
+      double destinationLatitude = widget.endCoordinate.latitude;
+      double destinationLongitude = widget.endCoordinate.longitude;
+      final initPolylines = await _calculateDistance(
+        startLatitude: startLatitude,
+        startLongitude: startLongitude,
+        destinationLatitude: destinationLatitude,
+        destinationLongitude: destinationLongitude,
+      );
+      if (!mounted) return;
+      if (initPolylines != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            initialPolylines = initPolylines;
+            _isLoading = false;
+          });
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to calculate route';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = 'Error: ${e.toString()}';
+        _isLoading = false;
+      });
     }
   }
 }

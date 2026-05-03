@@ -1,0 +1,1 @@
+This release introduces the first App Store build of RoadyGo with ride booking, scheduled rides, saved places, and profile management.

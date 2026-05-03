@@ -8,6 +8,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
+import '/application/ride_region_support.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
@@ -261,7 +262,23 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
 
     safeSetState(() => _isSchedulingRide = true);
     try {
-      final variables = await _fetchRideVariables();
+      final regionSupport = await validateRideRegionSupport(
+        pickup: _model.placePickerValue1,
+        destination: _model.placePickerValue2,
+      );
+      if (!regionSupport.isSupported) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(regionSupport.message),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      final variables =
+          regionSupport.pricingVariables ?? await _fetchRideVariables();
 
       final passenger = await queryPassengerRecordOnce(
         queryBuilder: (passengerRecord) =>
@@ -648,10 +665,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                       Expanded(
                         child: _RideTierChip(
                           title: context.tr('car_tow'),
-                          imagePath:
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? 'assets/images/car_tow_flatbed_dark.png'
-                                  : 'assets/images/car_tow_flatbed_photo.png',
+                          imagePath: 'assets/images/car_tow_flatbed_dark.png',
                           selected: FFAppState().rideTier != 'Corporate',
                           onTap: () {
                             FFAppState().rideTier = 'Basic';
@@ -663,10 +677,7 @@ class _SchedulePageWidgetState extends State<SchedulePageWidget> {
                       Expanded(
                         child: _RideTierChip(
                           title: context.tr('truck_tow'),
-                          imagePath:
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? 'assets/images/truck_tow_flatbed_dark.png'
-                                  : 'assets/images/truck_tow_flatbed_photo.png',
+                          imagePath: 'assets/images/truck_tow_flatbed_dark.png',
                           selected: FFAppState().rideTier == 'Corporate',
                           onTap: () {
                             FFAppState().rideTier = 'Corporate';
@@ -1113,13 +1124,13 @@ class _RideTierChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = FlutterFlowTheme.of(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(8),
+        height: 160,
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: selected ? theme.primary : theme.primaryBackground,
           borderRadius: BorderRadius.circular(12),
@@ -1128,48 +1139,41 @@ class _RideTierChip extends StatelessWidget {
           ),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AspectRatio(
-              aspectRatio: 2.35,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                decoration: BoxDecoration(
-                  color: isDarkMode ? Colors.transparent : Colors.white,
-                  borderRadius: BorderRadius.circular(9),
-                  border: Border.all(
-                    color: selected
-                        ? Colors.white.withValues(alpha: 0.7)
-                        : theme.lineColor.withValues(
-                            alpha: isDarkMode ? 0.28 : 0.65,
-                          ),
-                  ),
-                ),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
-                  semanticLabel: title,
-                  errorBuilder: (context, error, stackTrace) => Icon(
-                    Icons.local_shipping_outlined,
-                    color: selected ? theme.primary : theme.secondaryText,
-                    size: 28,
-                  ),
+            SizedBox(
+              height: 100,
+              width: 160,
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                semanticLabel: title,
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Icons.local_shipping_outlined,
+                  color: selected ? Colors.white : theme.secondaryText,
+                  size: 28,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.bodyMedium.override(
-                fontFamily: theme.bodyMediumFamily,
-                color: selected ? Colors.white : theme.primaryText,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0,
-                useGoogleFonts: !theme.bodyMediumIsCustom,
+            SizedBox(
+              height: 22,
+              child: Center(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: theme.bodyMedium.override(
+                    fontFamily: theme.bodyMediumFamily,
+                    color: selected ? Colors.white : theme.primaryText,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
+                    useGoogleFonts: !theme.bodyMediumIsCustom,
+                  ),
+                ),
               ),
             ),
           ],

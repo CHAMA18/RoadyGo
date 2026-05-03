@@ -1,0 +1,11 @@
+RoadyGo helps you request rides, plan upcoming trips, and keep your travel details organised in one place.
+
+Use RoadyGo to:
+- request a ride in a few taps
+- choose pickup and drop-off points with map-based search
+- schedule rides ahead of time for planned travel
+- review recent ride activity
+- manage saved places for faster booking
+- update your profile and ride preferences
+
+RoadyGo is built for people who want a simple, fast way to manage everyday transport from a single app.

@@ -3,7 +3,6 @@ plugins {
    id "kotlin-android"
    id "dev.flutter.flutter-gradle-plugin"
    id "com.google.gms.google-services"
-    id 'com.google.firebase.firebase-perf'  // Google Services plugin
 
 }
 
@@ -32,8 +31,9 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.roadygo.rider"
-    compileSdkVersion 35
+    namespace "com.chunguchama.roadygo"
+    compileSdkVersion 36
+    ndkVersion "28.2.13676358"
     
 
     compileOptions {
@@ -57,9 +57,9 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.roadygo.rider"
+        applicationId "com.chunguchama.roadygo"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -89,5 +89,5 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.10"
 }

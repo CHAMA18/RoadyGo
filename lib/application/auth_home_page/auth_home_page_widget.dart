@@ -8,8 +8,10 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
 import '/l10n/roadygo_i18n.dart';
+import '/application/ride_region_support.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     as google_maps_flutter;
 import 'package:provider/provider.dart';
@@ -262,7 +264,23 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
 
     safeSetState(() => _isSubmittingRideOrder = true);
     try {
-      _model.variables ??= await _loadAdminRideVariables();
+      final regionSupport = await validateRideRegionSupport(
+        pickup: _model.placePickerValue1,
+        destination: _model.placePickerValue2,
+      );
+      if (!regionSupport.isSupported) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(regionSupport.message),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      _model.variables =
+          regionSupport.pricingVariables ?? await _loadAdminRideVariables();
       _model.passenger = await queryPassengerRecordOnce(
         queryBuilder: (passengerRecord) => passengerRecord.where(
           'UserId',
@@ -373,26 +391,46 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
       duration: const Duration(milliseconds: 1800),
     )..repeat();
 
-    getCurrentUserLocation(defaultLocation: LatLng(0.0, 0.0), cached: true)
-        .then((loc) {
-      safeSetState(() => currentUserLocationValue = loc);
-      resolveUserCurrencySymbol(location: loc);
-    }).catchError((error) {
-      debugPrint('Error getting user location: $error');
-      // Fallback to a default location (coordinates for Lusaka, Zambia)
+    _initializeLocation();
+  }
+
+  Future<void> _initializeLocation() async {
+    // Set immediate fallback to prevent hanging UI
+    if (mounted && currentUserLocationValue == null) {
       const fallback = LatLng(-15.4167, 28.2833);
       safeSetState(() => currentUserLocationValue = fallback);
-      resolveUserCurrencySymbol(location: fallback);
-    }).timeout(
-      Duration(seconds: 3),
-      onTimeout: () {
-        debugPrint('Location request timed out, using default location');
-        // Fallback to a default location after timeout
-        const fallback = LatLng(-15.4167, 28.2833);
-        safeSetState(() => currentUserLocationValue = fallback);
-        resolveUserCurrencySymbol(location: fallback);
-      },
-    );
+    }
+
+    try {
+      // Try to get actual location with multiple fallbacks
+      final loc = await getCurrentUserLocation(
+        defaultLocation:
+            currentUserLocationValue ?? const LatLng(-15.4167, 28.2833),
+        cached: false,
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Location timeout, using cached or fallback');
+          return currentUserLocationValue ?? const LatLng(-15.4167, 28.2833);
+        },
+      );
+
+      if (mounted) {
+        // Only update if we got a different/better location
+        if ((loc.latitude != currentUserLocationValue?.latitude ||
+            loc.longitude != currentUserLocationValue?.longitude)) {
+          safeSetState(() => currentUserLocationValue = loc);
+        }
+        // Resolve currency in background without blocking UI
+        resolveUserCurrencySymbol(location: loc).catchError((e) {
+          debugPrint('Error resolving currency: $e');
+          return '';
+        });
+      }
+    } catch (e) {
+      debugPrint('Error initializing location: $e');
+      // Location is already set to fallback, no need to update
+    }
   }
 
   @override
@@ -401,6 +439,15 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
     _model.dispose();
 
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Re-initialize location if it's still null
+    if (currentUserLocationValue == null) {
+      _initializeLocation();
+    }
   }
 
   @override
@@ -1050,7 +1097,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                 .center,
                                                         children: [
                                                           Container(
-                                                            height: 120.0,
+                                                            height: 100.0,
                                                             width: 160.0,
                                                             decoration:
                                                                 BoxDecoration(
@@ -1068,13 +1115,8 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                Theme.of(context)
-                                                                            .brightness ==
-                                                                        Brightness
-                                                                            .dark
-                                                                    ? 'assets/images/car_tow_flatbed_dark.png'
-                                                                    : 'assets/images/car_tow_flatbed_photo.png',
-                                                                height: 120.0,
+                                                                'assets/images/car_tow_flatbed_dark.png',
+                                                                height: 100.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit
                                                                     .contain,
@@ -1086,7 +1128,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                       .asset(
                                                                     'assets/images/Car-tow.png',
                                                                     height:
-                                                                        120.0,
+                                                                        100.0,
                                                                     width:
                                                                         160.0,
                                                                     fit: BoxFit
@@ -1097,7 +1139,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                             stackTrace) {
                                                                       return Container(
                                                                         height:
-                                                                            120.0,
+                                                                            100.0,
                                                                         width:
                                                                             160.0,
                                                                         alignment:
@@ -1118,37 +1160,46 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                               ),
                                                             ),
                                                           ),
-                                                          Text(
-                                                            context
-                                                                .tr('car_tow'),
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color: FFAppState()
-                                                                              .rideTier ==
-                                                                          'Basic'
-                                                                      ? FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryBackground
-                                                                      : FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryText,
-                                                                  fontSize:
-                                                                      16.0,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  useGoogleFonts:
-                                                                      !FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMediumIsCustom,
-                                                                ),
+                                                          SizedBox(height: 8.0),
+                                                          SizedBox(
+                                                            height: 22.0,
+                                                            child: Center(
+                                                              child: Text(
+                                                                context.tr(
+                                                                    'car_tow'),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .override(
+                                                                      fontFamily:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyMediumFamily,
+                                                                      color: FFAppState().rideTier ==
+                                                                              'Basic'
+                                                                          ? FlutterFlowTheme.of(context)
+                                                                              .secondaryBackground
+                                                                          : FlutterFlowTheme.of(context)
+                                                                              .primaryText,
+                                                                      fontSize:
+                                                                          16.0,
+                                                                      letterSpacing:
+                                                                          0.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .bodyMediumIsCustom,
+                                                                    ),
+                                                              ),
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -1207,6 +1258,9 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                       child: Column(
                                                         mainAxisSize:
                                                             MainAxisSize.max,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
                                                         children: [
                                                           Container(
                                                             height: 100.0,
@@ -1225,12 +1279,7 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                                           8.0),
                                                               child:
                                                                   Image.asset(
-                                                                Theme.of(context)
-                                                                            .brightness ==
-                                                                        Brightness
-                                                                            .dark
-                                                                    ? 'assets/images/truck_tow_flatbed_dark.png'
-                                                                    : 'assets/images/truck_tow_flatbed_photo.png',
+                                                                'assets/images/truck_tow_flatbed_dark.png',
                                                                 height: 100.0,
                                                                 width: 160.0,
                                                                 fit: BoxFit
@@ -1259,41 +1308,49 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                                                               ),
                                                             ),
                                                           ),
-                                                          Text(
-                                                            context.tr(
-                                                                'truck_tow'),
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .bodyMedium
-                                                                .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily,
-                                                                  color:
-                                                                      valueOrDefault<
+                                                          SizedBox(height: 8.0),
+                                                          SizedBox(
+                                                            height: 22.0,
+                                                            child: Center(
+                                                              child: Text(
+                                                                context.tr(
+                                                                    'truck_tow'),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                maxLines: 1,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .override(
+                                                                      fontFamily:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyMediumFamily,
+                                                                      color: valueOrDefault<
                                                                           Color>(
-                                                                    FFAppState().rideTier ==
-                                                                            'Corporate'
-                                                                        ? FlutterFlowTheme.of(context)
-                                                                            .secondaryBackground
-                                                                        : FlutterFlowTheme.of(context)
+                                                                        FFAppState().rideTier ==
+                                                                                'Corporate'
+                                                                            ? FlutterFlowTheme.of(context).secondaryBackground
+                                                                            : FlutterFlowTheme.of(context).primaryText,
+                                                                        FlutterFlowTheme.of(context)
                                                                             .primaryText,
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
-                                                                  ),
-                                                                  fontSize:
-                                                                      16.0,
-                                                                  letterSpacing:
-                                                                      0.0,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
-                                                                  useGoogleFonts:
-                                                                      !FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMediumIsCustom,
-                                                                ),
+                                                                      ),
+                                                                      fontSize:
+                                                                          16.0,
+                                                                      letterSpacing:
+                                                                          0.0,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      useGoogleFonts:
+                                                                          !FlutterFlowTheme.of(context)
+                                                                              .bodyMediumIsCustom,
+                                                                    ),
+                                                              ),
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -1616,121 +1673,6 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
           ),
         ),
       ),
-    );
-  }
-
-  Future<void> _showLanguagePicker(FFAppState appState) async {
-    final searchController = TextEditingController();
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        final theme = FlutterFlowTheme.of(context);
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            final q = searchController.text.trim().toLowerCase();
-            final items = RoadyGoI18n.europeanLanguages
-                .where((e) =>
-                    q.isEmpty ||
-                    e.name.toLowerCase().contains(q) ||
-                    e.code.toLowerCase().contains(q))
-                .toList();
-
-            return AlertDialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 24.0,
-              ),
-              title: Text(
-                context.tr('select_language'),
-                style: theme.titleMedium.override(
-                  fontFamily: theme.titleMediumFamily,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.0,
-                  useGoogleFonts: !theme.titleMediumIsCustom,
-                ),
-              ),
-              content: SizedBox(
-                width: MediaQuery.sizeOf(context)
-                    .width
-                    .clamp(0.0, 360.0)
-                    .toDouble(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.sizeOf(context).height * 0.6,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: searchController,
-                        onChanged: (_) => setModalState(() {}),
-                        decoration: InputDecoration(
-                          hintText: context.tr('search_language'),
-                          prefixIcon: const Icon(Icons.search_rounded),
-                        ),
-                      ),
-                      const SizedBox(height: 12.0),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: items.length,
-                          itemBuilder: (dialogContext, i) {
-                            final item = items[i];
-                            return _languageOption(
-                              label: item.name,
-                              code: item.code,
-                              flag: item.flag,
-                              appState: appState,
-                              dialogContext: dialogContext,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-    searchController.dispose();
-  }
-
-  Widget _languageOption({
-    required String label,
-    required String code,
-    required String flag,
-    required FFAppState appState,
-    required BuildContext dialogContext,
-  }) {
-    final isTranslated = RoadyGoI18n.isLanguageFullyTranslated(code);
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Text(
-        flag,
-        style: const TextStyle(fontSize: 22.0),
-      ),
-      title: Text(label),
-      subtitle: Text(code.toUpperCase()),
-      trailing: appState.languageCode == code
-          ? const Icon(Icons.check, color: Colors.green)
-          : !isTranslated
-              ? const Icon(Icons.lock_outline_rounded)
-              : null,
-      onTap: () {
-        if (!isTranslated) {
-          ScaffoldMessenger.of(this.context).showSnackBar(
-            SnackBar(
-              content: Text(context.tr('language_coming_soon')),
-            ),
-          );
-          return;
-        }
-        Navigator.of(dialogContext).pop();
-        Future.microtask(() => appState.setLanguageCode(code));
-      },
     );
   }
 

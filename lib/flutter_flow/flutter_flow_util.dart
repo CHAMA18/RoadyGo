@@ -15,7 +15,8 @@ import 'package:json_path/json_path.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../main.dart';
+import '../app_state.dart';
+import 'package:go_router/go_router.dart';
 
 import 'lat_lng.dart';
 
@@ -541,7 +542,8 @@ Future<String> resolveUserCurrencySymbol({
 
     final currencyCode =
         _currencyCodeByCountryCodeAlpha3[countryCodeAlpha3] ?? 'USD';
-    final symbol = NumberFormat.simpleCurrency(name: currencyCode).currencySymbol;
+    final symbol =
+        NumberFormat.simpleCurrency(name: currencyCode).currencySymbol;
     _cachedCountryCodeAlpha3 = countryCodeAlpha3;
     _cachedCurrencySymbol = symbol;
     return symbol;
@@ -577,8 +579,9 @@ extension StringDocRef on String {
   DocumentReference get ref => FirebaseFirestore.instance.doc(this);
 }
 
-void setDarkModeSetting(BuildContext context, ThemeMode themeMode) =>
-    MyApp.of(context).setThemeMode(themeMode);
+void setDarkModeSetting(BuildContext context, ThemeMode themeMode) {
+  FFAppState().themeMode = themeMode.name;
+}
 
 void showSnackbar(
   BuildContext context,
@@ -755,7 +758,28 @@ extension ListUniqueExt<T> on Iterable<T> {
   }
 }
 
-String getCurrentRoute(BuildContext context) =>
-    context.mounted ? MyApp.of(context).getRoute() : '';
-List<String> getCurrentRouteStack(BuildContext context) =>
-    context.mounted ? MyApp.of(context).getRouteStack() : [];
+String getCurrentRoute(BuildContext context) {
+  if (!context.mounted) return '';
+  try {
+    // Get the current route from GoRouter
+    final router = GoRouter.of(context);
+    return router.routerDelegate.currentConfiguration.last.matchedLocation;
+  } catch (e) {
+    return '';
+  }
+}
+
+List<String> getCurrentRouteStack(BuildContext context) {
+  if (!context.mounted) return [];
+  try {
+    // Get the current route segments
+    final router = GoRouter.of(context);
+    final lastMatch = router.routerDelegate.currentConfiguration.last;
+    return Uri.parse(lastMatch.matchedLocation)
+        .pathSegments
+        .where((segment) => segment.isNotEmpty)
+        .toList();
+  } catch (e) {
+    return [];
+  }
+}

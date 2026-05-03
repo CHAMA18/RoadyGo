@@ -8076,9 +8076,12 @@ class RoadyGoLanguageScope extends InheritedWidget {
 
   final String languageCode;
 
-  static String? maybeOf(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<RoadyGoLanguageScope>()
-      ?.languageCode;
+  static String? maybeOf(BuildContext context) {
+    final element =
+        context.getElementForInheritedWidgetOfExactType<RoadyGoLanguageScope>();
+    final widget = element?.widget;
+    return widget is RoadyGoLanguageScope ? widget.languageCode : null;
+  }
 
   @override
   bool updateShouldNotify(RoadyGoLanguageScope oldWidget) =>

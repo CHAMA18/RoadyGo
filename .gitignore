@@ -4,3 +4,13 @@
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Local/generated files and credentials.
+.DS_Store
+**/.DS_Store
+.claude/
+vendor/
+android/.kotlin/
+android/upload-keystore.jks
+AuthKey_*.p8
+ios/fastlane/.env

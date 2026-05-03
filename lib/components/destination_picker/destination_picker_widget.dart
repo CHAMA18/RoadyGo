@@ -453,10 +453,10 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
 
     final normalizedAddress = place.address.trim();
     final alreadySaved = _savedLocations(context).any((saved) {
-      final sameLat = (saved.latLng.latitude - place.latLng.latitude).abs() <
-          0.00001;
-      final sameLng = (saved.latLng.longitude - place.latLng.longitude).abs() <
-          0.00001;
+      final sameLat =
+          (saved.latLng.latitude - place.latLng.latitude).abs() < 0.00001;
+      final sameLng =
+          (saved.latLng.longitude - place.latLng.longitude).abs() < 0.00001;
       final sameAddress = normalizedAddress.isNotEmpty &&
           saved.address.toLowerCase() == normalizedAddress.toLowerCase();
       return (sameLat && sameLng) || sameAddress;
@@ -472,7 +472,8 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
       return;
     }
 
-    final label = place.name.trim().isNotEmpty ? place.name.trim() : 'Saved Place';
+    final label =
+        place.name.trim().isNotEmpty ? place.name.trim() : 'Saved Place';
     final address = normalizedAddress.isNotEmpty
         ? normalizedAddress
         : 'Lat ${place.latLng.latitude.toStringAsFixed(5)}, Lng ${place.latLng.longitude.toStringAsFixed(5)}';
@@ -567,10 +568,10 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
       final resolvedAddress = await _reverseGeocode(loc);
       final fallbackAddress =
           'Lat ${loc.latitude.toStringAsFixed(5)}, Lng ${loc.longitude.toStringAsFixed(5)}';
-      final destinationText = (resolvedAddress != null &&
-              resolvedAddress.trim().isNotEmpty)
-          ? resolvedAddress
-          : fallbackAddress;
+      final destinationText =
+          (resolvedAddress != null && resolvedAddress.trim().isNotEmpty)
+              ? resolvedAddress
+              : fallbackAddress;
       _searchController.text = destinationText;
 
       _selectPlace(
@@ -730,6 +731,11 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
                   useGoogleFonts: !theme.bodyLargeIsCustom,
                 ),
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),

@@ -1,0 +1,7 @@
+app_identifier("com.chunguchama.roadygo")
+
+languages(["en-US", "en-GB"])
+
+skip_binary_upload(true)
+overwrite_screenshots(true)
+precheck_include_in_app_purchases(false)

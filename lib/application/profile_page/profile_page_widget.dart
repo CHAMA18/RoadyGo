@@ -784,7 +784,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     final appState = FFAppState();
     final searchController = TextEditingController();
 
-    await showDialog<void>(
+    final selectedCode = await showDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
@@ -825,12 +825,38 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      TextField(
-                        controller: searchController,
-                        onChanged: (_) => setModalState(() {}),
-                        decoration: InputDecoration(
-                          hintText: context.tr('search_language'),
-                          prefixIcon: const Icon(Icons.search_rounded),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: theme.primaryBackground.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: theme.lineColor.withValues(alpha: 0.8),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search_rounded,
+                              color: theme.secondaryText.withValues(alpha: 0.8),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextField(
+                                controller: searchController,
+                                onChanged: (_) => setModalState(() {}),
+                                decoration: InputDecoration(
+                                  hintText: context.tr('search_language'),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  focusedErrorBorder: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 12.0),
@@ -867,10 +893,7 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                   );
                                   return;
                                 }
-                                Navigator.of(itemContext).pop();
-                                Future.microtask(
-                                  () => appState.setLanguageCode(item.code),
-                                );
+                                Navigator.of(itemContext).pop(item.code);
                               },
                             );
                           },
@@ -887,6 +910,13 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
     );
 
     searchController.dispose();
+    if (selectedCode == null) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      appState.setLanguageCode(selectedCode);
+    });
   }
 
   Widget _buildActionCard(

@@ -28,26 +28,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:31207707778:android:42636ca158448a3957909b",
         "android_client_info": {
-          "package_name": "com.mycompany.atoz"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA1xtYGRPgdi2lz_5kbbrlNuyRF4Kr19Jg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:31207707778:android:roadygo123",
-        "android_client_info": {
-          "package_name": "com.roadygo.rider"
+          "package_name": "com.chunguchama.roadygo"
         }
       },
       "oauth_client": [],

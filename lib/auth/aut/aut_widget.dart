@@ -1019,7 +1019,25 @@ class _AutWidgetState extends State<AutWidget> with TickerProviderStateMixin {
       color: Colors.black,
       borderRadius: BorderRadius.circular(28.0),
       child: InkWell(
-        onTap: () => context.pushNamed(HomePageWidget.routeName),
+        onTap: () async {
+          if (loggedIn) {
+            context.goNamed(AuthHomePageWidget.routeName);
+            return;
+          }
+          setState(() => _isLoading = true);
+          try {
+            final user = await authManager.signInAnonymously(context);
+            if (user != null && mounted) {
+              context.goNamed(AuthHomePageWidget.routeName);
+            } else if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(context.tr('sign_in_failed'))),
+              );
+            }
+          } finally {
+            if (mounted) setState(() => _isLoading = false);
+          }
+        },
         borderRadius: BorderRadius.circular(28.0),
         child: Container(
           height: 56.0,

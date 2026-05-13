@@ -103,6 +103,8 @@ class RoadyGoI18n {
           'Too long since most recent sign in. Sign in again before updating your email.',
       'requires_recent_login_delete_account':
           'Too long since most recent sign in. Sign in again before deleting your account.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
 
       // Reset password
       'reset_link_issue': 'Reset link issue',

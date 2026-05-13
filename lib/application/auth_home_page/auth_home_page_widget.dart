@@ -254,12 +254,29 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
     }
 
     if (currentUserReference == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You need to be signed in to create an order.'),
-        ),
-      );
-      return;
+      // Try anonymous sign-in first before showing error
+      try {
+        final user = await authManager.signInAnonymously(context);
+        if (user == null || !mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr('sign_in_to_order')),
+            ),
+          );
+          // Redirect to sign-in page
+          context.pushNamed(AutWidget.routeName);
+          return;
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.tr('sign_in_to_order')),
+          ),
+        );
+        context.pushNamed(AutWidget.routeName);
+        return;
+      }
     }
 
     safeSetState(() => _isSubmittingRideOrder = true);

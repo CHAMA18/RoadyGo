@@ -69,6 +69,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '843578977445',
     projectId: 'max-taxi-admin-7n82h1',
     storageBucket: 'max-taxi-admin-7n82h1.appspot.com',
-    iosBundleId: 'com.chunguchama.roadygo',
+    iosBundleId: 'com.mycompany.atoz',
   );
 }

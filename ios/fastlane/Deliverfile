@@ -1,4 +1,4 @@
-app_identifier("com.chunguchama.roadygo")
+app_identifier("com.mycompany.atoz")
 
 languages(["en-US", "en-GB"])
 

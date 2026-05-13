@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
@@ -60,7 +59,9 @@ Future launchURL(String url) async {
 Color colorFromCssString(String color, {Color? defaultColor}) {
   try {
     return fromCssColor(color);
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('colorFromCssString: failed to parse "$color" — $e');
+  }
   return defaultColor ?? Colors.black;
 }
 
@@ -211,13 +212,14 @@ Rect? getWidgetBoundingBox(BuildContext context) {
   try {
     final renderBox = context.findRenderObject() as RenderBox?;
     return renderBox!.localToGlobal(Offset.zero) & renderBox.size;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('getWidgetBoundingBox: failed — $e');
     return null;
   }
 }
 
-bool get isAndroid => !kIsWeb && Platform.isAndroid;
-bool get isiOS => !kIsWeb && Platform.isIOS;
+bool get isAndroid => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+bool get isiOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 bool get isWeb => kIsWeb;
 
 // Centralized Google Maps SDK keys for app-level map and place picker usage.
@@ -466,8 +468,8 @@ String? _toCountryCodeAlpha3(String? rawCountryCode) {
 
 String _mapsApiKeyForCurrentPlatform() {
   if (kIsWeb) return kGoogleMapsApiKeyWeb;
-  if (Platform.isAndroid) return kGoogleMapsApiKeyAndroid;
-  if (Platform.isIOS) return kGoogleMapsApiKeyIOS;
+  if (defaultTargetPlatform == TargetPlatform.android) return kGoogleMapsApiKeyAndroid;
+  if (defaultTargetPlatform == TargetPlatform.iOS) return kGoogleMapsApiKeyIOS;
   return kGoogleMapsApiKeyWeb;
 }
 
@@ -547,7 +549,8 @@ Future<String> resolveUserCurrencySymbol({
     _cachedCountryCodeAlpha3 = countryCodeAlpha3;
     _cachedCurrencySymbol = symbol;
     return symbol;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('getCurrencySymbol: failed for country code — $e');
     return getCurrentCurrencySymbol();
   }
 }

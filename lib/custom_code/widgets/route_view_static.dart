@@ -114,7 +114,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
         onMapCreated: (GoogleMapController controller) async {
           mapController = controller;
           await _enableWebAdvancedMarkers(controller);
-          _calculateDistance();
+          await _calculateDistance();
         },
       ),
     );
@@ -335,20 +335,38 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+        try {
+          final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-        final String durationText =
-            jsonResponse['rows'][0]['elements'][0]['duration']['text'];
-        debugPrint('MAP::$durationText');
-        FFAppState().routeDuration = '$durationText';
+          // Safely navigate nested JSON structure
+          final rows = jsonResponse['rows'] as List<dynamic>?;
+          final elements = rows?.isNotEmpty == true
+              ? (rows![0]['elements'] as List<dynamic>?)
+              : null;
+          final element = elements?.isNotEmpty == true ? elements![0] as Map<String, dynamic> : null;
+          final durationObj = element?['duration'] as Map<String, dynamic>?;
+          final distanceObj = element?['distance'] as Map<String, dynamic>?;
 
-        double duration = double.parse(durationText);
+          // Use the numeric 'value' fields (seconds / meters) instead of parsing text
+          final int durationSeconds = durationObj?['value'] as int? ?? 0;
+          final int distanceMeters = distanceObj?['value'] as int? ?? 0;
 
-        double total_fare = 20 + (10 * totalDistance) + (5 * duration);
-        String price = total_fare.toString();
-        FFAppState().routePrice = '$price';
+          final String durationText = durationObj?['text'] as String? ?? '';
+          debugPrint('MAP::$durationText');
+          FFAppState().routeDuration = durationText;
+
+          // Calculate fare using distance in km and duration in minutes
+          final double durationMinutes = durationSeconds / 60.0;
+          final double distanceKm = distanceMeters / 1000.0;
+
+          double total_fare = 20 + (10 * distanceKm) + (5 * durationMinutes);
+          String price = total_fare.toStringAsFixed(2);
+          FFAppState().routePrice = price;
+        } catch (e) {
+          debugPrint('Error parsing distance matrix response: $e');
+        }
       } else {
-        debugPrint('ERROR in distance matrix API');
+        debugPrint('ERROR in distance matrix API: ${response.statusCode}');
       }
 
       setState(() {});

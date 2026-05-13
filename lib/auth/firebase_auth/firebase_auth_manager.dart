@@ -98,7 +98,7 @@ class FirebaseAuthManager extends AuthManager
         print('Error: update email attempted with no logged in user!');
         return;
       }
-      await currentUser?.updateEmail(email);
+      await FirebaseAuth.instance.currentUser?.verifyBeforeUpdateEmail(email);
       await updateUserDocument(email: email);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
@@ -288,12 +288,18 @@ class FirebaseAuthManager extends AuthManager
     required String smsCode,
   }) {
     if (kIsWeb) {
+      if (phoneAuthManager.webPhoneAuthConfirmationResult == null) {
+        throw Exception('Phone verification not initialized. Please try again.');
+      }
       return _signInOrCreateAccount(
         context,
         () => phoneAuthManager.webPhoneAuthConfirmationResult!.confirm(smsCode),
         'PHONE',
       );
     } else {
+      if (phoneAuthManager.phoneAuthVerificationCode == null) {
+        throw Exception('Phone verification not initialized. Please try again.');
+      }
       final authCredential = PhoneAuthProvider.credential(
         verificationId: phoneAuthManager.phoneAuthVerificationCode!,
         smsCode: smsCode,
@@ -327,7 +333,7 @@ class FirebaseAuthManager extends AuthManager
           'Error: The email is already in use by a different account',
         'INVALID_LOGIN_CREDENTIALS' =>
           'Error: The supplied auth credential is incorrect, malformed or has expired',
-        _ => 'Error: ${e.message!}',
+        _ => 'Error: ${e.message ?? 'Unknown authentication error'}',
       };
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(

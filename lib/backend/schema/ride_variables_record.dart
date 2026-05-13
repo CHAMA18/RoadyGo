@@ -87,7 +87,7 @@ class RideVariablesRecord extends FirestoreRecord {
   static RideVariablesRecord fromSnapshot(DocumentSnapshot snapshot) =>
       RideVariablesRecord._(
         snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>? ?? {}),
       );
 
   static RideVariablesRecord getDocumentFromData(

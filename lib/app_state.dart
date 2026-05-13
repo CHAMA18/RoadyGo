@@ -47,36 +47,43 @@ class FFAppState extends ChangeNotifier {
   String get routeDistance => _routeDistance;
   set routeDistance(String value) {
     _routeDistance = value;
+    notifyListeners();
   }
 
   String _routeDuration = '';
   String get routeDuration => _routeDuration;
   set routeDuration(String value) {
     _routeDuration = value;
+    notifyListeners();
   }
 
   String _routePrice = '';
   String get routePrice => _routePrice;
   set routePrice(String value) {
     _routePrice = value;
+    notifyListeners();
   }
 
   List<LatLng> _testMarkers = [];
   List<LatLng> get testMarkers => _testMarkers;
   set testMarkers(List<LatLng> value) {
     _testMarkers = value;
+    notifyListeners();
   }
 
   void addToTestMarkers(LatLng value) {
     testMarkers.add(value);
+    notifyListeners();
   }
 
   void removeFromTestMarkers(LatLng value) {
     testMarkers.remove(value);
+    notifyListeners();
   }
 
   void removeAtIndexFromTestMarkers(int index) {
     testMarkers.removeAt(index);
+    notifyListeners();
   }
 
   void updateTestMarkersAtIndex(
@@ -84,10 +91,12 @@ class FFAppState extends ChangeNotifier {
     LatLng Function(LatLng) updateFn,
   ) {
     testMarkers[index] = updateFn(_testMarkers[index]);
+    notifyListeners();
   }
 
   void insertAtIndexInTestMarkers(int index, LatLng value) {
     testMarkers.insert(index, value);
+    notifyListeners();
   }
 
   DocumentReference? _starteRide;
@@ -97,12 +106,14 @@ class FFAppState extends ChangeNotifier {
     value != null
         ? prefs.setString('ff_starteRide', value.path)
         : prefs.remove('ff_starteRide');
+    notifyListeners();
   }
 
   String _rideTier = 'Basic';
   String get rideTier => _rideTier;
   set rideTier(String value) {
     _rideTier = value;
+    notifyListeners();
   }
 
   String _languageCode = 'en';
@@ -111,6 +122,7 @@ class FFAppState extends ChangeNotifier {
     final normalized = _normalizeLanguageCode(value) ?? 'en';
     _languageCode = normalized;
     prefs.setString('ff_languageCode', normalized);
+    notifyListeners();
   }
 
   bool _hasSelectedLanguage = false;
@@ -118,6 +130,7 @@ class FFAppState extends ChangeNotifier {
   set hasSelectedLanguage(bool value) {
     _hasSelectedLanguage = value;
     prefs.setBool('ff_hasSelectedLanguage', value);
+    notifyListeners();
   }
 
   String _themeMode = 'system';
@@ -131,7 +144,6 @@ class FFAppState extends ChangeNotifier {
   void setLanguageCode(String code) {
     languageCode = code;
     hasSelectedLanguage = true;
-    notifyListeners();
   }
 }
 
@@ -149,5 +161,7 @@ String? _normalizeLanguageCode(String? code) {
 void _safeInit(Function() initializeField) {
   try {
     initializeField();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('FFAppState: failed to init persisted state — $e');
+  }
 }

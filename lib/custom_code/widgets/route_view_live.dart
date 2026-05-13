@@ -468,14 +468,27 @@ class _RouteViewLiveState extends State<RouteViewLive> {
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+        try {
+          final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-        final String durationText =
-            jsonResponse['rows'][0]['elements'][0]['duration']['text'];
-        debugPrint('MAP::$durationText');
-        FFAppState().routeDuration = '$durationText';
+          // Safely navigate nested JSON structure
+          final rows = jsonResponse['rows'] as List<dynamic>?;
+          final elements = rows?.isNotEmpty == true
+              ? (rows![0]['elements'] as List<dynamic>?)
+              : null;
+          final element = elements?.isNotEmpty == true
+              ? elements![0] as Map<String, dynamic>
+              : null;
+          final durationObj = element?['duration'] as Map<String, dynamic>?;
+
+          final String durationText = durationObj?['text'] as String? ?? '';
+          debugPrint('MAP::$durationText');
+          FFAppState().routeDuration = durationText;
+        } catch (e) {
+          debugPrint('Error parsing distance matrix response: $e');
+        }
       } else {
-        debugPrint('ERROR in distance matrix API');
+        debugPrint('ERROR in distance matrix API: ${response.statusCode}');
       }
 
       return polylines;

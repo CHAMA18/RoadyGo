@@ -258,7 +258,9 @@ Future<List<T>> Function(String) getDocList<T>(
     try {
       final ids = json.decode(idsList) as Iterable;
       docIds = ids.where((d) => d is String).map((d) => d as String).toList();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('getDocList: failed to decode ids list — $e');
+    }
     return Future.wait(
       docIds.map(
         (ids) => _deserializeDocumentReference(ids, collectionNamePath)

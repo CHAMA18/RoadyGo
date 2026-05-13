@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'auth/firebase_auth/firebase_user_provider.dart';
 import 'backend/firebase/firebase_config.dart';
+import 'firebase_options.dart';
 import 'flutter_flow/flutter_flow_theme.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'l10n/roadygo_i18n.dart';
@@ -51,10 +52,10 @@ class AppInitialization {
       debugPrint('✅ Router configured');
 
       // Step 7: Setup user stream
-      userStream = goTaxiRiderFirebaseUserStream()
-        ..listen((user) {
-          _appStateNotifier.update(user);
-        });
+      userStream = goTaxiRiderFirebaseUserStream();
+      _userSubscription = userStream.listen((user) {
+        _appStateNotifier.update(user);
+      });
       debugPrint('✅ User stream configured');
 
       // Step 8: Stop splash screen after delay
@@ -87,14 +88,7 @@ class AppInitialization {
       debugPrint('⚠️ Firebase initialization error, attempting fallback: $e');
       try {
         await Firebase.initializeApp(
-          options: FirebaseOptions(
-            apiKey: "AIzaSyCLc4nd9hTZiYoD4HWgF6A_6CYQYFpOTc0",
-            authDomain: "max-taxi-admin-7n82h1.firebaseapp.com",
-            projectId: "max-taxi-admin-7n82h1",
-            storageBucket: "max-taxi-admin-7n82h1.appspot.com",
-            messagingSenderId: "843578977445",
-            appId: "1:843578977445:web:c1fb0f52caf163b4a4314c",
-          ),
+          options: DefaultFirebaseOptions.currentPlatform,
         );
         debugPrint('✅ Firebase fallback successful');
       } catch (fallbackError) {
@@ -107,9 +101,15 @@ class AppInitialization {
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
   late Stream<BaseAuthUser> userStream;
+  StreamSubscription<BaseAuthUser>? _userSubscription;
 
   GoRouter get router => _router;
   AppStateNotifier get appStateNotifier => _appStateNotifier;
+
+  void dispose() {
+    _userSubscription?.cancel();
+    _userSubscription = null;
+  }
 }
 
 class MyApp extends StatefulWidget {

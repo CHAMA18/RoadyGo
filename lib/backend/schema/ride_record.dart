@@ -137,7 +137,7 @@ class RideRecord extends FirestoreRecord {
 
   static RideRecord fromSnapshot(DocumentSnapshot snapshot) => RideRecord._(
         snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>? ?? {}),
       );
 
   static RideRecord getDocumentFromData(

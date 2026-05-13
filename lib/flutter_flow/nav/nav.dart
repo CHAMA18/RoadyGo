@@ -84,11 +84,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: HomePageWidget.routeName,
           path: HomePageWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => HomePageWidget(),
         ),
         FFRoute(
           name: FindingRideWidget.routeName,
           path: FindingRideWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => FindingRideWidget(
             rideDetails: params.getParam(
               'rideDetails',
@@ -101,6 +103,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: SchedulePageWidget.routeName,
           path: SchedulePageWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => SchedulePageWidget(),
         ),
         FFRoute(
@@ -116,26 +119,31 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: PassengerDetailsWidget.routeName,
           path: PassengerDetailsWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => PassengerDetailsWidget(),
         ),
         FFRoute(
           name: ScheduledRidesWidget.routeName,
           path: ScheduledRidesWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => ScheduledRidesWidget(),
         ),
         FFRoute(
           name: RecentRidesWidget.routeName,
           path: RecentRidesWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => RecentRidesWidget(),
         ),
         FFRoute(
           name: EditProfileWidget.routeName,
           path: EditProfileWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => EditProfileWidget(),
         ),
         FFRoute(
           name: RideDetailsWidget.routeName,
           path: RideDetailsWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => RideDetailsWidget(
             rideref: params.getParam(
               'rideref',
@@ -153,21 +161,25 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: ProfilePageWidget.routeName,
           path: ProfilePageWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => ProfilePageWidget(),
         ),
         FFRoute(
           name: PaymentMethodsWidget.routeName,
           path: PaymentMethodsWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => PaymentMethodsWidget(),
         ),
         FFRoute(
           name: MyVehiclesWidget.routeName,
           path: MyVehiclesWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => MyVehiclesWidget(),
         ),
         FFRoute(
           name: SavedPlacesWidget.routeName,
           path: SavedPlacesWidget.routePath,
+          requireAuth: true,
           builder: (context, params) => SavedPlacesWidget(),
         ),
         FFRoute(
@@ -344,7 +356,7 @@ class FFRoute {
 
           if (requireAuth && !appStateNotifier.loggedIn) {
             appStateNotifier.setRedirectLocationIfUnset(state.uri.toString());
-            return '/homePage';
+            return '/authHomePage';
           }
           return null;
         },

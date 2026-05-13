@@ -432,9 +432,13 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                         kGoogleMapsApiKeyAndroid,
                                     webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     endCoordinate: findingRideRideRecord
-                                        .destinationLocation!,
+                                        .destinationLocation ??
+                                        currentUserLocationValue ??
+                                        const LatLng(0, 0),
                                     startCoordinate:
-                                        findingRideRideRecord.pickupLocation!,
+                                        findingRideRideRecord.pickupLocation ??
+                                        currentUserLocationValue ??
+                                        const LatLng(0, 0),
                                   ),
                                 ),
                               if (findingRideRideRecord.isDriverAssigned)
@@ -458,9 +462,13 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                         kGoogleMapsApiKeyAndroid,
                                     webGoogleMapsApiKey: kGoogleMapsApiKeyWeb,
                                     startCoordinate:
-                                        findingRideRideRecord.pickupLocation!,
+                                        findingRideRideRecord.pickupLocation ??
+                                        currentUserLocationValue ??
+                                        const LatLng(0, 0),
                                     endCoordinate: findingRideRideRecord
-                                        .destinationLocation!,
+                                        .destinationLocation ??
+                                        currentUserLocationValue ??
+                                        const LatLng(0, 0),
                                     rideDetails:
                                         findingRideRideRecord.reference,
                                   ),
@@ -1270,9 +1278,9 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                                 functions
                                                                     .calculateDistance(
                                                                         findingRideRideRecord
-                                                                            .pickupLocation!,
+                                                                            .pickupLocation ?? currentUserLocationValue ?? const LatLng(0, 0),
                                                                         findingRideRideRecord
-                                                                            .destinationLocation!)
+                                                                            .destinationLocation ?? currentUserLocationValue ?? const LatLng(0, 0))
                                                                     ?.toString(),
                                                                 '8km',
                                                               ),
@@ -1471,8 +1479,8 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
                                                               entry800518538: functions
                                                                   .calculateDistance(
                                                                       findingRideRideRecord
-                                                                          .pickupLocation!,
-                                                                      currentUserLocationValue!)
+                                                                          .pickupLocation ?? currentUserLocationValue ?? const LatLng(0, 0),
+                                                                      currentUserLocationValue ?? const LatLng(0, 0))
                                                                   .toString(),
                                                               entry1655301668:
                                                                   'null',

@@ -83,7 +83,7 @@ class DriverRecord extends FirestoreRecord {
 
   static DriverRecord fromSnapshot(DocumentSnapshot snapshot) => DriverRecord._(
         snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>? ?? {}),
       );
 
   static DriverRecord getDocumentFromData(

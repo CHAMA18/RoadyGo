@@ -60,7 +60,7 @@ class PassengerRecord extends FirestoreRecord {
   static PassengerRecord fromSnapshot(DocumentSnapshot snapshot) =>
       PassengerRecord._(
         snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>? ?? {}),
       );
 
   static PassengerRecord getDocumentFromData(
@@ -110,12 +110,13 @@ class PassengerRecordDocumentEquality implements Equality<PassengerRecord> {
     return e1?.userId == e2?.userId &&
         e1?.name == e2?.name &&
         e1?.mobileNumber == e2?.mobileNumber &&
-        e1?.email == e2?.email;
+        e1?.email == e2?.email &&
+        e1?.location == e2?.location;
   }
 
   @override
   int hash(PassengerRecord? e) => const ListEquality()
-      .hash([e?.userId, e?.name, e?.mobileNumber, e?.email]);
+      .hash([e?.userId, e?.name, e?.mobileNumber, e?.email, e?.location]);
 
   @override
   bool isValidKey(Object? o) => o is PassengerRecord;

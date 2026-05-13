@@ -3,9 +3,9 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:equatable/equatable.dart';
 import 'package:http_parser/http_parser.dart';
@@ -135,7 +135,8 @@ class ApiCallOptions extends Equatable {
   static Map<String, dynamic> _cloneMap(Map<String, dynamic> map) {
     try {
       return json.decode(json.encode(map)) as Map<String, dynamic>;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('API: failed to clone map via JSON — $e');
       return Map.from(map);
     }
   }
@@ -200,7 +201,9 @@ class ApiCallResponse {
           ? const Utf8Decoder().convert(response.bodyBytes)
           : response.body;
       jsonBody = returnBody ? json.decode(responseBody) : null;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('API: failed to parse JSON response — $e');
+    }
     return ApiCallResponse(
       jsonBody,
       response.headers,

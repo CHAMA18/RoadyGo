@@ -88,6 +88,23 @@ class _RideDetailsWidgetState extends State<RideDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.rideref == null) {
+      return Scaffold(
+        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        appBar: AppBar(
+          backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          title: Text(
+            context.tr('ride_details'),
+          ),
+        ),
+        body: Center(
+          child: Text(
+            context.tr('could_not_open_active_ride'),
+            style: FlutterFlowTheme.of(context).bodyMedium,
+          ),
+        ),
+      );
+    }
     return StreamBuilder<RideRecord>(
       stream: RideRecord.getDocument(widget.rideref!),
       builder: (context, snapshot) {

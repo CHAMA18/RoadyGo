@@ -65,7 +65,7 @@ class SavedPlaceRecord extends FirestoreRecord {
   static SavedPlaceRecord fromSnapshot(DocumentSnapshot snapshot) =>
       SavedPlaceRecord._(
         snapshot.reference,
-        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>? ?? {}),
       );
 
   static SavedPlaceRecord getDocumentFromData(

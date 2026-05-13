@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'dart:math' show cos, sqrt, asin;
 import 'package:flutter/widgets.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' hide LatLng;
@@ -193,13 +194,13 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
     double destinationLatitude,
     double destinationLongitude,
   ) async {
-    polylinePoints = PolylinePoints();
-    var driving;
+    polylinePoints = PolylinePoints(apiKey: googleMapsApiKey);
     PolylineResult result = await polylinePoints!.getRouteBetweenCoordinates(
-      googleMapsApiKey, // Google Maps API Key
-      PointLatLng(startLatitude, startLongitude),
-      PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.driving,
+      request: PolylineRequest(
+        origin: PointLatLng(startLatitude, startLongitude),
+        destination: PointLatLng(destinationLatitude, destinationLongitude),
+        mode: TravelMode.driving,
+      ),
     );
 
     debugPrint('MAP::STATUS: ${result.status}');
@@ -208,7 +209,7 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates
-            .add(latlng.LatLng(point.latitude!, point.longitude!));
+            .add(latlng.LatLng(point.latitude, point.longitude));
       });
     }
 
@@ -358,27 +359,4 @@ class _RouteViewStaticState extends State<RouteViewStatic> {
     }
     return false;
   }
-}
-
-class TravelMode {
-  static var driving;
-}
-
-class PointLatLng {
-  PointLatLng(double startLatitude, double startLongitude);
-
-  double? get latitude => null;
-
-  double? get longitude => null;
-}
-
-class PolylineResult {
-  get status => null;
-
-  get points => null;
-}
-
-class PolylinePoints {
-  getRouteBetweenCoordinates(String googleMapsApiKey, pointLatLng, pointLatLng2,
-      {required travelMode}) {}
 }

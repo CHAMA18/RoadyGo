@@ -712,7 +712,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       Expanded(
                         child: _RideTypeCard(
                           title: context.tr('basic'),
-                          imagePath: 'assets/images/Truck.png',
+                          imagePath: 'assets/images/Truck-tow.png',
                           isSelected: FFAppState().rideTier == 'Basic',
                           primaryColor: primaryColor,
                           onTap: () {
@@ -725,7 +725,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       Expanded(
                         child: _RideTypeCard(
                           title: context.tr('corporate'),
-                          imagePath: 'assets/images/Truck-2.png',
+                          imagePath: 'assets/images/Truck_tow.png',
                           isSelected: FFAppState().rideTier == 'Corporate',
                           primaryColor: primaryColor,
                           onTap: () {
@@ -932,6 +932,12 @@ class _HomePageWidgetState extends State<HomePageWidget>
                 onPressed: () {
                   context.pushNamed(
                     FindingRideWidget.routeName,
+                    queryParameters: {
+                      'rideDetails': serializeParam(
+                        FFAppState().starteRide,
+                        ParamType.DocumentReference,
+                      ),
+                    }.withoutNulls,
                     extra: <String, dynamic>{
                       kTransitionInfoKey: const TransitionInfo(
                         hasTransition: true,

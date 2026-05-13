@@ -308,6 +308,32 @@ class _FindingRideWidgetState extends State<FindingRideWidget>
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
+    // Handle null rideDetails gracefully - redirect to home
+    if (widget.rideDetails == null) {
+      // No ride reference provided; redirect back to home page
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.goNamed(AuthHomePageWidget.routeName);
+        }
+      });
+      return Scaffold(
+        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                context.tr('finding_a_ride'),
+                style: FlutterFlowTheme.of(context).headlineSmall,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return StreamBuilder<RideRecord>(
       stream: RideRecord.getDocument(widget.rideDetails!),
       builder: (context, snapshot) {

@@ -47,29 +47,28 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAXyyX40R6UfbCSACI_3SA9Ux4uMapZgrM',
-    appId: '1:31207707778:web:65657a9d838e1b4c57909b',
-    messagingSenderId: '31207707778',
-    projectId: 'remo-login',
-    authDomain: 'remo-login.firebaseapp.com',
-    storageBucket: 'remo-login.firebasestorage.app',
-    measurementId: 'G-CQ6W4F1F9Y',
+    apiKey: 'AIzaSyCLc4nd9hTZiYoD4HWgF6A_6CYQYFpOTc0',
+    appId: '1:843578977445:web:c1fb0f52caf163b4a4314c',
+    messagingSenderId: '843578977445',
+    projectId: 'max-taxi-admin-7n82h1',
+    authDomain: 'max-taxi-admin-7n82h1.firebaseapp.com',
+    storageBucket: 'max-taxi-admin-7n82h1.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA1xtYGRPgdi2lz_5kbbrlNuyRF4Kr19Jg',
-    appId: '1:31207707778:android:42636ca158448a3957909b',
-    messagingSenderId: '31207707778',
-    projectId: 'remo-login',
-    storageBucket: 'remo-login.firebasestorage.app',
+    apiKey: 'AIzaSyCLc4nd9hTZiYoD4HWgF6A_6CYQYFpOTc0',
+    appId: '1:843578977445:android:c1fb0f52caf163b4a4314c',
+    messagingSenderId: '843578977445',
+    projectId: 'max-taxi-admin-7n82h1',
+    storageBucket: 'max-taxi-admin-7n82h1.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBmWOBtZXPZSancnJYNXU00BtyYfELTNDw',
-    appId: '1:31207707778:ios:ee8b781f8dd91a1e57909b',
-    messagingSenderId: '31207707778',
-    projectId: 'remo-login',
-    storageBucket: 'remo-login.firebasestorage.app',
-    iosBundleId: 'com.mycompany.atoz',
+    apiKey: 'AIzaSyCLc4nd9hTZiYoD4HWgF6A_6CYQYFpOTc0',
+    appId: '1:843578977445:ios:c1fb0f52caf163b4a4314c',
+    messagingSenderId: '843578977445',
+    projectId: 'max-taxi-admin-7n82h1',
+    storageBucket: 'max-taxi-admin-7n82h1.appspot.com',
+    iosBundleId: 'com.chunguchama.roadygo',
   );
 }

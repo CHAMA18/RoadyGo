@@ -317,6 +317,8 @@ class RoadyGoI18n {
           'Ka kaluar shumë kohë nga hyrja e fundit. Hyni përsëri para se të përditësoni emailin.',
       'requires_recent_login_delete_account':
           'Ka kaluar shumë kohë nga hyrja e fundit. Hyni përsëri para se të fshini llogarinë.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
 
       // Reset password
       'reset_link_issue': 'Problem me lidhjen e rivendosjes',
@@ -531,6 +533,8 @@ class RoadyGoI18n {
           'Помина многу време од последната најава. Најавете се повторно пред да ја ажурирате е-поштата.',
       'requires_recent_login_delete_account':
           'Помина многу време од последната најава. Најавете се повторно пред бришење на сметката.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
 
       // Reset password
       'reset_link_issue': 'Проблем со линкот за ресетирање',
@@ -742,6 +746,8 @@ class RoadyGoI18n {
           'Son girisinizin uzerinden uzun sure gecti. E-postayi guncellemeden once tekrar giris yapin.',
       'requires_recent_login_delete_account':
           'Son girisinizin uzerinden uzun sure gecti. Hesabi silmeden once tekrar giris yapin.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Sifre sifirlama baglantisi sorunu',
       'invalid_or_incomplete_reset_link':
           'Gecersiz veya eksik sifirlama baglantisi.',
@@ -940,6 +946,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od poslednje prijave. Prijavite se ponovo pre azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od poslednje prijave. Prijavite se ponovo pre brisanja naloga.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem sa linkom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravan ili nepotpun link za reset.',
@@ -1137,6 +1145,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -1337,6 +1347,8 @@ class RoadyGoI18n {
           'Votre derniere connexion est trop ancienne. Reconnectez-vous avant de mettre a jour votre e-mail.',
       'requires_recent_login_delete_account':
           'Votre derniere connexion est trop ancienne. Reconnectez-vous avant de supprimer votre compte.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleme de lien de reinitialisation',
       'invalid_or_incomplete_reset_link':
           'Lien de reinitialisation invalide ou incomplet.',
@@ -1536,6 +1548,8 @@ class RoadyGoI18n {
           'Seit Ihrer letzten Anmeldung ist zu viel Zeit vergangen. Bitte erneut anmelden, bevor Sie Ihre E-Mail aktualisieren.',
       'requires_recent_login_delete_account':
           'Seit Ihrer letzten Anmeldung ist zu viel Zeit vergangen. Bitte erneut anmelden, bevor Sie Ihr Konto loeschen.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem mit dem Zuruecksetzungslink',
       'invalid_or_incomplete_reset_link':
           'Ungueltiger oder unvollstaendiger Zuruecksetzungslink.',
@@ -1740,6 +1754,8 @@ class RoadyGoI18n {
           'Ha pasado demasiado tiempo desde tu ultimo inicio de sesion. Inicia sesion de nuevo antes de actualizar tu correo.',
       'requires_recent_login_delete_account':
           'Ha pasado demasiado tiempo desde tu ultimo inicio de sesion. Inicia sesion de nuevo antes de eliminar tu cuenta.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problema con el enlace de restablecimiento',
       'invalid_or_incomplete_reset_link':
           'Enlace de restablecimiento invalido o incompleto.',
@@ -1939,6 +1955,8 @@ class RoadyGoI18n {
           'E passato troppo tempo dall ultimo accesso. Accedi di nuovo prima di aggiornare la tua email.',
       'requires_recent_login_delete_account':
           'E passato troppo tempo dall ultimo accesso. Accedi di nuovo prima di eliminare l account.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problema con il link di reimpostazione',
       'invalid_or_incomplete_reset_link':
           'Link di reimpostazione non valido o incompleto.',
@@ -2137,6 +2155,8 @@ class RoadyGoI18n {
           'Faz muito tempo desde o ultimo login. Entre novamente antes de atualizar seu e-mail.',
       'requires_recent_login_delete_account':
           'Faz muito tempo desde o ultimo login. Entre novamente antes de excluir sua conta.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problema no link de redefinicao',
       'invalid_or_incomplete_reset_link':
           'Link de redefinicao invalido ou incompleto.',
@@ -2335,6 +2355,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -2531,6 +2553,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -2727,6 +2751,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -2923,6 +2949,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -3119,6 +3147,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -3315,6 +3345,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -3511,6 +3543,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -3707,6 +3741,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -3903,6 +3939,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -4099,6 +4137,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -4295,6 +4335,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -4491,6 +4533,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -4687,6 +4731,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -4883,6 +4929,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -5079,6 +5127,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -5275,6 +5325,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -5471,6 +5523,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -5667,6 +5721,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -5863,6 +5919,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -6059,6 +6117,8 @@ class RoadyGoI18n {
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je e-mail bijwerkt.',
       'requires_recent_login_delete_account':
           'Het is te lang geleden sinds je laatste login. Log opnieuw in voordat je je account verwijdert.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Probleem met resetlink',
       'invalid_or_incomplete_reset_link': 'Ongeldige of onvolledige resetlink.',
       'reset_link_invalid_or_expired':
@@ -6255,6 +6315,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -6453,6 +6515,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -6651,6 +6715,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -6849,6 +6915,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -7047,6 +7115,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -7245,6 +7315,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -7443,6 +7515,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -7641,6 +7715,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',
@@ -7839,6 +7915,8 @@ class RoadyGoI18n {
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije azuriranja emaila.',
       'requires_recent_login_delete_account':
           'Proslo je previse vremena od zadnje prijave. Prijavite se ponovno prije brisanja racuna.',
+      'sign_in_failed': 'Sign in failed. Please try again.',
+      'sign_in_to_order': 'Please sign in to create an order.',
       'reset_link_issue': 'Problem s poveznicom za reset',
       'invalid_or_incomplete_reset_link':
           'Neispravna ili nepotpuna poveznica za reset.',

@@ -6,8 +6,9 @@ Future<List<PlaceSearchResult>> searchPlaces(
   String query,
   String apiKey,
   double lat,
-  double lng,
-) async {
+  double lng, {
+  String? countryCode,
+}) async {
   return [];
 }
 
@@ -15,8 +16,9 @@ Future<List<PlaceSearchResult>> searchNearbyPlaces(
   String type,
   String apiKey,
   double lat,
-  double lng,
-) async {
+  double lng, {
+  String? countryCode,
+}) async {
   return [];
 }
 

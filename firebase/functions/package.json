@@ -23,10 +23,10 @@
   },
   "scripts": {
     "lint": "./node_modules/.bin/eslint --max-warnings=0 .",
-    "serve": "firebase -P max-taxi-admin-7n82h1 emulators:start --only functions",
-    "shell": "firebase -P max-taxi-admin-7n82h1 functions:shell",
+    "serve": "firebase -P remo-login emulators:start --only functions",
+    "shell": "firebase -P remo-login functions:shell",
     "start": "npm run shell",
-    "logs": "firebase -P max-taxi-admin-7n82h1 functions:log",
+    "logs": "firebase -P remo-login functions:log",
     "seed:firestore": "node ./seed_firestore.js",
     "compile": "cp ../../tsconfig.template.json ./tsconfig-compile.json && tsc --project tsconfig-compile.json"
   },

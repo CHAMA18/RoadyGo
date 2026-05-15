@@ -15,7 +15,7 @@ const admin = require("firebase-admin");
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    projectId: process.env.GCLOUD_PROJECT || "max-taxi-admin-7n82h1",
+    projectId: process.env.GCLOUD_PROJECT || "remo-login",
   });
 }
 

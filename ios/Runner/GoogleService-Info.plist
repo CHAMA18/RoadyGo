@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDibzt7VlkRwsC5jSv1zGlnx3tqogQe0yg</string>
+	<string>AIzaSyBmWOBtZXPZSancnJYNXU00BtyYfELTNDw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>843578977445</string>
+	<string>31207707778</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.mycompany.atoz</string>
 	<key>PROJECT_ID</key>
-	<string>max-taxi-admin-7n82h1</string>
+	<string>remo-login</string>
 	<key>STORAGE_BUCKET</key>
-	<string>max-taxi-admin-7n82h1.appspot.com</string>
+	<string>remo-login.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:843578977445:ios:9ed056c19c539193a4314c</string>
+	<string>1:31207707778:ios:ee8b781f8dd91a1e57909b</string>
 </dict>
 </plist>

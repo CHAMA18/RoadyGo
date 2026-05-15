@@ -180,6 +180,16 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
       return;
     }
 
+    if (!loggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('sign_in_to_order')),
+        ),
+      );
+      context.pushNamed(AutWidget.routeName);
+      return;
+    }
+
     safeSetState(() => _isOpeningActiveRide = true);
     try {
       final activeRideRef = await _resolveActiveRideReference();
@@ -698,6 +708,16 @@ class _AuthHomePageWidgetState extends State<AuthHomePageWidget>
                               ),
                               FFButtonWidget(
                                 onPressed: () async {
+                                  if (!loggedIn) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text(context.tr('sign_in_to_order')),
+                                      ),
+                                    );
+                                    context.pushNamed(AutWidget.routeName);
+                                    return;
+                                  }
                                   context
                                       .pushNamed(ProfilePageWidget.routeName);
                                 },

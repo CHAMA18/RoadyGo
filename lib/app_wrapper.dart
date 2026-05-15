@@ -46,6 +46,10 @@ class AppInitialization {
       await appState.initializePersistedState();
       debugPrint('✅ App state initialized');
 
+      // Step 5b: Load country code from admin-configured regions
+      await appState.loadCountryCodeFromRegions();
+      debugPrint('✅ Country code loaded: ${appState.countryCode}');
+
       // Step 6: Setup router
       _appStateNotifier = AppStateNotifier.instance;
       _router = createRouter(_appStateNotifier);

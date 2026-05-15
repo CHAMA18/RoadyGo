@@ -1,26 +1,43 @@
 {
   "project_info": {
-    "project_number": "843578977445",
-    "project_id": "max-taxi-admin-7n82h1",
-    "storage_bucket": "max-taxi-admin-7n82h1.appspot.com"
+    "project_number": "31207707778",
+    "project_id": "remo-login",
+    "storage_bucket": "remo-login.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:843578977445:android:c1fb0f52caf163b4a4314c",
+        "mobilesdk_app_id": "1:31207707778:android:42636ca158448a3957909b",
         "android_client_info": {
           "package_name": "com.mycompany.atoz"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "31207707778-0jrhkkpfhsrter0ca8vqm3hlkhugu8r0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCLc4nd9hTZiYoD4HWgF6A_6CYQYFpOTc0"
+          "current_key": "AIzaSyA1xtYGRPgdi2lz_5kbbrlNuyRF4Kr19Jg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31207707778-0jrhkkpfhsrter0ca8vqm3hlkhugu8r0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "31207707778-5kotv82o82jpnvtlhvljrbsuudrf3jef.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.atoz"
+              }
+            }
+          ]
         }
       }
     }

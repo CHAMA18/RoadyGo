@@ -37,6 +37,11 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /regions/{document} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn();
+    }
+
     match /driver/{document} {
       allow create: if true;
       allow read: if true;

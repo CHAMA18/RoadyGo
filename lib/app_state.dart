@@ -34,6 +34,12 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _themeMode = prefs.getString('ff_themeMode') ?? _themeMode;
     });
+    _safeInit(() {
+      final saved = prefs.getString('ff_countryCode');
+      if (saved != null && saved.isNotEmpty) {
+        _countryCode = saved.toLowerCase();
+      }
+    });
   }
 
   void update(VoidCallback callback) {
@@ -141,9 +147,37 @@ class FFAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _countryCode = 'zm';
+  String get countryCode => _countryCode;
+  set countryCode(String value) {
+    _countryCode = value.toLowerCase();
+    prefs.setString('ff_countryCode', _countryCode);
+    notifyListeners();
+  }
+
   void setLanguageCode(String code) {
     languageCode = code;
     hasSelectedLanguage = true;
+  }
+
+  /// Load country code from the `regions` Firestore collection.
+  /// Falls back to the persisted/default value on failure.
+  Future loadCountryCodeFromRegions() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('regions').limit(50).get();
+      for (final doc in snapshot.docs) {
+        final code = (doc.data()['countryCode'] ?? '').toString().trim();
+        if (code.isNotEmpty) {
+          _countryCode = code.toLowerCase();
+          prefs.setString('ff_countryCode', _countryCode);
+          notifyListeners();
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('FFAppState: failed to load countryCode from regions — $e');
+    }
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'
     as google_maps_flutter;
 
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_google_map.dart';
 import '/flutter_flow/flutter_flow_place_picker.dart';
@@ -929,12 +930,54 @@ class _HomePageWidgetState extends State<HomePageWidget>
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  if (currentUserReference == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.tr('sign_in_to_order')),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final rideRecordReference = RideRecord.collection.doc();
+                  await rideRecordReference.set(
+                    createRideRecordData(
+                      destinationLocation: _model.placePickerValue2.latLng,
+                      destinationAddress: _model.placePickerValue2.name,
+                      isDriverAssigned: false,
+                      pickupLocation: _model.placePickerValue1.latLng,
+                      pickupAddress: _model.placePickerValue1.name,
+                      status: 'Active',
+                      rideFee: functions
+                          .calculatePrice(
+                            _model.placePickerValue1.latLng,
+                            _model.placePickerValue2.latLng,
+                            FFAppState().rideTier == 'Corporate'
+                                ? rideVariablesRecord.corporateCostOfRide
+                                : rideVariablesRecord.costOfRide,
+                            FFAppState().rideTier == 'Corporate'
+                                ? rideVariablesRecord.corporateCostPerDistance
+                                : rideVariablesRecord.costPerDistance,
+                            FFAppState().rideTier == 'Corporate'
+                                ? rideVariablesRecord.corporateCostPerMinute
+                                : rideVariablesRecord.costPerMinute,
+                          )
+                          .toDouble(),
+                      rideType: FFAppState().rideTier,
+                      passengerId: currentUserReference,
+                    ),
+                  );
+
+                  FFAppState().starteRide = rideRecordReference;
+                  safeSetState(() {});
+
+                  if (!mounted) return;
                   context.pushNamed(
                     FindingRideWidget.routeName,
                     queryParameters: {
                       'rideDetails': serializeParam(
-                        FFAppState().starteRide,
+                        rideRecordReference,
                         ParamType.DocumentReference,
                       ),
                     }.withoutNulls,

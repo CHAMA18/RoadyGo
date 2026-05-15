@@ -230,6 +230,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           googleMapsApiKey,
           widget.currentLocation?.latitude ?? -15.4167,
           widget.currentLocation?.longitude ?? 28.2833,
+          countryCode: FFAppState().countryCode,
         );
 
         setState(() {
@@ -249,6 +250,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
                 )
               : null,
           radius: 50000,
+          components: [Component('country', FFAppState().countryCode)],
         );
 
         if (response?.status == 'OK' && response?.predictions != null) {
@@ -293,6 +295,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
           googleMapsApiKey,
           widget.currentLocation?.latitude ?? -15.4167,
           widget.currentLocation?.longitude ?? 28.2833,
+          countryCode: FFAppState().countryCode,
         );
 
         setState(() => _isLoading = false);
@@ -388,7 +391,61 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
   }
 
   Future<FFPlace?> _resolvePlaceFromResult(PlaceSearchResult result) async {
-    // Nearby/category results can already include coordinates.
+    // Always try to get full place details so country/state/city are populated
+    // for region validation. Fall back to minimal info only if details fail.
+    if (kIsWeb) {
+      final place = await places_web.getPlaceDetails(
+        result.placeId,
+        googleMapsApiKey,
+      );
+      if (place != null) return place;
+      // Fallback for nearby results when details fetch fails
+      if (result.lat != null && result.lng != null) {
+        return FFPlace(
+          latLng: LatLng(result.lat!, result.lng!),
+          name: result.mainText,
+          address: result.secondaryText,
+        );
+      }
+      return null;
+    }
+
+    final detail = await _places?.getDetailsByPlaceId(
+      result.placeId,
+      language: 'en',
+    );
+    if (detail?.result != null) {
+      final res = detail!.result;
+      return FFPlace(
+        latLng: LatLng(
+          res.geometry?.location.lat ?? 0,
+          res.geometry?.location.lng ?? 0,
+        ),
+        name: res.name,
+        address: res.formattedAddress ?? '',
+        city: res.addressComponents
+                .firstWhereOrNull((e) => e.types.contains('locality'))
+                ?.longName ??
+            res.addressComponents
+                .firstWhereOrNull((e) => e.types.contains('sublocality'))
+                ?.longName ??
+            '',
+        state: res.addressComponents
+                .firstWhereOrNull(
+                    (e) => e.types.contains('administrative_area_level_1'))
+                ?.longName ??
+            '',
+        country: res.addressComponents
+                .firstWhereOrNull((e) => e.types.contains('country'))
+                ?.longName ??
+            '',
+        zipCode: res.addressComponents
+                .firstWhereOrNull((e) => e.types.contains('postal_code'))
+                ?.longName ??
+            '',
+      );
+    }
+    // Fallback for nearby results when details fetch fails
     if (result.lat != null && result.lng != null) {
       return FFPlace(
         latLng: LatLng(result.lat!, result.lng!),
@@ -396,48 +453,7 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         address: result.secondaryText,
       );
     }
-
-    if (kIsWeb) {
-      return places_web.getPlaceDetails(
-        result.placeId,
-        googleMapsApiKey,
-      );
-    }
-
-    final detail = await _places?.getDetailsByPlaceId(
-      result.placeId,
-      language: 'en',
-    );
-    if (detail?.result == null) return null;
-    final res = detail!.result;
-    return FFPlace(
-      latLng: LatLng(
-        res.geometry?.location.lat ?? 0,
-        res.geometry?.location.lng ?? 0,
-      ),
-      name: res.name,
-      address: res.formattedAddress ?? '',
-      city: res.addressComponents
-              .firstWhereOrNull((e) => e.types.contains('locality'))
-              ?.shortName ??
-          res.addressComponents
-              .firstWhereOrNull((e) => e.types.contains('sublocality'))
-              ?.shortName ??
-          '',
-      state: res.addressComponents
-              .firstWhereOrNull(
-                  (e) => e.types.contains('administrative_area_level_1'))
-              ?.shortName ??
-          '',
-      country: res.addressComponents
-              .firstWhereOrNull((e) => e.types.contains('country'))
-              ?.shortName ??
-          '',
-      zipCode: res.addressComponents
-              .firstWhereOrNull((e) => e.types.contains('postal_code'))
-              ?.shortName ??
-          '',
-    );
+    return null;
   }
 
   Future<void> _savePlaceAsSavedLocation(FFPlace place) async {
@@ -949,9 +965,10 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: destination.color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
@@ -959,18 +976,23 @@ class _DestinationPickerWidgetState extends State<DestinationPickerWidget>
               child: Icon(
                 destination.icon,
                 color: destination.color,
-                size: 24,
+                size: 22,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              destination.name,
-              style: theme.labelMedium.override(
-                fontFamily: theme.labelMediumFamily,
-                color: theme.primaryText,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0,
-                useGoogleFonts: !theme.labelMediumIsCustom,
+            const SizedBox(height: 6),
+            Flexible(
+              child: Text(
+                destination.name,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.labelMedium.override(
+                  fontFamily: theme.labelMediumFamily,
+                  color: theme.primaryText,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0,
+                  useGoogleFonts: !theme.labelMediumIsCustom,
+                ),
               ),
             ),
           ],

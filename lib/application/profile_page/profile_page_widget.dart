@@ -419,41 +419,52 @@ class _ProfilePageWidgetState extends State<ProfilePageWidget> {
                                   .pushNamed(SchedulePageWidget.routeName),
                             ),
                             const SizedBox(height: 12),
-                            StreamBuilder<List<RideRecord>>(
-                              stream: queryRideRecord(
-                                queryBuilder: (rideRecord) => rideRecord
-                                    .where(
-                                      'PassengerId',
-                                      isEqualTo: currentUserReference,
-                                    )
-                                    .where(
-                                      'ride_type',
-                                      isEqualTo: 'Scheduled',
-                                    ),
+                            if (currentUserReference != null)
+                              StreamBuilder<List<RideRecord>>(
+                                stream: queryRideRecord(
+                                  queryBuilder: (rideRecord) => rideRecord
+                                      .where(
+                                        'PassengerId',
+                                        isEqualTo: currentUserReference,
+                                      )
+                                      .where(
+                                        'ride_type',
+                                        isEqualTo: 'Scheduled',
+                                      ),
+                                ),
+                                builder: (context, snapshot) {
+                                  final scheduledRides =
+                                      snapshot.data ?? const <RideRecord>[];
+                                  final count = scheduledRides
+                                      .where(_isActiveUpcomingScheduledRide)
+                                      .length;
+                                  return _buildActionCard(
+                                    context,
+                                    theme,
+                                    icon: Icons.schedule,
+                                    title: context.tr('scheduled_rides'),
+                                    subtitle: context.tr('scheduled_rides_sub'),
+                                    badgeText: count > 0
+                                        ? formatNumber(
+                                            count,
+                                            formatType: FormatType.compact,
+                                          )
+                                        : null,
+                                    onTap: () => context.pushNamed(
+                                        ScheduledRidesWidget.routeName),
+                                  );
+                                },
+                              )
+                            else
+                              _buildActionCard(
+                                context,
+                                theme,
+                                icon: Icons.schedule,
+                                title: context.tr('scheduled_rides'),
+                                subtitle: context.tr('scheduled_rides_sub'),
+                                onTap: () => context.pushNamed(
+                                    ScheduledRidesWidget.routeName),
                               ),
-                              builder: (context, snapshot) {
-                                final scheduledRides =
-                                    snapshot.data ?? const <RideRecord>[];
-                                final count = scheduledRides
-                                    .where(_isActiveUpcomingScheduledRide)
-                                    .length;
-                                return _buildActionCard(
-                                  context,
-                                  theme,
-                                  icon: Icons.schedule,
-                                  title: context.tr('scheduled_rides'),
-                                  subtitle: context.tr('scheduled_rides_sub'),
-                                  badgeText: count > 0
-                                      ? formatNumber(
-                                          count,
-                                          formatType: FormatType.compact,
-                                        )
-                                      : null,
-                                  onTap: () => context.pushNamed(
-                                      ScheduledRidesWidget.routeName),
-                                );
-                              },
-                            ),
                             const SizedBox(height: 12),
                             _buildActionCard(
                               context,

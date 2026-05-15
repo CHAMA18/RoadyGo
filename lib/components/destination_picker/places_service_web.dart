@@ -28,8 +28,9 @@ Future<List<PlaceSearchResult>> searchPlaces(
   String query,
   String apiKey,
   double lat,
-  double lng,
-) async {
+  double lng, {
+  String? countryCode,
+}) async {
   debugPrint('searchPlaces called with query: $query');
   
   if (!_isGoogleMapsLoaded()) {
@@ -77,6 +78,13 @@ Future<List<PlaceSearchResult>> searchPlaces(
     js_util.setProperty(locationBias, 'center', location);
     js_util.setProperty(locationBias, 'radius', 50000);
     js_util.setProperty(request, 'locationBias', locationBias);
+
+    // Restrict results to a specific country when provided.
+    if (countryCode != null && countryCode.isNotEmpty) {
+      final componentRestrictions = js_util.newObject();
+      js_util.setProperty(componentRestrictions, 'country', countryCode.toLowerCase());
+      js_util.setProperty(request, 'componentRestrictions', componentRestrictions);
+    }
     
     // Create callback
     void callback(dynamic predictions, dynamic status) {
@@ -144,8 +152,9 @@ Future<List<PlaceSearchResult>> searchNearbyPlaces(
   String type,
   String apiKey,
   double lat,
-  double lng,
-) async {
+  double lng, {
+  String? countryCode,
+}) async {
   if (!_isGoogleMapsLoaded()) {
     debugPrint('Google Maps not loaded');
     return [];
@@ -300,20 +309,21 @@ Future<FFPlace?> getPlaceDetails(String placeId, String apiKey) async {
           final component = js_util.getProperty(components, i);
           if (component != null) {
             final shortName = js_util.getProperty(component, 'short_name')?.toString();
+            final longName = js_util.getProperty(component, 'long_name')?.toString();
             final types = js_util.getProperty(component, 'types');
-            
-            if (types != null && shortName != null) {
+
+            if (types != null) {
               final typesLength = js_util.getProperty(types, 'length') as int? ?? 0;
               for (var j = 0; j < typesLength; j++) {
                 final typeStr = js_util.getProperty(types, j)?.toString();
                 if (typeStr == 'locality' || typeStr == 'sublocality') {
-                  city ??= shortName;
+                  city ??= longName ?? shortName;
                 } else if (typeStr == 'administrative_area_level_1') {
-                  state = shortName;
+                  state = longName ?? shortName;
                 } else if (typeStr == 'country') {
-                  country = shortName;
+                  country = longName ?? shortName;
                 } else if (typeStr == 'postal_code') {
-                  zipCode = shortName;
+                  zipCode = shortName ?? longName;
                 }
               }
             }

@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:31207707778:android:42636ca158448a3957909b",
         "android_client_info": {
-          "package_name": "com.mycompany.atoz"
+          "package_name": "com.chunguchama.roadygo"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "31207707778-5kotv82o82jpnvtlhvljrbsuudrf3jef.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.mycompany.atoz"
+                "bundle_id": "com.chunguchama.roadygo"
               }
             }
           ]

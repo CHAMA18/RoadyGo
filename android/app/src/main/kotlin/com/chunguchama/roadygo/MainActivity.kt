@@ -1,4 +1,4 @@
-package com.mycompany.atoz
+package com.chunguchama.roadygo
 
 import io.flutter.embedding.android.FlutterActivity
 
